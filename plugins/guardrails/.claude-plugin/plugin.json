@@ -1,0 +1,18 @@
+{
+  "name": "guardrails",
+  "version": "1.0.0",
+  "description": "Opt-in hooks: block a commit that adds something that looks like a secret, and block commits made directly on the main branch.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/guardrails",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "secrets",
+    "git",
+    "safety"
+  ]
+}
