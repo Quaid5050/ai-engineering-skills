@@ -1,0 +1,21 @@
+{
+  "name": "agents",
+  "version": "1.0.0",
+  "description": "Independent subagents: architect (design review of a plan before any code), reviewer (cold code review with a design pass), tester (fills test gaps, failure paths first).",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/agents",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "review",
+    "architecture",
+    "testing"
+  ],
+  "dependencies": [
+    "quality"
+  ]
+}
