@@ -1,0 +1,130 @@
+{
+  "name": "ai-engineering-skills",
+  "owner": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "description": "A framework-agnostic skills and agents marketplace for the whole AI-assisted engineering lifecycle: idea to spec to issues, design review before code, test-first build, review with a design pass, PR, CI, merge gates, release and incident. Backend, mobile and web.",
+  "metadata": {
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "lifecycle",
+      "source": "./plugins/lifecycle",
+      "description": "The whole delivery lifecycle as gated skills: idea, MVP scope, project bootstrap, feature investigation, spec, issues, design review before code, test-first implementation, pre-commit, PR, CI, deploy check, merge gates, release, observe, incident, postmortem, cleanup. Framework-agnostic.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "workflow",
+        "lifecycle",
+        "spec",
+        "issues",
+        "tdd",
+        "pull-request",
+        "ci",
+        "release",
+        "incident"
+      ]
+    },
+    {
+      "name": "quality",
+      "source": "./plugins/quality",
+      "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks and privacy-safe product analytics. Framework-agnostic, with stack references.",
+      "version": "1.0.0",
+      "category": "quality",
+      "tags": [
+        "testing",
+        "tdd",
+        "code-review",
+        "security",
+        "privacy",
+        "accessibility",
+        "performance"
+      ]
+    },
+    {
+      "name": "backend",
+      "source": "./plugins/backend",
+      "description": "Backend conventions (layers, ports and adapters, one home per technical kind of code, allowlist architecture tests), contract-first endpoints, safe schema migrations and read-only data checks. References for .NET, Django, Node and Spring.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "backend",
+        "api",
+        "architecture",
+        "database",
+        "migrations"
+      ]
+    },
+    {
+      "name": "mobile",
+      "source": "./plugins/mobile",
+      "description": "Mobile app architecture, a shared cross-platform core, background work and battery, an offline queue that never loses data, permissions, screens from designs, home-screen widgets and real-device testing. References for Flutter, React Native, Kotlin, Swift and Kotlin Multiplatform.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "mobile",
+        "android",
+        "ios",
+        "offline",
+        "background",
+        "battery",
+        "device-testing"
+      ]
+    },
+    {
+      "name": "web",
+      "source": "./plugins/web",
+      "description": "Web front-end conventions (pages, components, tokens, zero-JS by default, CSP, privacy, accessibility, performance budgets) and adding a page test-first. References for React/Next.js and Astro.",
+      "version": "1.0.0",
+      "category": "development",
+      "tags": [
+        "web",
+        "frontend",
+        "accessibility",
+        "performance"
+      ]
+    },
+    {
+      "name": "agents",
+      "source": "./plugins/agents",
+      "description": "Independent subagents: architect (design review of a plan before any code), reviewer (cold code review with a design pass), tester (fills test gaps, failure paths first).",
+      "version": "1.0.0",
+      "category": "quality",
+      "tags": [
+        "agents",
+        "review",
+        "architecture",
+        "testing"
+      ]
+    },
+    {
+      "name": "meta",
+      "source": "./plugins/meta",
+      "description": "Keep the workflow improving: create or update skills with a fresh-agent dry run, record architecture decisions, and turn a lesson from a real project into a skill change.",
+      "version": "1.0.0",
+      "category": "productivity",
+      "tags": [
+        "skills",
+        "adr",
+        "decisions",
+        "lessons",
+        "meta"
+      ]
+    },
+    {
+      "name": "guardrails",
+      "source": "./plugins/guardrails",
+      "description": "Opt-in hooks: block a commit that adds something that looks like a secret, and block commits made directly on the main branch.",
+      "version": "1.0.0",
+      "category": "security",
+      "tags": [
+        "hooks",
+        "secrets",
+        "git",
+        "safety"
+      ]
+    }
+  ]
+}

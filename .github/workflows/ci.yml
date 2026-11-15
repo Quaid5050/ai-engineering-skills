@@ -1,0 +1,67 @@
+name: CI
+
+# GitHub-hosted runners only. Never attach a self-hosted runner to this public repository:
+# anyone who opens a pull request could run code on it.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Cancel superseded runs on pull requests only; every push to main gets a complete run.
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Manifests, frontmatter, links, framework names, privacy
+        run: python3 scripts/check.py
+      - name: Hook scripts parse
+        run: for f in plugins/guardrails/scripts/*.sh scripts/*.sh; do bash -n "$f"; done
+      - name: Hook JSON is valid
+        run: python3 -m json.tool plugins/guardrails/hooks/hooks.json > /dev/null
+
+  validate:
+    name: Claude Code plugin validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+      - name: Validate marketplace and every plugin (strict)
+        run: |
+          claude plugin validate . --strict
+          for p in plugins/*/; do claude plugin validate "$p" --strict; done
+
+  links:
+    name: External links
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check external links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress --max-retries 3 --retry-wait-time 5
+            --accept 200,206,403,429
+            --exclude 'github\.com/Quaid5050/ai-engineering-skills'
+            --exclude-path CHANGELOG.md
+            './**/*.md'
+          fail: true
