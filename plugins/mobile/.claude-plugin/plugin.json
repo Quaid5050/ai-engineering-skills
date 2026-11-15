@@ -1,0 +1,24 @@
+{
+  "name": "mobile",
+  "version": "1.0.0",
+  "description": "Mobile app architecture, a shared cross-platform core, background work and battery, an offline queue that never loses data, permissions, screens from designs, home-screen widgets and real-device testing. References for Flutter, React Native, Kotlin, Swift and Kotlin Multiplatform.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/mobile",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "mobile",
+    "android",
+    "ios",
+    "offline",
+    "background",
+    "battery",
+    "device-testing"
+  ],
+  "dependencies": [
+    "lifecycle"
+  ]
+}
