@@ -1,0 +1,19 @@
+{
+  "name": "meta",
+  "version": "1.0.0",
+  "description": "Keep the workflow improving: create or update skills with a fresh-agent dry run, record architecture decisions, and turn a lesson from a real project into a skill change.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/meta",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "adr",
+    "decisions",
+    "lessons",
+    "meta"
+  ]
+}
