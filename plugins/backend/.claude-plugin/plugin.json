@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend conventions (layers, ports and adapters, one home per technical kind of code, allowlist architecture tests), contract-first endpoints, safe schema migrations and read-only data checks. References for .NET, Django, Node and Spring.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/backend",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "backend",
+    "api",
+    "architecture",
+    "database",
+    "migrations"
+  ],
+  "dependencies": [
+    "lifecycle"
+  ]
+}
