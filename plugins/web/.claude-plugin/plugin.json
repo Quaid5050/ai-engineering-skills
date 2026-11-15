@@ -1,0 +1,21 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "Web front-end conventions (pages, components, tokens, zero-JS by default, CSP, privacy, accessibility, performance budgets) and adding a page test-first. References for React/Next.js and Astro.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "homepage": "https://github.com/Quaid5050/ai-engineering-skills/tree/main/plugins/web",
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "web",
+    "frontend",
+    "accessibility",
+    "performance"
+  ],
+  "dependencies": [
+    "lifecycle"
+  ]
+}
