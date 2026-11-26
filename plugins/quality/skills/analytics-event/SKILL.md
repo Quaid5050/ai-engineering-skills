@@ -4,7 +4,7 @@ description: "Add or change a product analytics event, or answer a product quest
 argument-hint: "[add <what to measure> | a product question]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Analytics event

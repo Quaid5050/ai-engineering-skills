@@ -4,7 +4,7 @@ description: "Build a behaviour test-first, one test at a time — pick the next
 argument-hint: "[behaviour, acceptance criterion or issue]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # TDD

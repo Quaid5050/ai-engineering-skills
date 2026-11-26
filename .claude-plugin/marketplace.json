@@ -31,7 +31,7 @@
       "name": "quality",
       "source": "./plugins/quality",
       "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks and privacy-safe product analytics. Framework-agnostic, with stack references.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "quality",
       "tags": [
         "testing",

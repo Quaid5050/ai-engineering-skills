@@ -4,7 +4,7 @@ description: "Measure a screen, page, endpoint, query, background task or PR aga
 argument-hint: "[screen, page, endpoint, query, task or PR]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Perf check
