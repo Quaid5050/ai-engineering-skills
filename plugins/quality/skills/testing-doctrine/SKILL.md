@@ -1,10 +1,10 @@
 ---
 name: testing-doctrine
-description: "The rules every test follows on any stack, and why — arrange/act/assert, one behaviour per test, hard-coded expected values, no logic in tests, exact assertions including absence, behaviour not implementation, fakes only at real boundaries (clock, vendors, OS), real database in integration tests, failure paths first for safety-critical code, prove the test can fail, deterministic time, synthetic data. Read by tdd, write-tests, implement and code-review. Use when writing, reviewing or judging tests. Trigger on 'testing rules', 'how should this be tested', 'is this a good test', 'should I mock this', 'flaky test', 'test doctrine'."
+description: "The rules every test follows on any stack, and why — arrange/act/assert, one behaviour per test, hard-coded expected values, no logic in tests, exact assertions including absence, behaviour not implementation, fakes only at real boundaries (clock, vendors, OS), real database in integration tests, failure paths first for safety-critical code, prove the test can fail, deterministic time, synthetic data, and the test types (unit, integration, end-to-end, smoke, regression, device) with when each runs. Read by tdd, write-tests, implement and code-review. Use when writing, reviewing or judging tests. Trigger on 'testing rules', 'how should this be tested', 'is this a good test', 'should I mock this', 'flaky test', 'test doctrine', 'test types', 'smoke test', 'regression test', 'end-to-end test', 'test pyramid'."
 argument-hint: "[test, test file or question]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Testing doctrine
@@ -103,6 +103,27 @@ Where a class of mistake can be caught, earliest and cheapest first:
 **type / compile → lint → architecture test → unit / integration test → CI → design review → code review → device test → alert / monitoring → user report**
 
 Every finding, postmortem and lesson names the rung that caught it and the earliest rung that *should* have. Moving a class of problem one rung earlier beats fixing one more instance. `code-review`, `investigate-bug` and `postmortem` (lifecycle plugin) and `capture-lesson` (meta plugin) use this ladder.
+
+## 9. Test types: what each proves and when it runs
+
+The rungs say *where* a mistake is caught; the types say *how big* a test is. Most tests are small; few are large.
+
+| Type | Proves | Size and speed | Runs |
+|---|---|---|---|
+| **Unit** | One function, rule or view model alone | Most tests; milliseconds | Every save and every PR, in CI |
+| **Integration** | A few real parts together through a real entry point (§7) | Some; seconds | Every PR, in CI |
+| **End-to-end / feature** | One whole user flow through the real interface, as a person would | Few, only the main flows; minutes | Before merging into the integration branch, in CI |
+| **Smoke** | The build is alive: starts, main screen shows, nothing hangs or crashes in the first seconds | 5–10 checks; about a minute | After every build and every deploy or release, before anything else |
+| **Regression** | A bug once fixed stays fixed | Not a separate kind: the failing test a bug fix adds (`bugfix`, lifecycle plugin), at the smallest type that catches it | With the rest, forever |
+| **Device / manual** | What automation cannot see on the real target (windows, other apps, hardware, permissions) | A checklist; tens of minutes | Before a release (`device-test`, mobile plugin, or the project's own) |
+
+- **Smallest type that can catch it.** A rule bug gets a unit test, not an end-to-end test. A larger test is added only for what the smaller ones cannot see (wiring, real interface, real device).
+- **Keep the pyramid.** More end-to-end tests than unit tests makes CI slow and flaky (§5). When end-to-end tests outgrow unit tests, move their checks down a type.
+- **Every bug fix adds a regression test** that fails before the fix and passes after (§4); a fix without one is not done.
+- **Smoke first.** A failed smoke check stops the rest; nothing further is tested or released on that build.
+- **Coverage is a signal, not a target.** Use it to find untested code on safety-critical paths (§3); never write tests to raise the number.
+
+The project records which types it has, their commands and where each runs (`write-tests`, `ci` in the lifecycle plugin). A type the project lacks is listed there as missing, not silently skipped.
 
 ## Reject on sight
 
