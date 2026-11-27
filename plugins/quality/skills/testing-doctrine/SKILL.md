@@ -4,7 +4,7 @@ description: "The rules every test follows on any stack, and why — arrange/act
 argument-hint: "[test, test file or question]"
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Testing doctrine

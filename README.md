@@ -114,6 +114,7 @@ The full lifecycle map, with which skill runs at each step: [docs/engineering-wo
 | `security-privacy-review` | Data flow, authorisation and isolation, consent, abuse cases, the logging rule, OWASP API pass, retention |
 | `accessibility-audit` | WCAG 2.2 AA for web and mobile: automated checks, screen readers, text scaling, contrast |
 | `perf-check` | Measure against a budget, profile, change one thing, guard it (backend, web, mobile references) |
+| `static-catalogs` | One row per case instead of a switch per attribute; when a data file plus codegen is justified; pin, migrate, guard |
 | `analytics-event` | Add a privacy-safe product event, or answer a product question from events |
 
 ### `backend`

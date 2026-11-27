@@ -2,6 +2,9 @@
 
 Every plugin is versioned on its own ([semantic versioning](https://semver.org/), rules in [CONTRIBUTING.md](CONTRIBUTING.md)). Newest first.
 
+## quality 1.2.0 — 2026-11-27
+- New `static-catalogs`: a closed set the app defines (languages, plans, providers, modes) becomes one row per case instead of one switch per attribute; a decision table for when a data file plus code generation is justified (shared across apps, or an outside spec) and when it is not; characterisation tests over every case and attribute before the move, frozen persisted ids, guards. References: Swift, TypeScript. Before this, no skill said when configuration-plus-codegen is the right call, so an app-owned enum could be moved to a config file and a generator for no gain.
+
 ## quality 1.1.0 — 2026-11-26
 - `testing-doctrine` §9: the test types (unit, integration, end-to-end, smoke, regression, device) with what each proves, its size and when it runs; smallest type that catches it, keep the pyramid, a regression test per bug fix, smoke first, coverage as a signal. Before this, smoke, regression and end-to-end were named only in passing in other skills.
 
