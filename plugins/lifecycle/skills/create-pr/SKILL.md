@@ -1,10 +1,10 @@
 ---
 name: create-pr
-description: "Open a pull request the reviewer can trust — preconditions, reuse an existing PR, an issue gate (Closes #issue, the issue's labels and milestone), bring the branch up to date, collect real evidence first (command outputs, screenshots with synthetic data, the design review link, device tests listed as open), write a per-area description with safety and privacy notes, push and open on the user's go-ahead, then get an independent code review posted on the PR and fix critical and major findings before CI and merge. Use when the work on a branch is ready for review. Trigger on /create-pr, 'open a PR', 'create the pull request', 'push and open a PR', 'raise a PR', 'send this for review'."
+description: "Open a pull request the reviewer can trust — preconditions, reuse an existing PR, appropriate issue linkage without mandatory tracker ceremony, bring the branch up to date, collect real evidence first (command outputs, screenshots with synthetic data, the design review link, device tests listed as open), write a per-area description with safety and privacy notes, push and open on the user's go-ahead, then get an independent code review posted on the PR and fix critical and major findings before CI and merge. Use when the work on a branch is ready for review. Trigger on /create-pr, 'open a PR', 'create the pull request', 'push and open a PR', 'raise a PR', 'send this for review'."
 argument-hint: "[branch | --draft | issue number]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Create PR
@@ -12,6 +12,8 @@ metadata:
 Open a PR for the current branch (or `$ARGUMENTS`: a branch, `--draft`, or an issue number to link).
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 Read `AGENTS.md`, `CONTRIBUTING.md` and the PR template (`.github/pull_request_template.md` or the tracker's equivalent): the issue tracker and its CLI (default example: GitHub `gh`; use the project's tracker), labels and milestones, the base branch, the merge gates (`merge`), whether a push or PR needs the user's go-ahead, and the project's author/attribution policy for PR text.
 
@@ -26,7 +28,7 @@ gh pr list --head "$(git branch --show-current)"     # reuse an existing PR
 
 A PR already exists for the branch → update it (push + edit) instead of opening another.
 
-**Issue gate:** the PR must close an issue. Find it from the branch name or search the tracker. No issue → stop and create one (`file-feature`, `file-bug`) before opening the PR. The PR body starts with `Closes #<issue>` (one line per issue it closes) and the PR gets the issue's labels (minus workflow labels such as in-progress/blocked) and milestone, plus an area label for every area the diff touches.
+**Tracking:** link an existing issue when relevant. Use a closing keyword only when the PR actually resolves it; otherwise use a non-closing reference. An issue, labels or milestone are required only by the project policy. A direct authorized task can open a PR without creating a separate issue.
 
 ## 2. Bring it up to date
 
@@ -115,11 +117,11 @@ The review happens **after** the PR is open, so it can be posted where everyone 
 
 ## 7. Watch CI
 
-Hand off to `ci` (ship mode), then `deploy-check` where it applies (the change touches API, data, platform code, config or scheduling; its verdict is posted on the PR — merge gate 8), then `merge` when its gates hold. Do not request human reviewers unless the project's policy says to.
+Hand off to `ci` (ship mode), then `deploy-check` where it applies (the change touches API, data, platform code, config or scheduling; its verdict is posted on the PR — the applicable deployment gate), then `merge` only when the user requested merging and its gates hold. A request to open a PR does not authorize merging. Do not request human reviewers unless the project's policy says to.
 
 ## Rules
 
-- One issue per branch and PR; no unrelated changes ride along.
+- One coherent change per PR; link the actual scope without inventing tracking work.
 - Never claim a check you did not run; keep implemented, verified, PR open, CI green, merged and released distinct.
 - The author never reviews its own change as the independent review.
 - A force-push or pushing to someone else's branch needs its own OK.

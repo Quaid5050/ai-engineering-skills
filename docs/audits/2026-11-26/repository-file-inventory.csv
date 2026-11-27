@@ -1,0 +1,128 @@
+path,kind,lines,bytes,sha256,reviewed,unchanged_from_commit
+.claude-plugin/marketplace.json,Infrastructure or documentation,130,4469,86a191658067702201e89e1f5934101ec31b6abb41dedbeba3a449a9cb34878a,yes,yes
+.github/workflows/ci.yml,Infrastructure or documentation,67,2094,bec64ea46c65a8aed7989c5aad82419834e05f9e96802b1d1ec4803998cf80a5,yes,yes
+.gitignore,Infrastructure or documentation,7,70,933bb9ccabb9829bfb949f6cb0b103b69f1545b643e31e97852a2d5a693fe87d,yes,yes
+AGENTS.md,Infrastructure or documentation,29,2471,40e64dc7297cc4f498416319198376ce242e3e59098aebaad4646adc9ea41917,yes,yes
+CHANGELOG.md,Infrastructure or documentation,29,2423,a820c09155779a428084d786ce82a762d730e1f831e58113951dbde81fdd4d2a,yes,yes
+CONTRIBUTING.md,Infrastructure or documentation,48,2525,f0b04cb3c5031e95be19a72c086d4d846bf3fa8f8f01f5868a53e01b9d86fe00,yes,yes
+LICENSE,Infrastructure or documentation,21,1066,3e7d3b3900a219740459349166720ba6aa30766d6e6323d55b1d145001031db5,yes,yes
+README.md,Infrastructure or documentation,193,12885,c84c7053923efc2f95028b909a421c84eb016de3098f9df793e3c3330c58b0f9,yes,yes
+docs/engineering-workflow.md,Infrastructure or documentation,98,7040,b69abe0cc0441ed883e747d9085a9381dccc702fbb95fc55c8cdc0cbe87ddb0b,yes,yes
+docs/lessons.md,Infrastructure or documentation,99,7397,81d96633f53049a8bda3f93891e7d6efb92a350e2f22cef91cce79aab4495c7f,yes,yes
+docs/other-agents.md,Infrastructure or documentation,58,3283,aed790605a2e1b20b10d0b0383be5bb822ff6562a8af7b1be3233246f2e1662d,yes,yes
+docs/skill-format.md,Infrastructure or documentation,76,5043,53217d226613b0df94e0ed54924f627bbfe2cb9a1768a79ad762cce27da96081,yes,yes
+plugins/agents/.claude-plugin/plugin.json,Infrastructure or documentation,21,627,1ed75fe07f60edffb13a03d9b97d599d67f37679de408fd7b054ade01124e8c0,yes,yes
+plugins/agents/README.md,Infrastructure or documentation,22,801,d6d25a945723e52d0a8257775b13e83dde4905159ee63d6e069df6131c4b02ec,yes,yes
+plugins/agents/agents/architect.md,Agent role,17,3497,a9cc0b267b72175d67fcd12524c279335c925a34fa8a290c64e4b33edc21b930,yes,yes
+plugins/agents/agents/reviewer.md,Agent role,19,2892,19b0e6ff235d601002978cf41a2a2fb74c307f83fad0078dedf0700bf37daf85,yes,yes
+plugins/agents/agents/tester.md,Agent role,15,1654,3c4cba662851a0dd9a7c83729fe0bda00d8e9a0512e3865723e4d6af6bc42299,yes,yes
+plugins/backend/.claude-plugin/plugin.json,Infrastructure or documentation,22,716,4709f9920c6ab1daf828c005b6cebd17431726e98bdeb147b7034adcdfc6931b,yes,yes
+plugins/backend/README.md,Infrastructure or documentation,25,1637,22fafebf03678ff3e61a510df7d312dd5e4dcbab00c81a1900812e7d8ed502a4,yes,yes
+plugins/backend/skills/add-endpoint/SKILL.md,Skill,92,7826,c029d6d652c7fb63f2b7538b8f274ada69db946b8cead733897c9af5a7a88489,yes,yes
+plugins/backend/skills/add-file-upload/SKILL.md,Skill,78,7140,4ae112c4c9aa38000a6755fcf44fd492fd09cc4135c4ce9ea6ca0f507be4bc02,yes,yes
+plugins/backend/skills/add-migration/SKILL.md,Skill,96,6893,981f7ce24fb3b568b5df69f949f643bbf9e8d086560774b80afcb7e885c2117a,yes,yes
+plugins/backend/skills/add-scheduled-job/SKILL.md,Skill,83,7520,dd6dcf3256df7eee1bae111eb0694205278ea25cdbc141f182b57d2ec9b1e29c,yes,yes
+plugins/backend/skills/add-scheduled-job/references/stacks.md,Reference,23,2328,75a9c253cbe3a3c9dc191939fc9ba4fc2c6165ef315e022ba5ac7a48617eb7d4,yes,yes
+plugins/backend/skills/backend-conventions/SKILL.md,Skill,133,16749,46eff2a214bc8c5b5268350324919183157fdf67e4ab97981013c798ea201d25,yes,yes
+plugins/backend/skills/backend-conventions/references/django.md,Reference,65,7013,62922243fe56e193241868bc869f365af18038bd810a2d57afcdd4fa0bb6ab18,yes,yes
+plugins/backend/skills/backend-conventions/references/dotnet.md,Reference,48,4370,894c32df6d1626200f2e75dc45893ee1106f6eb69a6458443ad98e36e06b4bd8,yes,yes
+plugins/backend/skills/backend-conventions/references/node.md,Reference,50,3532,599c53b530e1bae08da59b3c0a1f43bfec74976bfd8c09994ede6538cc9fd6a3,yes,yes
+plugins/backend/skills/backend-conventions/references/spring.md,Reference,56,5419,bcf60af11ade948992fbbce864a5fac121a234817f6ad365eb24951113e7d456,yes,yes
+plugins/backend/skills/data-check/SKILL.md,Skill,94,5333,f05f551761ec24b0b7db4d2b6c653348c0451e71c6714fbc9f9247c0da264827,yes,yes
+plugins/guardrails/.claude-plugin/plugin.json,Infrastructure or documentation,18,542,5c0b03d3c0efc8c8a42ddbdd7054c66fb350035d33d28a3a868ec65d41b4f090,yes,yes
+plugins/guardrails/README.md,Infrastructure or documentation,18,965,5cf6577eeaff5898576f41ec4c993cec49b58e418221f34155881487febfd490,yes,yes
+plugins/guardrails/hooks/hooks.json,Infrastructure or documentation,14,520,251b8e184dcce0a61d517a56736450e9661950599357483682f13cfec898026c,yes,yes
+plugins/guardrails/scripts/check-staged-secrets.sh,Infrastructure or documentation,36,1934,a08e096583a00d9d95d3c56b91bcccdf9710bcd75ddf9b78fbee2dfd4d6b6faf,yes,yes
+plugins/guardrails/scripts/no-commit-on-main.sh,Infrastructure or documentation,25,1323,a45f67d39a81bf31ceb89b21e725d552f52fc263ef23a4fa2327134656fd9ab7,yes,yes
+plugins/guardrails/scripts/read-command.sh,Infrastructure or documentation,11,457,e3c2f092148711d8aa4058ceb10daa010d54a8c576a7418d7749e001a5e6d4d9,yes,yes
+plugins/lifecycle/.claude-plugin/plugin.json,Infrastructure or documentation,27,833,24f794118267b3037b77352362f8900ed7a8bbf0da6949245d9b54ff5f4a274b,yes,yes
+plugins/lifecycle/README.md,Infrastructure or documentation,43,3970,938f261d5a326edd8d93edf59956c2fea7d382ca95cb700a7d24279e5f7efe44,yes,yes
+plugins/lifecycle/skills/bootstrap-project/SKILL.md,Skill,90,8439,30d3a48e262cf9771001809be69cdc893eac17445ad1793d8663d1dd9e327dd8,yes,yes
+plugins/lifecycle/skills/bootstrap-project/references/agents-md-template.md,Reference,56,3324,fa14569815b7d2e7c16a211db76abae10ca33696d716f81b019c791c1d41bcc2,yes,yes
+plugins/lifecycle/skills/bootstrap-project/references/labels.md,Reference,37,2114,de570bdc12c184e6bfb133c7a2ca0b7bf1ace9dd32f27ab4d09c8d1b8213fc94,yes,yes
+plugins/lifecycle/skills/bugfix/SKILL.md,Skill,76,4884,f60eafc935c3973c4e6297905a5b96d3aeedb212c16572278f7c9c6bc33344a4,yes,yes
+plugins/lifecycle/skills/ci/SKILL.md,Skill,90,5848,f016041a133eca9921050c05d8737385e9db2edfdc774527e3bcf88315f54a9b,yes,yes
+plugins/lifecycle/skills/ci/references/github-actions.md,Reference,127,5369,a906504f46055a0f07716f4d877da304ad62774ae2f46bfd764b7c0d5ec6264c,yes,yes
+plugins/lifecycle/skills/cleanup/SKILL.md,Skill,72,3274,f827e042df730c34850ac12bd96d38f724ed4c44ab1f20ce18753672bfc881b8,yes,yes
+plugins/lifecycle/skills/create-pr/SKILL.md,Skill,136,7964,3c3c0ab18759db8f493cba48974e2a04db1cb2c89629d69ea65b9113f3834e41,yes,yes
+plugins/lifecycle/skills/deploy-check/SKILL.md,Skill,72,6156,dd375de9b90aa609c10bbafb912e0e285ec6dafebba2b893f5c8bbf9a8ea666d,yes,yes
+plugins/lifecycle/skills/design-review/SKILL.md,Skill,89,6658,4198ecea559943517bf3ae8ca26fa08749eeeb02f672e721dc5fbde7f3850d0f,yes,yes
+plugins/lifecycle/skills/engineering-principles/SKILL.md,Skill,127,16467,a67ad209c34638fdb05fe255a80aeb4af7cbf1365ca17e0a1f3cda2e449c0394,yes,yes
+plugins/lifecycle/skills/engineering-principles/references/architecture-tests.md,Reference,43,3295,d6bc6928e510851b0242722a0d874b3d0766f92b853daf0d3825af55aec65527,yes,yes
+plugins/lifecycle/skills/engineering-principles/references/design-patterns.md,Reference,99,9113,4b831c9d92355449c275a4b19f37ca09bf666ab891557e1fe4cabec9e830abfc,yes,yes
+plugins/lifecycle/skills/engineering-principles/references/placement-table.md,Reference,33,3446,7d49f3a74b91bbbfd1f9d9497bad20d5e0f218fa58212da79b8d32c6242b33c4,yes,yes
+plugins/lifecycle/skills/feature-to-issues/SKILL.md,Skill,83,5626,031418aee43d1d5cfc127c6fe41f07d5b65c9c1174e8cd15f3b38cbf5fe61849,yes,yes
+plugins/lifecycle/skills/file-bug/SKILL.md,Skill,79,4363,54a8ed202f97926b2e3e1cc61e8486ef87332777813d620825dd7c209d23bcf8,yes,yes
+plugins/lifecycle/skills/file-feature/SKILL.md,Skill,91,5276,f42635d84faa16d2f7581fe6f234d7f188768df918c49674f19e53e80ace3e72,yes,yes
+plugins/lifecycle/skills/implement/SKILL.md,Skill,116,8344,12ac53ac42d9beb0e5d56e0ca4f7c8d3f82cc21e4f2d682d044e24c5c066693c,yes,yes
+plugins/lifecycle/skills/incident/SKILL.md,Skill,77,5290,6e310d23c4851638d2e85bfc08033b05c0cc59ffca205b327ad2c3f73e438d48,yes,yes
+plugins/lifecycle/skills/investigate-bug/SKILL.md,Skill,97,6138,8a7937b9547d97054628ef51c4e19398e4bbf62923dfe92fceb5eb52b0e2748b,yes,yes
+plugins/lifecycle/skills/investigate-feature/SKILL.md,Skill,113,6993,1cad5c39ed4afb394793e6f9c292891b1ae7db3980508375b702d3e3d0437b64,yes,yes
+plugins/lifecycle/skills/merge/SKILL.md,Skill,74,6224,17f2a49362880d2f66fb966e171d2f0bdeb9fa536cc817ae0905dc028807ba0e,yes,yes
+plugins/lifecycle/skills/new-feature/SKILL.md,Skill,56,4355,16becfa6a58e6e64bd6143d8675387078c44e2bc12d4705fac7dc337bdf20e7e,yes,yes
+plugins/lifecycle/skills/observe/SKILL.md,Skill,68,5362,a3fff6b670dbfecfd04fb89bf3882a3a0a8bdb62cc04e7ab71e86603742accf3,yes,yes
+plugins/lifecycle/skills/postmortem/SKILL.md,Skill,73,4305,a820eb0c2013134311fb27bb018ca6fac327d5efc84148fe44ba82e7ce1f19e0,yes,yes
+plugins/lifecycle/skills/pre-commit/SKILL.md,Skill,99,5893,fbded3507616d9e45a40d11c275acb97bd1206d7a622a738c316945d65fba3a0,yes,yes
+plugins/lifecycle/skills/release/SKILL.md,Skill,92,6350,3c220644b31ba51e40669e40c6288c19a6dfab6f575e485612c5439c9ba3c10f,yes,yes
+plugins/lifecycle/skills/release/references/backend-deploy.md,Reference,38,2916,1587d43b308660b4df4c174758d3dcdbe049151a5a6e99f29dd85090761c9f36,yes,yes
+plugins/lifecycle/skills/release/references/mobile-stores.md,Reference,44,3582,d51f511ce273c86baf040b6e78519ba2abf41e4ca99c62667790d7922bee1e5d,yes,yes
+plugins/lifecycle/skills/shape-idea/SKILL.md,Skill,127,6176,538ccd4410195209e98b29e7327081936b5cbcddcbfb8e8840458112610062c6,yes,yes
+plugins/lifecycle/skills/spec/SKILL.md,Skill,101,6469,fb746e9bd70a260d91b97bd978317c2756e350471d969f7f72e6bd2eb263dbd6,yes,yes
+plugins/lifecycle/skills/start-issue/SKILL.md,Skill,94,5581,934e0d3cbe70c5d3a95861e0d6420e3f81296b471187e9e87d0d6dd1963413a4,yes,yes
+plugins/meta/.claude-plugin/plugin.json,Infrastructure or documentation,19,590,b693c3f93bfe98396d7fb8d87c4768bbab0af31500326aca05a95924c3f4eb88,yes,yes
+plugins/meta/README.md,Infrastructure or documentation,20,874,63a576fe58496721303bc7138688c397c4b6fe84d760953bfbe1168160d6cca3,yes,yes
+plugins/meta/skills/capture-lesson/SKILL.md,Skill,91,6676,6aa7ef6f1dd38db02f8ffcc9208ae94f6d66552cd302e2fc22a7615be967fe67,yes,yes
+plugins/meta/skills/create-skill/SKILL.md,Skill,91,6426,5e308dd1fe4edfdc3321e394d95682438643390047975a559bb182f387b07869,yes,yes
+plugins/meta/skills/decision/SKILL.md,Skill,81,4275,966d3f59611ebfe4d7b5b937de90f310fe55898517783d067d4eb2ae8969afda,yes,yes
+plugins/mobile/.claude-plugin/plugin.json,Infrastructure or documentation,24,787,b4316bf02a79a0557a47a52249e7a8085e64c06273d286476f1cb9455739f3b9,yes,yes
+plugins/mobile/README.md,Infrastructure or documentation,26,1752,7a90be109f5df27f883c467f30479472c09ab80ba496dd06a8e3a1199b6704ec,yes,yes
+plugins/mobile/skills/background-work/SKILL.md,Skill,81,8209,1b56a4f426a51bb568301be7991367b8ef9ff139d6ebd78b6ac3318ea94d2266,yes,yes
+plugins/mobile/skills/background-work/references/android.md,Reference,58,4528,24e01315d545267998813bb1b92f15b4b07d130542f4a9c8ac8a3cbc7a83da6b,yes,yes
+plugins/mobile/skills/background-work/references/flutter.md,Reference,22,2101,799a197571bed04546b302134a813350bc3fb7a9f7ce9cbb124de446c56875fd,yes,yes
+plugins/mobile/skills/background-work/references/ios.md,Reference,47,3759,0dec1eea211f46e5da130c1d1ccc86130ccdc227ea82f92f9325659922d584b9,yes,yes
+plugins/mobile/skills/design-to-screen/SKILL.md,Skill,67,5638,e10696f4da969178d08c5ad65b1d8f9d6f400167b5030ff45d936304c20002ad,yes,yes
+plugins/mobile/skills/device-test/SKILL.md,Skill,99,5899,1a9b6f9f64852cfe05df0eeb2e8a826e2a5d4c56ee6f1a177da3a47cee07c5d0,yes,yes
+plugins/mobile/skills/home-widget/SKILL.md,Skill,69,4554,2ebf56c4159c0e8d63d8604689b6d3bc2ae6eec2d88ec50f2ca5c457376b868b,yes,yes
+plugins/mobile/skills/home-widget/references/android.md,Reference,10,1129,ef2bdc046fc6bf5b882f293baba27a2814a1049cc600ae748efece77be3011c2,yes,yes
+plugins/mobile/skills/home-widget/references/ios.md,Reference,10,1288,b315eef9fbe2623d08d90fba29bbd42724c58db8b9d81e8b98a9d5f38804ec62,yes,yes
+plugins/mobile/skills/mobile-conventions/SKILL.md,Skill,132,12548,20d58d38a0be2847eeb6f3e09c5258cd01376c5fcd36bacfebf2f4f2fdfbd320,yes,yes
+plugins/mobile/skills/mobile-conventions/references/flutter.md,Reference,49,4570,4d4b5ee0b5e8bf99ab7b6ad7684bc94a2f4e84d32e3f8a0d251dbbe0f35c841e,yes,yes
+plugins/mobile/skills/mobile-conventions/references/kotlin.md,Reference,31,1943,83fed90e8d0c7d5be5f25256f83a8015e1d0c1624be12b2f429b1de2f967fe77,yes,yes
+plugins/mobile/skills/mobile-conventions/references/react-native.md,Reference,32,2302,5c7c0d7117b871dee871fe1aaad8aa45255775b373d73878702facdab5e208a3,yes,yes
+plugins/mobile/skills/mobile-conventions/references/swift.md,Reference,28,1792,7debe0f80d2559da8b3ad0e00cfe708db8122d98f201966415de5e63cb62e8e6,yes,yes
+plugins/mobile/skills/offline-queue/SKILL.md,Skill,92,9947,470a7122c8df1943075ee2116726ef9ccf0a1dea5b935fb00fb9658961679bdd,yes,yes
+plugins/mobile/skills/shared-core/SKILL.md,Skill,94,9916,931e0b72b7f30458471f4201064c68915624f2d84c77f48f3558226b71105ab5,yes,yes
+plugins/mobile/skills/shared-core/references/kmp.md,Reference,56,3990,d02ca7a329c60a9e7d4cf01f5504d9ae291e53ab782b61c820e7e0b133522f19,yes,yes
+plugins/mobile/skills/shared-core/references/other-cores.md,Reference,13,1352,08bf8e39945f224992f2444bac08ef1e7cdc545e1d7c9cb09685b11f8547e143,yes,yes
+plugins/quality/.claude-plugin/plugin.json,Infrastructure or documentation,21,699,275212bb8385952b9dd45d226b63c1c6e4fd6109cf3e9d83ba418620b15ea871,yes,yes
+plugins/quality/README.md,Infrastructure or documentation,25,1716,117a7a05932da1cdf997db16214059a3185059e614f0833a93f7be3449def0d7,yes,yes
+plugins/quality/skills/accessibility-audit/SKILL.md,Skill,68,4876,3c45e0b2e51787133df563b46d5447c806c6b2218c2e603fac4e5da87d9fc036,yes,yes
+plugins/quality/skills/accessibility-audit/references/flutter.md,Reference,19,1033,17306defde7f655773c50ed397945ac4dfa5bed2ffcf5f9b766a046b8d0ca269,yes,yes
+plugins/quality/skills/accessibility-audit/references/mobile.md,Reference,15,1357,16c9c6f7a4c7397adac7440ea5f998d624d58840e23d0cb1964c7fe14f1c6420,yes,yes
+plugins/quality/skills/accessibility-audit/references/web.md,Reference,11,1232,5b3624b4938c5c6214033f46b375170eab534eb74624a0f8f3b978f0bc524b69,yes,yes
+plugins/quality/skills/analytics-event/SKILL.md,Skill,77,5732,09986e30e5559759470d4817d8f358ac1b796ba399c574c7719be28fdfe18e18,yes,yes
+plugins/quality/skills/code-review/SKILL.md,Skill,128,11775,7aa48067f1fc5a7831f2a2000930442621e3cfd4bd01b5d545545a1934ee519a,yes,yes
+plugins/quality/skills/perf-check/SKILL.md,Skill,72,5828,ef8eccc6a6cc8304657cef2163d6fd1944b5b2d1f93250abfe39e7597a15e95d,yes,yes
+plugins/quality/skills/perf-check/references/backend.md,Reference,39,2156,557ab19c56c8dc812507420f67d00a562224d31121deceb9c93191ed0c9db5c7,yes,yes
+plugins/quality/skills/perf-check/references/mobile.md,Reference,15,1493,30511dc8595d70fb156b12467f28671a8fe4e1cebf31037e749cbae9afb0d6d8,yes,yes
+plugins/quality/skills/perf-check/references/web.md,Reference,8,1019,2360f9ae7432f0bdd7fec9ac0b2a9b27cd85328f881904118b4fd49cef8e80aa,yes,yes
+plugins/quality/skills/security-privacy-review/SKILL.md,Skill,113,10009,8dba48ce7688530ca5b10b61ea3a44eaa042d5bc35178d3ab692ba0907f62f54,yes,yes
+plugins/quality/skills/tdd/SKILL.md,Skill,57,4186,ca52852561d011d5a695176844e77fe81a60af768db4c38b975b52ee2fbfc07e,yes,yes
+plugins/quality/skills/testing-doctrine/SKILL.md,Skill,121,9202,970ae5b59b62bbdb9f9d9341047cfaadb7b485b277200321b6292d4ed77b7fe9,yes,yes
+plugins/quality/skills/write-tests/SKILL.md,Skill,75,4923,0ffc1a35f4d5bfeabb3015eb44b8bd4288fb0a7df87b0a897aab40f63abc3204,yes,yes
+plugins/quality/skills/write-tests/references/dotnet.md,Reference,31,1443,c666b1bd1e80b50d0f0a7c5ad2d055b0a907522f8baa40d337f12d9dda6f0f89,yes,yes
+plugins/quality/skills/write-tests/references/flutter.md,Reference,38,2680,c02a3b1a6309eb39d0337ceb4c037e05bf79639eda9914054d2a6dd93e9ac711,yes,yes
+plugins/quality/skills/write-tests/references/jvm.md,Reference,48,2278,9b79d23cf06dea2fe6c6a8299d27afa5811afca55afdc060df9227728c2f6168,yes,yes
+plugins/quality/skills/write-tests/references/node.md,Reference,39,2037,9bb7a2b4abf277b75a3c18aaf3f3e7e69a05373992ccfe077061ee826852628f,yes,yes
+plugins/quality/skills/write-tests/references/python.md,Reference,28,2253,230ab179dc75fc66e02f3831edbe446aef6c3306855ee3f022082b84fc419061,yes,yes
+plugins/quality/skills/write-tests/references/swift.md,Reference,23,1085,43900a6feec766162a584e0e8ad1d9926f2433d0c3ffde7cdc31c960d5771e4f,yes,yes
+plugins/web/.claude-plugin/plugin.json,Infrastructure or documentation,21,650,415cb77e0bb573c55cc64e495a000c36f893d94dd42640625b8a1af4e07cab17,yes,yes
+plugins/web/README.md,Infrastructure or documentation,22,1087,9ca0ba84f3fb2287db1cbdbedc2ad69da656576155f031f12e97400133e19572,yes,yes
+plugins/web/skills/add-web-page/SKILL.md,Skill,69,4688,02c78b8a0585d860992b003a73e5c77bfb0eacee71fcb61fc24387be9a8b7d6f,yes,yes
+plugins/web/skills/build-web-screen/SKILL.md,Skill,73,5715,9c16f1ce04a27fddc47928271151d789f4759281b85a8fb5f62bb548937889d2,yes,yes
+plugins/web/skills/web-conventions/SKILL.md,Skill,94,8927,729e1e4f6379aa162e249088d048bc04cffc8d9108203346b40ada4175f2abbc,yes,yes
+plugins/web/skills/web-conventions/references/astro.md,Reference,44,2320,c36ae2885afc7c0acc975a79afe50f119033899da59a5237d815434f6659484c,yes,yes
+plugins/web/skills/web-conventions/references/react.md,Reference,58,4582,4aaad8659db7e37b0f412dbf1338d0e5cf7d81f2d5a6acc26a0b49198b16d4f6,yes,yes
+scripts/check.py,Infrastructure or documentation,310,13385,74ccc71d5bd5d6016952c94d48315a35c9229b434b3397bf42d4dc582fbe4144,yes,yes
+scripts/framework-terms.txt,Infrastructure or documentation,111,1154,635451d4eee17005e5a1fbcdbec9afeb17dc4623ca8c840db27818e104e2698e,yes,yes
+scripts/install-skills.sh,Infrastructure or documentation,35,1546,4e0867a258af98d07f903cbb661203d956755e593aa04915be48feaa2b57b977,yes,yes

@@ -4,7 +4,7 @@ description: "Break an approved spec into an epic with sub-issues — vertical s
 argument-hint: "[spec path, NNN or slug]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Feature to issues
@@ -12,6 +12,8 @@ metadata:
 Turn the approved spec for `$ARGUMENTS` (a spec path, `NNN` or slug) into one epic plus one sub-issue per vertical slice, then open the docs PR. No approved spec → run `spec` first. A single-slice feature skips the epic: `file-feature`.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - `AGENTS.md`: the tracker, label set, milestones, priority definitions.
 - `docs/specs/<NNN>-<slug>/spec.md` — must say `status: approved`, else stop and ask. Read `investigation.md` too: rejected approaches must not come back as issue solutions.

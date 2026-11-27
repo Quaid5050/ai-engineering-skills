@@ -1,0 +1,19 @@
+{
+  "name": "specialist",
+  "version": "1.0.0",
+  "description": "Demand-led engineering profiles for public packages, payments, collaboration and specialized hardware/scientific products.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "specialist",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

@@ -9,7 +9,7 @@
 - New permissions and background location need the Data safety form and, for some permissions, a declaration.
 - **New personal developer accounts** must run a **closed test with at least 12 testers for 14 days** before they can apply for production access — plan it into the first release.
 - **Signing:** an upload key you keep safe (in CI secrets, never in the repository) and Play App Signing holding the app signing key.
-- A **privacy-policy URL** is required for apps that handle personal or sensitive data (and for most permissions).
+- A **privacy-policy URL** is required for all apps under the current Play User Data policy; verify the policy again before release.
 
 ## Apple App Store
 
@@ -28,13 +28,13 @@
 |---|---|---|---|
 | Flutter | Shorebird (`shorebird release`, `shorebird patch`) | Dart code changes to a release built with Shorebird | Native code, plugins, permissions, engine/Flutter upgrades, assets not in the release; patches only apply to releases built with `shorebird release` |
 | React Native / Expo | Expo Updates (EAS Update) | JS bundle and assets for a matching runtime version | Native modules, permissions, SDK upgrades (bump `runtimeVersion` → store release) |
-| React Native | CodePush (and successors) | JS bundle and assets | Native code |
+| React Native | An explicitly selected maintained CodePush-compatible/self-hosted service | JS bundle and assets supported by that service/runtime | Native code; the retired App Center hosted service is not an available default |
 
 Rules for all of them:
 
 - Build store artifacts **with the OTA tool's release command** so patches can target them.
 - Patch a staging/preview channel first, verify on a device, then promote.
-- Store guidelines allow interpreted-code updates that do not change the app's primary purpose; never use a patch to ship a new feature that needs review.
+- Check the current store rules and selected OTA provider/runtime contract for the exact change. An OTA tool does not authorize bypassing store review or changing restricted native capabilities.
 - The patch must tolerate the installed native side; when in doubt, store release.
 
 ## Rollback
@@ -42,3 +42,5 @@ Rules for all of them:
 - Play: halt the staged rollout; upload a fixed build with a higher `versionCode`.
 - App Store: pause the phased release; submit a fixed build (expedited review exists for critical fixes).
 - OTA: roll back to the previous patch in the tool's console/CLI, or publish the previous good code as a new patch.
+
+Sources: [Play User Data](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en), [App Center retirement](https://learn.microsoft.com/en-us/appcenter/retirement). Policies are volatile; verify for the release being performed.

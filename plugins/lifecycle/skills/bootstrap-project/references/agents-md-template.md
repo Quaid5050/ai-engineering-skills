@@ -27,18 +27,18 @@ Fill every `<…>` with a real value. Run every command before writing it down. 
 | Everything CI runs | `make check` |
 
 ## Workflow
-- Tracker: <GitHub Issues on owner/repo | other>. No work without an issue; an epic with sub-issues for multi-slice work; milestones `A — …`.
-- Branches: `feat/<n>-<slug>`, `fix/<n>-<slug>`, `chore/<n>-<slug>`, `docs/<n>-<slug>`, created from the issue.
+- Tracker: <GitHub Issues on owner/repo | other>. Use tracking for coordination or project policy; a direct authorized task suffices for a small change.
+- Branches: `feat/<n>-<slug>`, `fix/<n>-<slug>`, `chore/<n>-<slug>`, `docs/<n>-<slug>`, include an issue number only when one exists.
 - Commits: conventional (`feat(scope): …`). Author and attribution policy: <e.g. "commits authored by <account>; no AI co-author trailers">.
-- PR body says `Closes #<issue>` and carries the issue's labels and milestone.
+- Link relevant tracking; closing keywords only for fully resolved work.
 - The step-by-step workflow and the skill for each step: docs/engineering-workflow.md.
 
 ## Design review and merge gates
-- Every feature and non-trivial fix: an architect design review of the plan, posted before the first commit with production code (spec-level on the epic, per slice on the slice issue).
-- Every PR: a code review with a separate design pass, posted on the PR.
-- Merge gates: <copy from the merge skill, adapted>. Who merges: <the agent once the gates hold | a human>.
+- Tiers (`work-context`): **Quick** (copy, style, docs, config, test-only, a small reversible fix) → targeted checks and a self-review of the diff. **Standard** (behaviour inside existing structure) → short plan with the inline design check, test-first, one independent review at the end. **Structural / High-risk** (a feature or module from scratch, new layer/service, data model, contract, dependency, cross-cutting refactor, or a path listed below) → design review before code, failure-path tests, independent review with a full design pass.
+- <Strict profile, only if the team wants it: "every change gets an issue and an independent review; every non-trivial change gets a design review before code".>
+- Merge gates: <copy from the merge skill, adapted>. Who merges: <explicitly authorized actor once the gates hold>.
 - Optional policies (delete what does not apply): <PR CI is off; run `make check` locally and paste the summary> · <area checks CI does not run: …> · <device tests are batched into one pass before release>.
-- The speed rule: speed may reduce test reruns and review rounds, never the tests written, the design review or the design pass.
+- The speed rule: speed may cut test reruns, review rounds and ceremony the tier does not require — never the tests written, a Structural change's design review, or the design pass its tier requires.
 
 ## Safety-critical paths
 <List: e.g. payment capture, sending critical notifications, the background sync.> **This list is the one the skills use**: their examples are only examples. Changes on these paths need failure-path tests, never swallow errors, and the PR explains the failure mode.
@@ -48,7 +48,7 @@ Fill every `<…>` with a real value. Run every command before writing it down. 
 - Sharing anything about a person is opt-in and visible to that person.
 
 ## Definition of done
-1. Tests written first and passing; lint clean.
+1. Risk-appropriate verification passes; no artificial tests for prose-only edits.
 2. Contract updated if the API changed; clients regenerated.
 3. Screens match the design (states, copy, tokens).
 4. PR says what changed and how it was tested, with real output.

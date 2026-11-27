@@ -1,0 +1,19 @@
+{
+  "name": "data",
+  "version": "1.0.0",
+  "description": "Data pipelines, database operations and reproducible machine-learning lifecycle workflows with explicit correctness and recovery contracts.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "data",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

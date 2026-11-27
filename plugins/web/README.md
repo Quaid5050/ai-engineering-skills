@@ -1,22 +1,11 @@
-# web 1.0.0
+# web 2.0.0
 
 Web front-end conventions (pages, components, tokens, zero-JS by default, CSP, privacy, accessibility, performance budgets) and adding a page test-first. References for React/Next.js and Astro.
 
-## Install
+Install declared dependencies. Load only relevant skills/resources; required availability is not a recursive workflow.
 
-```text
-/plugin marketplace add Quaid5050/ai-engineering-skills
-/plugin install web@ai-engineering-skills
-```
-
-Installs with: `lifecycle`.
-
-## Skills
-
-| Skill | What it does |
+| Skill | Purpose |
 |---|---|
-| [`add-web-page`](skills/add-web-page/SKILL.md) | Add a content-site page or section test-first, with accessibility, performance and CSP checks |
-| [`build-web-screen`](skills/build-web-screen/SKILL.md) | Build a web app screen test-first: data layer, query cache, forms, sessions, 401/403/404, every state; a no-design wireframe path |
-| [`web-conventions`](skills/web-conventions/SKILL.md) | Structure a web front end — content sites and web apps: thin routes, layering, tokens, CSP, privacy, accessibility, tests (React SPA/Next.js, Astro references) |
-
-See the [catalogue](../../README.md#catalogue) and the [workflow map](../../docs/engineering-workflow.md). License: MIT.
+| [add-web-page](skills/add-web-page/SKILL.md) | Add a web page or page section test-first on any framework — read the design, inventory tokens, copy, states, breakpoints and motion, write end-to-end and build-output tests first, build it per web-conventions, then check accessibility, the performance budget and CSP/privacy, and compare screenshots side by side with the design. Use when building a new page, landing section or web screen from a design. Trigger on 'add a page', 'new landing section', 'build this page', 'turn this design into a web page', 'add a section to the site'. |
+| [build-web-screen](skills/build-web-screen/SKILL.md) | Build a screen of a web app (dashboard, admin, authenticated tool) test-first — read the design or, with no design, write a state table and low-fidelity wireframe the owner approves in the spec; inventory components, tokens, copy and every state; use the generated API client only from the data layer; server-state caching and invalidation; forms that mirror server limits and show the server's field errors; cookie session with CSRF protection; 401/403/404 handled (including a member removed mid-session); errors keyed on problem codes; optimistic updates only for reversible actions; accessibility, performance budget and screenshots against the design. Trigger on /build-web-screen, 'build the dashboard', 'add an admin screen', 'web app page', 'list and detail screen', 'form screen', 'supervisor view'. |
+| [web-conventions](skills/web-conventions/SKILL.md) | How a web front end is structured and written on any framework — for both content sites (marketing, docs: zero client script by default, sections, copy dictionaries) and web apps (dashboards, authenticated tools: screen → view model/hooks → repository → generated API client, server-state caching, forms mirroring server limits, cookie sessions with CSRF protection, errors keyed on problem codes) — plus design tokens from one source, a tested strict CSP, no third-party requests by default, accessibility, performance budgets and tests on the built output. Use when writing or reviewing web UI code. Trigger on 'web conventions', 'where does this go in the front end', 'component structure', 'dashboard structure', 'data fetching', 'design tokens', 'CSP', 'inline script', 'third-party script', 'SPA or static'. |

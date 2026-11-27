@@ -1,5 +1,67 @@
 # Changelog
 
+## Marketplace 2.0.0 — 2026-11-27
+Risk-based workflow, audit remediation and scoped capability expansion. Breaking workflow/gate changes use major versions; skill names and existing paths remain stable. See docs/remediation.md for implementation and evidence limits.
+
+**Fast by default, strict where it matters** (issue #5, on top of the audit remediation):
+- `work-context` (foundation) picks Quick, Standard or Structural/High-risk once per task with concrete triggers and says exactly which steps, reviews, subagents and test runs each tier gets. A design review and the architect run only when a change creates structure (feature or module from scratch, layer/service, data model, contract, dependency, cross-cutting refactor) or touches a declared high-risk area; Standard work answers placement, reuse and tests inline in its plan.
+- Read once, brief others: a task card replaces re-deriving facts; subagents get a brief and the project's `docs/agent-brief.md` (new `bootstrap-project` template) instead of whole skills; agents preload only the skill they run (`skills:`).
+- Re-reviews cover only `git diff <reviewed>..HEAD`; findings are batched; two rounds at most; full suites run once on the final head.
+- `scripts/check.py` caps a SKILL.md body at 3,000 words and an agent prompt at 600 words, and checks agents' preloaded skills exist.
+- Restored as references the concrete content the remediation had deleted: implement's area routing, evidence table and refactor recipe; merge's gate table, commands, stacked PRs and the speed rule; design-review's template; code-review's output template and delta re-review; testing-doctrine's failure-paths-first, fake-boundary table, rungs ladder, test types and reject-on-sight; notification port, idempotency example, Postgres migration rules, backend default profile, the emitted-script check for static sites.
+- Fixed: the commit guard no longer blocks ordinary commands (conventional-commit and heredoc messages, `grep commit`), allows detached HEAD, scans only staged additions in one call, names the file and line, and fails open with a warning without `python3`; the `READPAST` statement; reviewer, architect and tester have read-only `Bash` again; broken references (`merge` gate 8, testing-doctrine sections); headings and identical Composition tables of the 18 new skills, now marked draft.
+
+## agents 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## ai 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## architecture 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## backend 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## data 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## desktop 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## foundation 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## guardrails 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## lifecycle 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## meta 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## mobile 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## operations 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## quality 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## security 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## specialist 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## systems 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## web 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
 Every plugin is versioned on its own ([semantic versioning](https://semver.org/), rules in [CONTRIBUTING.md](CONTRIBUTING.md)). Newest first.
 
 ## quality 1.2.0 — 2026-11-27

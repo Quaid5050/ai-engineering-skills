@@ -4,7 +4,7 @@ description: "Tidy up after a pull request is merged or abandoned — confirm it
 argument-hint: "[PR or branch]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Cleanup
@@ -12,6 +12,8 @@ metadata:
 Tidy up after the work on `$ARGUMENTS` (a PR or branch; default the current branch).
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 From `AGENTS.md`: the tracker and its CLI, where worktrees live, how local services are started and stopped (the project's compose file or scripts), and whether the remote deletes merged branches automatically.
 

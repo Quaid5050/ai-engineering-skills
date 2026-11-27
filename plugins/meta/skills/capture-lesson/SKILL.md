@@ -4,7 +4,7 @@ description: "Turn a lesson from real work — a bug that slipped through, a rev
 argument-hint: "[what happened, or a postmortem / review / audit link]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Capture a lesson
@@ -14,6 +14,8 @@ Turn `$ARGUMENTS` (what happened, or a link to the postmortem, review or audit) 
 A lesson nobody encodes is lost at the next session: agents start fresh and follow what is written. So every real lesson ends in a test, a lint, a gate or a rule — in that order of preference.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 **Which repository are you in?** This decides where the change goes:
 
@@ -32,13 +34,13 @@ A lesson nobody encodes is lost at the next session: agents start fresh and foll
 ### <YYYY-MM-DD> — <one-line lesson>
 - **What happened:** <the concrete failure, generic terms, no personal data>
 - **Why it was not caught:** <which rule was missing, vague, or unenforced>
-- **Rung:** caught at <rung>; should have been caught at <earliest feasible rung> (rungs: the ladder in `testing-doctrine` §8)
+- **Rung:** caught at <rung>; should have been caught at <earliest feasible rung> (rungs: the ladder in `testing-doctrine`)
 - **Generalised rule:** <the rule, stated so it holds on any stack>
 - **Change:** <test/lint/gate/rule added, with links>
 - **Status:** proposed | applied in <version>
 ```
 
-The **rungs** are defined once in `testing-doctrine` (quality plugin), earliest (cheapest) first: type/compile → lint → architecture test → unit/integration test → CI → design review → code review → device test → alert/monitoring → user report. Moving a class of bug one rung earlier beats fixing one more instance.
+The **rungs** are defined once in `testing-doctrine` (quality plugin), earliest (cheapest) first: design/threat review, types, lint, tests, CI/review, device checks and monitoring; select the earliest effective guard rather than a fixed cost ordering. Moving a class of bug one rung earlier beats fixing one more instance.
 
 ## 2. Generalise
 
@@ -47,20 +49,20 @@ Ask: *would this have happened on another stack, in another product?* Strip the 
 | Specific | Generalised |
 |---|---|
 | "A file parser was put in the domain project" | "Technical code (formats, encodings, parsing, crypto) goes in an adapter, even when pure — the concept test" |
-| "The architecture test said 'domain references no ORM', and a parser passed it" | "Layer rules are allowlists, not denylists; baselines are empty" |
+| "The architecture test said 'domain references no ORM', and a parser passed it" | "Layer rules are allowlists, not denylists; legacy baselines are owned, explained and shrink rather than grow" |
 | "A feature added its own storage class" | "One home per technical kind of code: one generic storage port; the design review asks 'would the next feature write this again?'" |
 | "The review was skipped to go faster" | "Speed may cut test reruns and review rounds, never the tests written, the design review or the design pass" |
 
 If it only holds for one stack, it belongs in that stack's `references/<stack>.md`, not in a core skill.
 
-**Gate:** the generalised rule names no product, person, framework or issue number, and you can say which skills it changes.
+**Gate:** the rule states its applicability, counterexamples and evidence, without private project details, and you can say which skills it changes.
 
 ## 3. Choose the guard (cheapest, earliest first)
 
 1. **A machine check** — an architecture test, a lint rule, a CI job, a hook. Prefer this whenever the rule is mechanical.
 2. **A gate** in the skill at the step where the mistake is made (a `**Gate:**` line, a required question in `design-review`, a row in `code-review`'s design pass).
 3. **A checklist row** in the convention or review checklist.
-4. **A rule** in the convention or `AGENTS.md`.
+4. **A rule** in the convention or `AGENTS.md` — and one line in the project's agent brief (`docs/agent-brief.md`) when reviewers and subagents need it.
 
 Usually it is a combination: the gate or rule for judgement, plus a check for the part a machine can see.
 

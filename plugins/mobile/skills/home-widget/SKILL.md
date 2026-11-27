@@ -4,7 +4,7 @@ description: "Add or change a home-screen or lock-screen widget, live activity /
 argument-hint: "[widget, tile or live activity name]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Home-screen widget
@@ -12,6 +12,8 @@ metadata:
 Build `$ARGUMENTS` (a widget, live activity or tile). If empty, list the designs for glanceable surfaces and ask which one.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, the design for the widget, and the native conventions (`shared-core`, `mobile-conventions`).
 2. Find how app code shares data with native extensions today (shared app group / shared preferences / a bridge package), and the existing freshness rule in the app's domain.
@@ -24,7 +26,7 @@ Every widget implements every state that applies:
 | State | Shows |
 |---|---|
 | Live | The current data and how old it is |
-| Stale | Age **and reason** ("Offline since 18:58"), never a fake live state |
+| Stale | Age and an observed reason, or "last update unknown", never a fake live state |
 | Paused | A clear paused state with a resume action |
 | Off / not set up | What is off and how to fix it (opens the app) |
 | Urgent takeover | Replaces normal content when something needs attention now |
@@ -36,7 +38,7 @@ Every widget implements every state that applies:
 ## 2. Data flow
 
 - The app writes a small **snapshot** (versioned JSON: display labels, state per item, ages, no precise personal data unless the widget needs it, then reduced) into storage shared with the extension, and asks the system to reload the widget.
-- **The freshness rule is never copied into widget code.** App code computes each item's state with its own domain rule and writes it into the snapshot, together with `staleAfter` (the instant a live entry turns stale). Widget code only renders the state it is given and switches from live to stale at `staleAfter` (a timeline entry or a scheduled update). No time limit is spelled in widget code: a second copy of the rule drifts. A decision the app cannot precompute goes into the shared core with tests, never into widget code.
+- **The freshness rule is never copied into widget code.** App code computes each item's state with its own domain rule and writes it into the snapshot, together with `staleAfter` (the instant a live entry turns stale). Widget code only renders the state it is given and requests the supported timeline/update at `staleAfter`; actual refresh can be delayed, so also render last-update age using supported platform facilities. No time limit is spelled in widget code: a second copy of the rule drifts. A decision the app cannot precompute goes into the shared core with tests, never into widget code.
 - Widgets **never call the network on every refresh**. Updates come from the app (new data, a push, background work) within the platform's refresh budget.
 - Interactive actions (toggle, start, open) run the app's own code paths (an intent/broadcast into app code), not duplicated logic.
 - The snapshot is cleared on sign-out.
@@ -53,9 +55,19 @@ Per platform reference. Same names and states on both platforms; tokens mapped f
 
 ## 5. Device test
 
-On a real Android and iPhone (`device-test`): add the widget; toggle from it; lock the phone (privacy state); trigger the urgent state and back; kill the app and confirm the widget turns **stale with a reason** rather than staying live. Record results in the PR. Widgets ship with a store release.
+On representative supported devices (`device-test`): add the widget; toggle from it; lock the phone (privacy state); trigger the urgent state and back; kill the app and confirm the widget shows last-update information and a supported stale indication; record delayed refresh and unknown interruption honestly. Record results in the PR. Widgets ship with a store release.
 
 **Gate:** all states tested in code and seen on a device (or listed as open per the project's device-test batching rule).
+
+## Widget refresh limits
+
+A widget is drawn by the system from what the app gave it; the app does not run when the widget is shown.
+
+- **Pre-supply what you know.** Hand the system the states you can compute now (live until `staleAfter`, stale after) so it renders the change on time without the app running. Where the platform renders pre-supplied entries at their dates, that switch is reliable; a scheduled worker that must wake the app to flip the state is inexact and may be late.
+- **Reloads are budgeted.** Requests to rebuild the widget's content are rate-limited by the system and can be deferred; reload after a real data change, never on a timer, and never per view.
+- **Always show age.** Render the last-update time (or a relative age the system keeps current) so a delayed refresh reads as "updated 40 min ago", not as live.
+- **Actions re-check.** A widget action runs app code that re-checks the session and authorization; a signed-out or switched account clears the shared snapshot, and the widget shows the off state.
+- Test refresh on the supported OS versions: add, data change, app killed, device locked overnight; record any delay you see.
 
 ## Rules
 

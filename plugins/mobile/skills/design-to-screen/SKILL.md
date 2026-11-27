@@ -4,7 +4,7 @@ description: "Turn a design board or frame into an app screen — read the desig
 argument-hint: "[board or frame name/number]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Design to screen
@@ -12,6 +12,8 @@ metadata:
 Build the screen for `$ARGUMENTS` (a board, frame or screen name from the project's design source). If empty, ask which one.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md` and the design doc that says where designs live and how to read them (design tool file, exported HTML/images, a design canvas).
 2. Read the app's conventions (`mobile-conventions`, or `web-conventions` in the web plugin for web screens), its theme source, its shared components folder, its string resources and its UI test helpers.

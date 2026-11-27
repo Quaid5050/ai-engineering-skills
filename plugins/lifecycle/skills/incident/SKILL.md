@@ -4,14 +4,16 @@ description: "Handle a live production problem — declare severity in the first
 argument-hint: "[what is happening]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Incident
 
-Handle the live problem in `$ARGUMENTS`. Speed matters, but **every action that touches production needs the user's explicit OK**.
+Handle the live problem in `$ARGUMENTS`. Speed matters, but production actions require explicit scope or an existing incident/runbook authorization; reuse valid approval rather than repeatedly interrupting containment.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 From `AGENTS.md` and runbooks (`docs/runbooks/`): how to halt a rollout, roll back each release path, switch feature flags, reach the status page or in-app messaging, and which dashboards show the safety signals. Missing runbook → note it as a postmortem follow-up; do not improvise destructive steps.
 
@@ -28,11 +30,11 @@ When unsure, pick the higher one. The project's safety-critical list in `AGENTS.
 
 **Severity ↔ issue priority:** SEV1 ↔ P0 · SEV2 ↔ P0 or P1 · SEV3 ↔ P2.
 
-**Tracking issue first:** open one issue for the incident at the start (`file-bug`, with the user's OK — an incident counts as a go-ahead to record it): title `incident: <symptom>`, the severity's priority, `safety-critical`/`privacy` labels as they apply. The timeline, the fix and the postmortem all link to it.
+**Track the incident without delaying containment:** open an issue when tracking is authorized, or keep a local timeline until it is: title `incident: <symptom>`, the severity's priority, `safety-critical`/`privacy` labels as they apply. The timeline, the fix and the postmortem all link to it.
 
 ## 2. Stop the harm first (mitigate before root cause)
 
-Options, fastest first — propose, get the OK, do, verify:
+Options, fastest first — check existing authorization, obtain approval only for new scope, act, verify:
 
 1. Halt the staged store rollout.
 2. Roll back the over-the-air patch or the backend deploy to the last good version (`release` rollback).
@@ -57,11 +59,15 @@ Draft — do not send without the user's OK — a status or in-app message for a
 
 ## 6. Fix and verify recovery
 
-The fix goes through `bugfix` (regression test, `create-pr`, `ci`, `merge`); the release path from `release`. Recovery is verified with **the same signal that showed the problem** (delivery back to 100%, crash-free back above target), not with "the deploy finished". Stored data damage (wrong records, missing history, wrong messages sent) is listed and its repair planned separately.
+The fix goes through `bugfix` (regression test, `create-pr`, `ci`, `merge`); the release path from `release`. Recovery is verified with **the same signal that showed the problem** (delivery and uncertain-outcome backlog back within the defined recovery targets, crash-free back above target), not with "the deploy finished". Stored data damage (wrong records, missing history, wrong messages sent) is listed and its repair planned separately.
 
 ## 7. Close
 
 Severity, start/end times, impact (how many users, what they experienced), mitigation, root cause (or "unknown yet"), follow-up issues. Then `postmortem` — **required for SEV1, SEV2 and any data-integrity incident**, optional (recommended) for SEV3.
+
+## Containment and recovery
+
+Authorized urgent reversible containment can precede ordinary issue/review ceremony. Assign incident command, technical and communication owners; preserve restricted forensic evidence. For credential compromise or corruption, plan revocation/repair and restoration, not merely application rollback. Verify recovery with expected/control data and user-visible health; follow up with an effectiveness check. Use `recovery-drill` (operations plugin) when available.
 
 ## Rules
 

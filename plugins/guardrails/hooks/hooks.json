@@ -1,12 +1,26 @@
 {
-  "description": "Guardrails: block commits that add something that looks like a secret, and commits made directly on the main branch.",
+  "description": "Advisory pre-commit checks: credential patterns in the lines a git commit adds, and no commit on the default branch. Host permissions enforce execution boundaries.",
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "bash", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/check-staged-secrets.sh"], "timeout": 30 },
-          { "type": "command", "command": "bash", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/no-commit-on-main.sh"], "timeout": 10 }
+          {
+            "type": "command",
+            "command": "bash",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/check-staged-secrets.sh"
+            ],
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "bash",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/no-commit-on-main.sh"
+            ],
+            "timeout": 10
+          }
         ]
       }
     ]

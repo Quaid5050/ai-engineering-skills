@@ -1,83 +1,73 @@
 ---
 name: add-scheduled-job
-description: "Add or change server-side scheduled and background work and the outbound notifications it sends — first ask whether a stored 'until' time is enough; otherwise one scheduler instance (never two during a deploy), idempotent jobs that may run twice, rows claimed with a lease or skip-locked, a unique sent-ledger keyed by thing + due time, access re-checked at run time, zone-aware schedules with DST tests, notifications through one port with templates and preferences/unsubscribe, one retry owner, metrics and alerts for lag and failures, failure-path tests first. Use for reminders, digests, expiries, escalations, retries and cleanup jobs. Trigger on /add-scheduled-job, 'cron job', 'scheduled task', 'send a reminder', 'background job', 'send an email when', 'notification sent twice', 'job queue', 'worker'."
+description: "Add or change server-side scheduled and background work and the notifications it sends — first ask whether a stored 'until' time is enough; otherwise persist intent in a durable outbox with the business change, claim work with recoverable leases, scope idempotency to the operation, model uncertain outcomes explicitly, re-check access and consent at run time, zone-aware schedules with DST tests, notifications through one port with templates and preferences, one retry owner, metrics for lag and failures, crash-window tests first. Use for reminders, digests, expiries, escalations, retries and cleanup jobs. Trigger on /add-scheduled-job, 'cron job', 'scheduled task', 'scheduled job', 'send a reminder', 'background job', 'background worker', 'send an email when', 'notification sent twice', 'duplicate notification', 'missed delivery', 'retry a failed send', 'job queue', 'worker'."
 argument-hint: "[what must happen, and when]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Add a scheduled job
 
-Add or change the server-side job for `$ARGUMENTS` (what must happen, and when). If empty, ask: what must happen, at what time or after what event, to whom, and what is the harm if it happens twice or never.
-
-Scheduled work fails in two quiet ways: it **never runs** (nobody notices) or it **runs twice** (a person gets two reminders, or two charges). Both are designed out here, and both get tests. Jobs that send something people rely on are **safety-critical** when the project's list in `AGENTS.md` says so.
+Design the work in `$ARGUMENTS`. Establish what must happen, the deadline and the harm of loss or duplication. Do not promise exactly-once effects without an end-to-end protocol that actually provides them.
 
 ## 0. Read the project
 
-1. `AGENTS.md`, the conventions and placement table (`engineering-principles` §3, lifecycle plugin), decision records: is there a job runner, a scheduler, an outbox, a notification port already? Reuse it.
-2. The stack's job tooling and its delivery semantics (at-least-once? visibility timeout? one scheduler?) — see the stack references of `backend-conventions` (this plugin) and [references/stacks.md](references/stacks.md).
-3. How the app is deployed (rolling, blue/green, several replicas) — it decides how "exactly one scheduler" is guaranteed.
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
-**Gate:** you can name the runner, the scheduler, where jobs live, and what happens to an in-flight job when a deploy starts.
+Find the runner, schedule store, transaction boundaries, deployment topology, existing outbox and provider contract. Read only the relevant [stack reference](references/stacks.md). Determine provider idempotency scope/expiry and whether an acknowledgement means accepted, processed or delivered.
 
-## 1. Do you need a job?
+## 1. Choose the execution model
 
-- A **state that changes with time** ("suspended until 17:30", "trial ends on …") is a stored timestamp the reads compare with `now` — no job.
-- A job is needed only when something must **happen** at a time: send, charge, escalate, expire with side effects, clean up.
+A time-dependent read can often compare a stored timestamp without a job. Use work scheduling for actual side effects. Use a single leader only if the chosen scheduler requires it; clustered schedulers and duplicate triggers are acceptable when dispatch is coordinated and processing remains idempotent. A scheduler lock alone does not deduplicate downstream effects.
 
-## 2. Design
+## 2. Persist intent and model outcomes
 
-| Decision | Rule |
-|---|---|
-| Who schedules | **One scheduler instance** per environment, guaranteed (a lock, a single replica, the platform's cron) — including during deploys, when old and new versions overlap. Workers may be many; the scheduler is one |
-| What the job does | Thin: load ids, call **one** use-case method (`backend-conventions` §2). Rules live in the domain, not in the job |
-| Finding work | Query due rows in bounded batches and **claim** them (row lock with skip-locked, or a lease column with an expiry), so two workers never take the same row |
-| Exactly-once *effect* | Delivery is at-least-once, so the effect is made once: a **sent-ledger** row with a unique key (`thing id + due time`, or `thing id + kind`) inserted **before** sending; a unique violation means "already sent" → skip. The ledger also records the result |
-| Access at run time | Re-check membership, consent and preferences **when the job runs**, not only when it was scheduled — a removed member or a cancelled order gets nothing |
-| Time | Schedules in the person's **zone** (store the IANA zone id + local time); compute the instant in the domain; DST gaps and overlaps decided explicitly and tested |
-| Retries | **One retry owner**: the job (bounded attempts, backoff with jitter, then a visible failure: a dead-letter row, an alert, a fallback channel). The sending client does not retry on its own |
-| Enqueue after commit | A job triggered by a change is enqueued **after** the transaction commits (or through an outbox row in the same transaction) — never before |
-| Deploys | Workers drain gracefully (finish or release their claim); a lease expiry returns abandoned rows; schema changes stay compatible with jobs already queued |
-| Observability | Metrics: job lag (due → done), failures by kind, ledger "already sent" count, backlog size; an alert with an owner for each safety signal (`observe`, lifecycle plugin) |
+1. Commit business state and a unique pending outbox item in the same transaction. An after-commit callback may wake a dispatcher, but must not be the only record of required work.
+2. Scope the operation identity to tenant, subject, kind and occurrence. A duplicate key means the operation exists: inspect its state; it does not prove delivery. Reject reuse with a different payload.
+3. Claim pending work using an atomic conditional update or a short transaction, with an expiring lease and ownership token. Do not hold a database lock while calling a provider. A stale worker cannot acknowledge or overwrite a newer claim.
+4. Recheck authorization, cancellation and consent before sending. Record a permitted cancellation distinctly from successful delivery. Do not log sensitive payloads; identifiers may also be sensitive.
+5. Send with the same stable provider idempotency key on retries when supported. Only record the completion level actually confirmed by the provider.
+6. Recover expired claims. A timeout or crash after sending can leave the outcome unknown: reconcile with the provider or retry with its idempotency guarantee. Without either, explicitly choose between duplicate risk and loss risk; escalate uncertain high-impact operations instead of inventing certainty.
 
-### Outbound notifications (email, SMS, push, webhooks)
+States distinguish pending, leased, acknowledged, retryable, uncertain, cancelled and permanently failed. Record attempt count, next eligible time, ownership token and safe error category. Retain deduplication records for the supported replay horizon; document behavior after expiry or deletion.
 
-- **One notification port** with one adapter per provider; features never call a provider SDK directly.
-- **Templates in one place**, keyed by notification kind and language; no message text assembled in jobs.
-- **Preferences and unsubscribe** checked at send time; transactional vs marketing kinds kept apart; every non-essential message has an unsubscribe path.
-- No personal data in logs, metrics or the ledger beyond ids (`security-privacy-review` §5, quality plugin).
-- Provider failures: timeout + circuit breaker on the client, retries only by the job; a fallback channel for critical messages if the spec requires one.
+**Gate:** the design defines durable intent, each transition, crash recovery, provider guarantees, reconciliation and the allowed duplicate/loss policy.
 
-**Gate:** the design names the scheduler guarantee, the claim mechanism, the ledger's unique key, the retry owner and the re-check — reviewed in `design-review` (lifecycle plugin).
+## 3. Bound retries and deployment behavior
 
-## 3. Tests first (failure paths first)
+One layer owns the attempt budget and backoff. Honor server delays and deadlines; coordinate rather than multiply provider, queue and worker retries. Exponential backoff with jitter, timeouts, concurrency limits and a visible terminal/recovery path prevent retry storms.
 
-With an injected clock and a recording fake of the notification port (`testing-doctrine`, quality plugin):
+Compute recurring schedules from local time plus a stored zone and an explicit gap/overlap policy. Graceful shutdown stops claims and completes or releases work; expiry also recovers abrupt termination. Old queued payloads and overlapping worker versions must remain compatible. Outbound notifications (email, SMS, push, webhooks) go through one notification port; read [references/notification-port.md](references/notification-port.md) when the job sends anything to a person or another system.
 
-- the job runs **twice** for the same due item → **one** notification, one ledger row — **paired with** a test that a genuinely new due item (the next occurrence, a second chore) still sends;
-- two workers claim concurrently → each item handled once (a race test with a gate, never a sleep);
-- the member was removed / unsubscribed / the item cancelled before run time → nothing sent, ledger records why;
-- provider error → retried with the exact backoff sequence, then a visible failure (dead letter + metric);
-- the process dies after sending, before recording → the next run does not send again (the ledger was written first) **or** the design states and tests the accepted risk;
-- exactly at the due instant (not one tick early, not never); DST spring-forward and fall-back for a local-time schedule; a far time zone;
-- enqueue after commit: a rolled-back change enqueues nothing.
+## 4. Verify failure paths
 
-**Gate:** every test is red first for the right reason.
+Use a controllable clock, a provider test double with explicit acknowledgement/idempotency semantics and real storage integration tests:
 
-## 4. Build and verify
+- crash before/after the business transaction: committed work remains pending; rolled-back work does not send;
+- crash after claim but before send: lease expiry enables recovery;
+- provider accepts then acknowledgement is lost: stable-key reconciliation/retry, or explicit uncertain state without a fabricated guarantee;
+- crash after acknowledgement but before local completion: replay does not silently lose the operation;
+- two workers and an expired lease: stale completion cannot overwrite the current owner; receiver deduplication still handles overlapping sends;
+- genuine second occurrence sends; duplicate operation identity does not create a second logical operation;
+- removed access, consent withdrawal, permanent rejection, bounded retries and operator recovery;
+- zone transitions, overdue catch-up and deploy overlap.
 
-Build per `backend-conventions`; schema for the ledger and lease columns via `add-migration` (this plugin) with the unique index. Verify locally with the real database and the real runner (one scheduler, two workers), then run the area suite. The PR states the scheduler guarantee during deploys, the failure modes and how each is tested; `deploy-check` (lifecycle plugin) covers the deploy overlap.
+New regression tests must fail for the intended defect; characterization tests may start green with a justified fault/mutation check. Verify with the actual runner and storage before release.
+
+## 5. Report
+
+State guarantees and residual risks, transition/lease design, tested crash windows, supported replay horizon, backlog age, uncertain outcomes, retry exhaustion and alert/runbook ownership. Measure the agreed delivery SLO; do not equate provider acceptance with delivery to a person.
 
 ## Rules
 
-- Never two schedulers; never a job without idempotency; never send before the ledger row exists.
-- Never swallow a job failure: it is retried by its owner or becomes a visible failure.
-- Never decide *whether* to notify in an adapter; the use case decides.
-- Changing timing or frequency of something people rely on goes through `spec` (lifecycle plugin) first.
+- Persist required intent before dispatch; never treat a unique conflict as evidence of completion.
+- Never lose pending work silently or report unknown as successful.
+- Scheduling coordination, local ownership fencing and receiver idempotency solve different problems; document each required mechanism.
+- Use `deploy-check` and `security-privacy-review` for relevant release and access changes.
 
 ## Composition
 
 | From | This skill | To |
 |---|---|---|
-| `implement`, `spec`, `design-review` (lifecycle), `backend-conventions` | Scheduler, claim, ledger, notifications, tests | `add-migration`, `add-endpoint` (this plugin); `observe`, `deploy-check` (lifecycle); `security-privacy-review` (quality) |
+| `implement`, `spec`, `backend-conventions` | Durable job and recovery contract | `add-migration`, `add-endpoint`, `observe`, `deploy-check` |

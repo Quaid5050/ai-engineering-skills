@@ -56,3 +56,10 @@ Battery Historian visualises it.
 - Expedited WorkManager work (`setExpedited`) suits short, important uploads; it is quota-limited and may run as a normal job when the quota is used up.
 - Uploads of large files: stream from the file on disk with a resumable protocol; never hold the whole file in memory.
 - Unique work: `enqueueUniqueWork(name, ExistingWorkPolicy.KEEP, …)` so a second trigger does not start a parallel upload.
+
+## Diagnosing stops
+
+- **`ApplicationExitInfo`** (Android 11+): `ActivityManager.getHistoricalProcessExitReasons(packageName, 0, max)` on the next start lists why earlier processes died (`REASON_LOW_MEMORY`, `REASON_USER_REQUESTED` for force-stop, `REASON_EXCESSIVE_RESOURCE_USAGE`, `REASON_ANR`, `REASON_CRASH`, …) with timestamps. Match them to interrupted attempts by time and record the reason; read each entry once (keep the last seen timestamp).
+- **WorkManager stop reasons** (`WorkInfo.stopReason`, API 31+, WorkManager 2.9+): quota, constraints, cancelled by app, system processing; log them per attempt.
+- **Standby bucket:** `UsageStatsManager.getAppStandbyBucket()` explains long delays (`rare`, `restricted`).
+- Force-stop cancels alarms and scheduled jobs until the user opens the app again; detect it by the exit reason and say so in the reliability screen.

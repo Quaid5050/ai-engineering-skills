@@ -1,0 +1,19 @@
+{
+  "name": "systems",
+  "version": "1.0.0",
+  "description": "Memory, concurrency, ABI, networking and resource correctness for native and systems software.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "systems",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

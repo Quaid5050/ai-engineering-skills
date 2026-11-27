@@ -45,3 +45,9 @@ Xcode Organizer energy reports, Instruments Energy Log / Power Profiler on a rea
 - Each task carries the record's client id (in `taskDescription` or a header) so results map back to the queue row after a relaunch.
 - A user force-quit cancels background session transfers; the queue must pick them up again on next launch.
 - `BGProcessingTask` suits deferrable work that needs minutes (with `requiresNetworkConnectivity`); it may be delayed for hours.
+
+## Diagnosing stops
+
+- **MetricKit:** subscribe an `MXMetricManagerSubscriber` early in launch. `MXAppExitMetric` (in the daily `MXMetricPayload`) counts background exits by reason (memory pressure, CPU or task-assertion timeout, watchdog, suspended with locked file, …); `MXDiagnosticPayload` delivers crash and hang diagnostics. Payloads arrive later (often daily), so they explain trends, not the single attempt that just stopped.
+- For a single attempt, record start and end in your own store; an attempt with no end, plus `BGTask.expirationHandler` having fired or not, is the evidence on the next launch.
+- A user force-quit is not reported as an OS stop; background `URLSession` transfers and scheduled tasks are cancelled until the next launch.

@@ -1,0 +1,1365 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {
+      "name": "agent-workflow",
+      "plugin": "ai",
+      "path": "plugins/ai/skills/agent-workflow",
+      "version": "1.0.0",
+      "description": "Build bounded tool-using applications with authorization, durable state and recovery. Use for agent orchestration, approvals, delegation or interrupted workflows; not to mandate multiple agents for ordinary tasks.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "llm-integration",
+      "plugin": "ai",
+      "path": "plugins/ai/skills/llm-integration",
+      "version": "1.0.0",
+      "description": "Build or change a model-backed application feature. Use for provider integration, structured output, streaming, fallbacks or model migration; not for ordinary coding that merely uses an assistant.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "rag-pipeline",
+      "plugin": "ai",
+      "path": "plugins/ai/skills/rag-pipeline",
+      "version": "1.0.0",
+      "description": "Build or improve retrieval-grounded applications. Use for document ingestion, embeddings, vector or hybrid search, citations and retrieval evaluation; not for every model call.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "safe-refactoring",
+      "plugin": "architecture",
+      "path": "plugins/architecture/skills/safe-refactoring",
+      "version": "1.0.0",
+      "description": "Refactor or modernize existing software while preserving explicit behavior and compatibility. Use for legacy seams, dependency upgrades or structural cleanup.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "system-design",
+      "plugin": "architecture",
+      "path": "plugins/architecture/skills/system-design",
+      "version": "1.0.0",
+      "description": "Design systems from requirements, workloads and tradeoffs. Use for new service boundaries, scaling plans or costly architectural decisions.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "add-endpoint",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/add-endpoint",
+      "version": "2.0.0",
+      "description": "Add or change a backend API endpoint contract-first on any stack \u2014 the contract file first (paths, methods, schemas, problem-detail errors, auth, pagination, idempotency, compatibility), failing integration tests first including forbidden callers (non-member, wrong role, removed member), a thin handler over one use case per backend-conventions, regenerated clients, and a contract drift test. Use when adding or changing a route, request, response or error. Trigger on 'add an API for', 'new endpoint', 'change the API', 'add a route', 'REST endpoint', 'expose this over HTTP', 'API design'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/idempotency.md",
+        "references/protocols.md"
+      ]
+    },
+    {
+      "name": "add-file-upload",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/add-file-upload",
+      "version": "2.0.0",
+      "description": "Add or change file uploads and attachments on the server end to end \u2014 one upload reader at the edge and the one storage port (never a per-feature storage class), presigned vs multipart vs resumable chosen deliberately, type detected from the bytes, size caps that fail visibly, images re-encoded and metadata stripped (needed fields kept only as explicit, consented structured data), random names outside the web root, member-checked or signed short-lived reads, a parent record that commits only when all its attachments are confirmed, orphan cleanup, optional malware scanning, and tests including forbidden callers and oversize files. Trigger on /add-file-upload, 'upload a file', 'attach photos', 'image upload', 'presigned URL', 'multipart upload', 'store files', 'avatar upload', 'download a file'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "add-migration",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/add-migration",
+      "version": "2.0.0",
+      "description": "Change a database schema safely on any stack \u2014 design the entity and mapping, keys and UTC timestamps, workload-justified indexes, expand \u2192 migrate \u2192 contract for running servers and released clients, generate the migration, read the generated SQL for table rewrites and long locks, apply and verify locally, and write the rollout and rollback notes. Use when adding or changing tables, columns, indexes or constraints. Trigger on 'change the schema', 'add a table', 'add a column', 'new index', 'migration', 'rename a column', 'drop a column', 'backfill'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/postgres.md"
+      ]
+    },
+    {
+      "name": "add-scheduled-job",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/add-scheduled-job",
+      "version": "2.0.0",
+      "description": "Add or change server-side scheduled and background work and the notifications it sends \u2014 first ask whether a stored 'until' time is enough; otherwise persist intent in a durable outbox with the business change, claim work with recoverable leases, scope idempotency to the operation, model uncertain outcomes explicitly, re-check access and consent at run time, zone-aware schedules with DST tests, notifications through one port with templates and preferences, one retry owner, metrics for lag and failures, crash-window tests first. Use for reminders, digests, expiries, escalations, retries and cleanup jobs. Trigger on /add-scheduled-job, 'cron job', 'scheduled task', 'scheduled job', 'send a reminder', 'background job', 'background worker', 'send an email when', 'notification sent twice', 'duplicate notification', 'missed delivery', 'retry a failed send', 'job queue', 'worker'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/notification-port.md",
+        "references/stacks.md"
+      ]
+    },
+    {
+      "name": "backend-conventions",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/backend-conventions",
+      "version": "2.0.0",
+      "description": "How a backend service is structured and written on any stack \u2014 layered modules with feature folders (edge \u2192 application \u2192 domain, persistence, adapters, workers, a hot-path module), what each layer may do and call, thin edges, two kinds of validation, errors as results mapped to problem details, data access through the ORM's unit of work, transactions and locks owned by the use case, time and cancellation, logging without personal data, options validated at start, one secret per purpose, resilience with one retry owner, background work, performance, data integrity and allowlist architecture tests. Use when writing or reviewing server code. Trigger on 'backend conventions', 'where does this go in the backend', 'service layer', 'business logic in the controller', 'repository or ORM', 'request/response DTO', 'validator', 'how do I structure this endpoint', 'transaction', 'N+1'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/default-profile.md",
+        "references/django.md",
+        "references/dotnet.md",
+        "references/ecosystems.md",
+        "references/node.md",
+        "references/review-checklist.md",
+        "references/spring.md"
+      ]
+    },
+    {
+      "name": "data-check",
+      "plugin": "backend",
+      "path": "plugins/backend/skills/data-check",
+      "version": "2.0.0",
+      "description": "Look at a database safely \u2014 read-only sessions with a statement timeout on every call, local by default and shared environments only with explicit OK and a read-only role; schema, counts, integrity, tenant isolation, freshness and gaps, query plans, and verifying a migration or backfill with an expected cohort and control rows \u2014 without exposing personal data. Use when answering a data question, checking a migration, or chasing a data bug. Trigger on 'check the data', 'query the database', 'how many rows', 'is the data correct', 'verify the migration', 'explain this query', 'look at the table'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "data-pipeline",
+      "plugin": "data",
+      "path": "plugins/data/skills/data-pipeline",
+      "version": "1.0.0",
+      "description": "Build or change batch/stream data pipelines and data contracts. Use for ingestion, transformation, backfills, lineage and data-quality failures.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "database-operations",
+      "plugin": "data",
+      "path": "plugins/data/skills/database-operations",
+      "version": "1.0.0",
+      "description": "Operate and optimize persistent databases safely. Use for query tuning, isolation/locking, replication, backups, restore drills or database incidents.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "ml-lifecycle",
+      "plugin": "data",
+      "path": "plugins/data/skills/ml-lifecycle",
+      "version": "1.0.0",
+      "description": "Build or revise reproducible model training and serving pipelines. Use for dataset splits, experiments, model evaluation, deployment or drift; not for every LLM API integration.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "desktop-application",
+      "plugin": "desktop",
+      "path": "plugins/desktop/skills/desktop-application",
+      "version": "1.0.0",
+      "description": "Build or change native or hybrid desktop applications. Use for desktop IPC, filesystem integration, packaging, signing, updates or OS-specific behavior.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "safe-agent-execution",
+      "plugin": "foundation",
+      "path": "plugins/foundation/skills/safe-agent-execution",
+      "version": "1.0.0",
+      "description": "Constrain agent access and handle untrusted content safely. Use when inspecting external repositories, running project commands, invoking tools or designing agent execution; not as a reason to block authorized read-only work.",
+      "requires": [],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "work-context",
+      "plugin": "foundation",
+      "path": "plugins/foundation/skills/work-context",
+      "version": "1.0.0",
+      "description": "Pick the right amount of process for an engineering change and reuse what is already known. Classifies the task Quick, Standard or Structural/High-risk with concrete triggers, says which steps, reviews, subagents and test runs each tier gets, keeps a short task card so nothing is re-read, and briefs subagents with a digest instead of whole skills. Use at the start or resumption of any code change. Trigger on 'how much process', 'is a design review needed', 'quick fix', 'small change', 'why is this so slow', 'risk tier'.",
+      "requires": [],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "bootstrap-project",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/bootstrap-project",
+      "version": "2.0.0",
+      "description": "Set up a new repository so agents can build it safely from day one \u2014 create the repo and an initial commit, protect main, set up the tracker (milestones, labels, templates) and a bootstrap issue, then on its branch record the stack decisions, build a walking skeleton (one request end to end, one scheduled job when the product needs one, deployed to a test environment), write AGENTS.md with the real commands, safety-critical paths and rules, install the placement table and allowlist architecture tests with reviewed legacy baselines with no new violations, lint/format, CI on hosted runners, and open the PR that closes the issue. Covers web and mobile setup. Use after shape-idea, or when an existing repo has no agent rules, conventions or CI. Trigger on /bootstrap-project, 'set up the repo', 'start a new project', 'scaffold the app', 'add AGENTS.md', 'make this repo agent-ready'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/agent-brief-template.md",
+        "references/agents-md-template.md",
+        "references/labels.md"
+      ]
+    },
+    {
+      "name": "bugfix",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/bugfix",
+      "version": "2.0.0",
+      "description": "Fix a bug end to end \u2014 reuse or run the investigation (reuse existing task context; preserve uncertainty when the cause is unverified), risk-appropriate design review, a permanent regression test that fails before for the reported reason and passes after, fix the root cause not the symptom plus the 'why was it breakable' guard, blast radius (same pattern, other platform, stored data repair, installed old versions), verify, then PR with the failure mode explained. Trigger on /bugfix, 'fix this bug', 'fix issue', 'make this test pass', 'implement the fix', 'hotfix'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "ci",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/ci",
+      "version": "2.0.0",
+      "description": "Drive a pull request through continuous integration and debug failures \u2014 ship (watch the checks on the head commit to green, never re-run to get past a real failure), debug (find the first error, classify it, reproduce locally with the same command, fix the cause), optimize (measure the slowest steps over three runs), and change workflows safely (stable job names the merge gates refer to, pinned actions, no secrets in files, never a self-hosted runner on a public repository). Use when a PR is waiting on CI or CI is red. Trigger on /ci, 'watch CI', 'why is CI red', 'CI is failing', 'fix the build', 'is my PR green', 'speed up CI', 'add a workflow'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/github-actions.md"
+      ]
+    },
+    {
+      "name": "cleanup",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/cleanup",
+      "version": "2.0.0",
+      "description": "Tidy up after a pull request is merged or abandoned \u2014 confirm its state, close or update the issue and the epic checklist, delete the local and remote branch, remove the worktree from another checkout, and stop local services, emulators and dev servers started for the work, without touching other projects' containers or a shared stash. Use when a PR is merged or a branch is dead. Trigger on /cleanup, 'clean up', 'PR is merged, tidy up', 'remove the worktree', 'delete the branch', 'stop the services'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "create-pr",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/create-pr",
+      "version": "2.0.0",
+      "description": "Open a pull request the reviewer can trust \u2014 preconditions, reuse an existing PR, appropriate issue linkage without mandatory tracker ceremony, bring the branch up to date, collect real evidence first (command outputs, screenshots with synthetic data, the design review link, device tests listed as open), write a per-area description with safety and privacy notes, push and open on the user's go-ahead, then get an independent code review posted on the PR and fix critical and major findings before CI and merge. Use when the work on a branch is ready for review. Trigger on /create-pr, 'open a PR', 'create the pull request', 'push and open a PR', 'raise a PR', 'send this for review'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "deploy-check",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/deploy-check",
+      "version": "2.0.0",
+      "description": "Pre-merge scan of a change for what breaks real users after it is deployed \u2014 non-additive API contract changes that installed clients still call, migrations that rewrite or lock big tables, native or bridge changes that need a store release, new permissions, background behaviour, push payloads, configuration and secrets per environment (including trusted-proxy settings and tokens in URLs), realtime method names, feature flags, rollback, and major dependency bumps \u2014 with a verdict, deploy order and rollback plan. Use before merging anything that touches an API, data, native code, config or infrastructure. Trigger on /deploy-check, 'is this safe to merge', 'breaking change check', 'will this break old app versions', 'pre-merge check', 'deploy order'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "design-review",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/design-review",
+      "version": "2.0.0",
+      "description": "Review a plan before code when the change creates structure \u2014 a new feature or module from scratch, a new layer or service, a data model, migration or public contract, a new dependency, a cross-cutting refactor, or a project-declared high-risk area. Placement, reuse, the next feature, patterns, data, contract, failure modes, performance and tests, done by someone who did not write the plan and posted where it can be checked. Not for UI tweaks, changes inside an existing pattern or already-reviewed code. Trigger on /design-review, 'review this design', 'is this plan right', 'architecture review', 'design review before I build'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/template.md"
+      ]
+    },
+    {
+      "name": "engineering-principles",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/engineering-principles",
+      "version": "2.0.0",
+      "description": "Choose cohesive architecture and justified abstractions for the actual product. Use when deciding placement, reviewing design, applying SOLID or reducing complexity; adapt to project constraints rather than impose one architecture.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/architecture-tests.md",
+        "references/design-patterns.md",
+        "references/placement-table.md"
+      ]
+    },
+    {
+      "name": "feature-to-issues",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/feature-to-issues",
+      "version": "2.0.0",
+      "description": "Break an approved spec into an epic with sub-issues \u2014 vertical slices a person can use end to end, ordered riskiest first (safety and technical risk, then dependency, then learning, then the rest), spikes for research, every must requirement and every safety failure mode owned by a slice, priorities from must/should/could \u2014 shown in full for approval before anything is created, then created and linked, and a manifest saved. Trigger on /feature-to-issues, 'break this into issues', 'create the issues for this feature', 'make an epic', 'create sub-issues', 'slice this spec'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "file-bug",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/file-bug",
+      "version": "2.0.0",
+      "description": "Record a bug as an issue with a fixed template \u2014 symptom-style title, observed vs expected (citing the spec or design), steps to reproduce from a fresh state, environment, frequency, severity mapped to priority (P0 when a safety-critical path can fail silently, data is exposed or lost), safety impact, evidence with personal data stripped, suspected cause labelled as a theory, and the regression test to add \u2014 after the owner's approval, linked to its epic. Trigger on /file-bug, 'file a bug', 'log this bug', 'create a bug issue', 'report this as a bug'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "file-feature",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/file-feature",
+      "version": "2.0.0",
+      "description": "File one already-scoped feature slice as an issue with a fixed template \u2014 outcome-style conventional title, design frame, MVP id and milestone, priority, areas and flags (safety-critical, privacy, needs-device-test), what and why, 3\u20137 checkable acceptance criteria including failure states, tests to write first, approach, out of scope, open questions \u2014 after a privacy check and the owner's approval; optionally attached to an epic. Trigger on /file-feature, 'file this feature', 'create an issue for', 'open a feature issue', 'track this as an issue'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "implement",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/implement",
+      "version": "2.0.0",
+      "description": "Build and verify an approved feature slice, bug fix or maintenance change at the depth its risk tier needs \u2014 mode (feature, bug, maintenance), search before writing, the area skill for each part, generated-file companions, test-first for behaviour, evidence chosen by what changed, one review at the end. Use for any authorized code change. Trigger on /implement, 'implement this', 'build this', 'make the change and verify it', 'upgrade this dependency', 'refactor this', 'clean up this code'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/refactoring.md",
+        "references/routing.md"
+      ]
+    },
+    {
+      "name": "incident",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/incident",
+      "version": "2.0.0",
+      "description": "Handle a live production problem \u2014 declare severity in the first minutes (SEV1 when people may be unsafe or data is exposed or leaked, SEV2 when a core flow is broken, SEV3 when degraded), stop the harm first (halt the rollout, roll back, switch a flag off, cut a leaking endpoint), keep a timeline, draft communication for the user's OK, investigate read-only, fix through the normal bugfix path, verify recovery with the same signal that showed the problem, and hand off to a postmortem. Use when something is broken for real users. Trigger on /incident, 'prod is down', 'users can see other users data', 'payments failing', 'notifications not arriving', 'emergency', 'everything is broken', 'outage'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "investigate-bug",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/investigate-bug",
+      "version": "2.0.0",
+      "description": "Find the root cause of a bug \u2014 reproduce it first with a failing test or on a device (on a fix branch linked to the bug issue), pin the symptom, keep evidence-backed competing hypotheses with facts and theories apart, narrow with code history, logs, error tracker and read-only data, drive to the deepest cause in our control with causal analysis, measure the blast radius, and write the report including how to prevent the whole class. Trigger on /investigate-bug, 'why is this happening', 'root cause this', 'dig into this bug', 'figure out what is wrong', 'this stopped working', 'debug this'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "investigate-feature",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/investigate-feature",
+      "version": "2.0.0",
+      "description": "Investigate a feature before anyone specs or builds it \u2014 read the design, the product brief and MVP scope, and the existing code; map people, states (or a state table and low-fidelity flow when there is no design), data, API, platform/background work, battery, safety failure modes, privacy, analytics, performance and dependencies; keep facts (with sources) apart from assumptions; produce a build pack with options and open questions. Use before spec or file-feature for anything not already scoped. Trigger on /investigate-feature, 'investigate this feature', 'what does feature X need', 'research this feature', 'how should we build X', 'discovery for'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "merge",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/merge",
+      "version": "2.0.0",
+      "description": "Check a PR's merge gates for the exact head commit at its risk tier \u2014 CI on the head against current main, a review covering the head, the issue link, area checks CI skips, the design review for structural work, the design pass, the merging session's own read of the diff, required security and deploy verdicts \u2014 then merge only when the project's policy allows. Explicit no-merge instructions always stop before merging. Trigger on /merge, 'merge this', 'is this ready to merge', 'check the gates', 'merge the stack'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/commands.md"
+      ]
+    },
+    {
+      "name": "new-feature",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/new-feature",
+      "version": "2.0.0",
+      "description": "Build a feature end to end by the shortest route its tier allows \u2014 small changes go straight to implement, features that follow existing structure get a short plan and one review, features built from scratch get investigation, spec and a design review before code. Trigger on /new-feature, 'build this feature', 'implement feature', 'new screen', 'add a feature'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "observe",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/observe",
+      "version": "2.0.0",
+      "description": "Answer health questions from production signals, or add the signals a change needs so someone finds out about a failure before a user does \u2014 pin the window, read errors, metrics, traces and logs, compare with a baseline, keep facts apart from theories; when adding signals, errors reach the error tracker, metrics use low-cardinality tags with no personal data, traces wrap hot paths and outbound calls, logs follow the privacy logging rule, every safety signal gets an alert rule and an owner, and a test proves the signal fires on the failure path. Use after a release, when something looks slow or broken, or while building a new failure mode. Trigger on /observe, 'is the release healthy', 'why is it slow', 'error rate', 'add metrics', 'add monitoring', 'add an alert', 'instrument this'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "postmortem",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/postmortem",
+      "version": "2.0.0",
+      "description": "Write a blameless postmortem after an incident or any bug where a critical alert was missed or data was exposed \u2014 summary, impact, UTC timeline, root cause by five whys, detection (which rung of the testing-doctrine ladder caught it and which should have), what went well, badly and lucky, and follow-ups that prevent, detect earlier or mitigate, each with an issue \u2014 then update the skills that would have caught it. Use after SEV1/SEV2 incidents and serious escapes. Trigger on /postmortem, 'write the postmortem', 'incident review', 'what did we learn', 'retro on the outage', 'root cause analysis document'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "pre-commit",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/pre-commit",
+      "version": "2.0.0",
+      "description": "Check the working tree and commit it safely \u2014 not on the main branch, named paths staged only, secrets and personal-data scan, generated code in sync with its source, only touched files formatted, the project's lint/analyze/test run for each changed area, a safety-critical check, and a conventional commit that follows the project's author and attribution policy. Never bypasses hooks. Use when about to commit. Trigger on /pre-commit, 'commit this', 'check before committing', 'is this ready to commit', 'stage and commit'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "release",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/release",
+      "version": "2.0.0",
+      "description": "Ship merged work to users safely \u2014 decide the release path per component (backend deploy, web deploy, over-the-air patch where the stack supports it, or a store release for native code, permissions and new plugins \u2014 the default depends on the client), check preconditions, version and tag with the user's OK, roll out in stages with an OK and a watch window per step, watch health signals, and roll back per path when a safety or health signal regresses. Use when merged changes should reach users. Trigger on /release, 'ship it', 'release a new version', 'cut a release', 'hotfix', 'staged rollout', 'roll back the release', 'publish to the store'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/backend-deploy.md",
+        "references/mobile-stores.md"
+      ]
+    },
+    {
+      "name": "shape-idea",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/shape-idea",
+      "version": "2.0.0",
+      "description": "Turn a raw product idea into a short product brief and an MVP scope \u2014 problem and users, the riskiest assumptions, what success looks like, the smallest useful product, features grouped into ordered milestones with acceptance-level outcomes, what is out of scope, and the open questions only the owner can answer. Use at the very start of a new product or a big new area, before any stack choice or code. Trigger on /shape-idea, 'I have an idea', 'new app idea', 'what should the MVP be', 'scope this product', 'plan the milestones', 'product brief'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "spec",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/spec",
+      "version": "2.0.0",
+      "description": "Write and get approval for a feature spec \u2014 problem and users, designs and states, numbered must/should/could requirements with checkable acceptance criteria, API contract with who may call what, data and migration risk, client and platform/background behaviour, safety failure modes and privacy rules each becoming criteria, analytics, performance budgets, rollout and rollback, risks and open questions \u2014 reviewed by a fresh agent and always design-reviewed by the architect agent before approval. Use for anything multi-area, schema-changing, safety-critical or privacy-relevant. Trigger on /spec, 'write a spec', 'spec this feature', 'PRD', 'technical design for', 'plan this feature'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "start-issue",
+      "plugin": "lifecycle",
+      "path": "plugins/lifecycle/skills/start-issue",
+      "version": "2.0.0",
+      "description": "Prepare an issue or direct task with an isolated branch, current context and risk-appropriate plan. Use when starting implementation; an issue is required only by the project or requested workflow.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "capture-lesson",
+      "plugin": "meta",
+      "path": "plugins/meta/skills/capture-lesson",
+      "version": "2.0.0",
+      "description": "Turn a lesson from real work \u2014 a bug that slipped through, a review that missed something, a postmortem follow-up, an audit finding, a pattern an agent copied wrongly \u2014 into a durable change: write it as a lesson (what happened, why it was not caught, which rung should have caught it), generalise it so it holds on any stack, decide the cheapest earliest guard (a test or lint first, then a skill gate or checklist row, then a convention), make the edit with create-skill, log it and, for this marketplace, version and changelog it. Trigger on /capture-lesson, 'we learned', 'add this lesson', 'the skill missed this', 'update the skills after this bug', 'postmortem follow-up', 'make sure this never happens again'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "create-skill",
+      "plugin": "meta",
+      "path": "plugins/meta/skills/create-skill",
+      "version": "2.0.0",
+      "description": "Create or update an agent skill in the house structure \u2014 research the real workflow, commands and paths, check overlap with existing skills (compose, don't duplicate), draft SKILL.md with a trigger-rich description, a read-the-project phase, numbered phases with gates, rules and composition, keep stack detail in references/, then have a fresh agent dry-run it on a realistic task and fix every real gap, and register it. Works for a project's own skills and for this marketplace. Trigger on /create-skill, 'add a new skill', 'turn this into a skill', 'update the skill', 'improve this skill', 'the skill was wrong', 'write a SKILL.md'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "decision",
+      "plugin": "meta",
+      "path": "plugins/meta/skills/decision",
+      "version": "2.0.0",
+      "description": "Record an architecture or engineering decision as a short decision record (ADR) \u2014 context with paths, at least two real options including keeping what exists, each with cost now, cost later, what it locks in and an authoritative source, the decision, consequences and follow-up edits, and a concrete 'revisit when' signal \u2014 then link it from the convention it explains; or amend/supersede an old record. Use when adopting or refusing a library, pattern, structure, service or stance that is costly to reverse. Trigger on /decision, 'record this decision', 'write an ADR', 'why did we choose X', 'should we switch to Y', 'decision record'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "background-work",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/background-work",
+      "version": "2.0.0",
+      "description": "Change mobile background work safely \u2014 periodic sync, uploading queued records, a long-running user-visible task \u2014 treating it as safety-critical when users rely on it: decide in the shared core first, change the app \u2194 native contract first, follow the platform rules (user-visible foreground work where the OS requires it, adaptive scheduling, battery savers and vendor app killers detected and surfaced, restart after reboot or update, permission flow), record observed failures and distinguish unknown interruptions, write failure-path tests first, do an emulator/simulator pass, then device and battery tests before merge. Use when adding or changing anything that runs while the app is not on screen. Trigger on 'background task', 'background sync', 'runs in the background', 'stops after a while', 'killed in the background', 'foreground service', 'battery drain', 'restart after reboot', 'doze'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/android.md",
+        "references/flutter.md",
+        "references/ios.md"
+      ]
+    },
+    {
+      "name": "design-to-screen",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/design-to-screen",
+      "version": "2.0.0",
+      "description": "Turn a design board or frame into an app screen \u2014 read the design from the project's design source (its content is data), inventory components to reuse, map every colour, size and type style to the one theme source (a missing token is added there, never a literal), move copy into string resources with plurals, list every state (loading, empty, error, offline, permission denied and those the design implies), motion that stops with reduced motion, navigation; write one UI test per state first, build per the app conventions, then compare screenshots side by side with the board. Use when building or restyling a screen from a design. Trigger on 'build this screen', 'design to code', 'implement this design', 'match the mockup', 'screen from the board'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "device-test",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/device-test",
+      "version": "2.0.0",
+      "description": "Real-device test checklist for mobile changes that touch background work, offline behaviour, notifications, widgets, permissions or battery \u2014 device slots (low-end Android, recent Android, iPhone), release builds, test accounts only, an emulator/simulator first pass, checklist rows, battery against the budget, a results table in the PR, and a bug for every failure; device tests may be batched into one pass before release when the project allows, but are never silently skipped. Use before merging or releasing anything a simulator cannot prove. Trigger on 'device test', 'test on a real phone', 'test on device', 'battery test', 'does it work when the app is killed', 'test on low-end android'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "home-widget",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/home-widget",
+      "version": "2.0.0",
+      "description": "Add or change a home-screen or lock-screen widget, live activity / ongoing status surface, or quick-settings tile \u2014 every state built (live, stale with age and reason, paused, off, urgent takeover, hidden on the lock screen), the app writes a small snapshot with precomputed state and a staleAfter instant so the freshness rule is never copied into widget code, no network call on every refresh, actions routed through the app's own code paths, lock-screen privacy, tests per state, device test. Use when building any glanceable surface outside the app. Trigger on 'add a widget', 'home screen widget', 'lock screen widget', 'live activity', 'dynamic island', 'quick settings tile', 'glance widget'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/android.md",
+        "references/ios.md"
+      ]
+    },
+    {
+      "name": "mobile-conventions",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/mobile-conventions",
+      "version": "2.0.0",
+      "description": "How a mobile app is structured and written on any stack \u2014 view \u2192 view model \u2192 repository \u2192 service layers with may/must-not rules, coordinators for long-lived loops, feature modules and a shared module with rules, immutable state and closed result types, explicit errors, permission UX, offline storage behind the repository, performance on a low-end device, localisation and RTL, and the architecture tests that enforce it. Use when placing app code, starting a screen or feature, or reviewing a mobile diff. Trigger on 'mobile conventions', 'where does this go in the app', 'view model', 'repository in the app', 'new screen structure', 'is this widget too big', 'permission flow', 'offline storage', 'app architecture'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/flutter.md",
+        "references/kotlin.md",
+        "references/react-native.md",
+        "references/swift.md"
+      ]
+    },
+    {
+      "name": "offline-queue",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/offline-queue",
+      "version": "2.0.0",
+      "description": "Build or change a durable on-device outbox that never loses data silently \u2014 every record goes to a local queue that survives process death and carries a permanent client-generated id the server deduplicates on (a repeat returns the original), one uploader at a time, batches with capped backoff, attachments as files uploaded one by one with the parent completed only when all are confirmed, planned losses only when the spec accepts them, an unreadable queue ends the run with a retry (never 'done'), storage failure blocks with a visible problem, a refused batch is split to find the poison record, clock skew handled, old-build data stays readable. Use when an app must send data that may be created offline. Trigger on 'offline queue', 'offline first', 'sync queue', 'outbox on the phone', 'upload when back online', 'data lost offline', 'retry upload', 'batch upload', 'duplicate records after retry'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "shared-core",
+      "plugin": "mobile",
+      "path": "plugins/mobile/skills/shared-core",
+      "version": "2.0.0",
+      "description": "Structure native mobile code as one functional core shared by Android and iOS \u2014 every rule and decision written once and tested once on both targets \u2014 plus thin imperative shells per platform: what may and may not go in the core, the 'is this a decision?' test, adapters that return failures instead of throwing, interop rules across the language boundary, threading kept in the shells, and lint checks for core purity, shells that decide nothing and file sizes, with no baseline. Use when native logic is (or should be) shared across platforms, or Android and iOS behave differently. Trigger on 'shared core', 'shared module', 'cross-platform core', 'functional core imperative shell', 'android and ios behave differently', 'where does this go in native code', 'is this kotlin/swift clean'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/kmp.md",
+        "references/other-cores.md"
+      ]
+    },
+    {
+      "name": "infrastructure-change",
+      "plugin": "operations",
+      "path": "plugins/operations/skills/infrastructure-change",
+      "version": "1.0.0",
+      "description": "Plan and implement cloud, container or infrastructure changes. Use for infrastructure as code, environments, networking, deployment configuration or drift.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "recovery-drill",
+      "plugin": "operations",
+      "path": "plugins/operations/skills/recovery-drill",
+      "version": "1.0.0",
+      "description": "Plan and exercise incident recovery, backup restore and continuity. Use for disaster recovery, failover drills or incident readiness.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "service-reliability",
+      "plugin": "operations",
+      "path": "plugins/operations/skills/service-reliability",
+      "version": "1.0.0",
+      "description": "Define and verify service performance, reliability and capacity. Use for SLOs, latency/load, overload handling, observability or reliability improvements.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "accessibility-audit",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/accessibility-audit",
+      "version": "2.0.0",
+      "description": "Audit a screen, page, feature or PR for accessibility against WCAG 2.2 AA, on web and mobile \u2014 automated checks added to the tests (labels, tap targets, contrast), a text-scaling test to 200%, manual checks (screen-reader labels and order, state not by colour alone, contrast per token pair, targets, reduced motion, time limits, sound/haptics, right-to-left, error announcements) and a screen-reader pass on a real device. Use for UI-heavy changes and before release. Trigger on /accessibility-audit, 'accessibility check', 'a11y review', 'is this accessible', 'screen reader', 'contrast check', 'WCAG'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/flutter.md",
+        "references/mobile.md",
+        "references/web.md"
+      ]
+    },
+    {
+      "name": "analytics-event",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/analytics-event",
+      "version": "2.0.0",
+      "description": "Add or change a product analytics event, or answer a product question from events, without collecting personal data \u2014 first-party pipeline preferred, the product question first, object_action names, allow-listed properties only (never location, free text, contact details or raw user ids), pseudonymous ids hashed server-side with a secret, consent honoured, the event catalogue as the single source of truth, tests that the exact event is sent and nothing is recorded when analytics is off, cohort queries for questions. Use when someone wants to measure usage. Trigger on /analytics-event, 'track this', 'add an analytics event', 'measure adoption of', 'how many people use', 'funnel for', 'retention of'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "code-review",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/code-review",
+      "version": "2.0.0",
+      "description": "Review a diff or PR on any stack at the depth its risk tier needs \u2014 Quick changes get a short checklist, Standard changes one independent review of the diff, Structural/High-risk changes every dimension plus a full design pass. Dimensions: safety-critical paths, privacy and tenant isolation, tests you can trust, correctness, contract, data, platform and battery, design and UX, performance, observability, simplicity, layer placement, conventions, repo hygiene. Each finding has severity, file:line, failure scenario, fix and the rung where it should have been caught; plus a merge risk tier. Re-reviews cover only the fix delta. Use before merge. Trigger on /code-review, 'review this', 'review the PR', 'review my changes', 'check the diff', 'is this ready to merge'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/output.md"
+      ]
+    },
+    {
+      "name": "perf-check",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/perf-check",
+      "version": "2.0.0",
+      "description": "Measure a screen, page, endpoint, query, background task or PR against the project's performance budgets and fix what is over \u2014 pick or write the budget first, measure a baseline in release/profile mode on the reference device or environment (3+ runs, median), find the cause with a profiler, change one thing, measure again the same way, guard it with a test or CI threshold, report before and after. Covers app startup, jank, memory, size, battery, web vitals, API latency, slow queries and N+1. Use when a change touches a hot path or something feels slow. Trigger on /perf-check, 'is this fast enough', 'performance', 'slow endpoint', 'slow query', 'jank', 'battery drain', 'app size', 'load test', 'N+1'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/backend.md",
+        "references/mobile.md",
+        "references/web.md"
+      ]
+    },
+    {
+      "name": "security-privacy-review",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/security-privacy-review",
+      "version": "2.0.0",
+      "description": "Review a change, spec or feature for how it could expose someone's personal data or be abused \u2014 map every piece of personal data (created, stored, sent, who reads it, kept how long), check authorisation and tenant isolation with forbidden-caller tests, consent and visibility, abuse cases by insiders and controlling people, leaks into logs/errors/telemetry/analytics (the canonical logging rule), uploads and metadata, secrets per purpose, an OWASP API Top 10 pass, retention and deletion. Use when a change touches personal data, auth, sharing, payments, uploads, exports or a new third-party SDK. Trigger on /security-privacy-review, 'security review', 'privacy review', 'threat model this', 'can this leak', 'is this safe', 'abuse case'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "static-catalogs",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/static-catalogs",
+      "version": "2.0.0",
+      "description": "Turn a closed set the app defines itself (languages, plans, providers, modes, built-in commands) into one table, one row per case holding every attribute, instead of the same switch repeated per attribute. Decide whether a data file plus code generation is justified (only when the source of truth lives outside the code or is shared across apps), pin today's values with characterisation tests, migrate without changing behaviour, and guard it. Use when adding one case means editing several places, or when someone proposes moving enums to a config file or codegen. Trigger on /static-catalogs, 'same switch everywhere', 'move this to YAML', 'should we codegen this', 'config file for enums', 'single source of truth', 'add a language', 'add a provider'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/swift.md",
+        "references/typescript.md"
+      ]
+    },
+    {
+      "name": "tdd",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/tdd",
+      "version": "2.0.0",
+      "description": "Build a behaviour test-first, one test at a time \u2014 pick the next behaviour from the test list, write one failing test and see it fail for the expected reason, write the least code to pass, refactor while green, commit, repeat; with the signals that mean the design is wrong and the few allowed exceptions. Use when implementing any behaviour change. Trigger on /tdd, 'test first', 'red green refactor', 'TDD this', 'write the failing test first', 'build this test-driven'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "testing-doctrine",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/testing-doctrine",
+      "version": "2.0.0",
+      "description": "Choose meaningful tests by risk, boundaries and observable invariants. Use when writing or reviewing tests, investigating flakiness or planning verification; includes property, sequence, integration and failure-path testing.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/boundaries-and-types.md"
+      ]
+    },
+    {
+      "name": "write-tests",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/write-tests",
+      "version": "2.0.0",
+      "description": "Write the tests for a file, feature, behaviour or diff in this project \u2014 list every behaviour (happy, variations, edges, errors; safety failure paths first), pick the lowest level that proves each (unit, integration through the real entry point, UI per state, platform), write them to the testing doctrine, run the single test, then the area, and report red/green evidence and break-it checks. Stack references for common test toolchains. Use when adding tests to new or existing code. Trigger on /write-tests, 'write tests for', 'add tests', 'test this', 'cover this with tests', 'what tests are missing'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/dotnet.md",
+        "references/flutter.md",
+        "references/jvm.md",
+        "references/node.md",
+        "references/python.md",
+        "references/swift.md"
+      ]
+    },
+    {
+      "name": "identity-access",
+      "plugin": "security",
+      "path": "plugins/security/skills/identity-access",
+      "version": "1.0.0",
+      "description": "Implement or review authentication, sessions and authorization. Use for sign-in, account recovery, service identity, tenant permissions or token lifecycle changes.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "supply-chain",
+      "plugin": "security",
+      "path": "plugins/security/skills/supply-chain",
+      "version": "1.0.0",
+      "description": "Secure dependency, build and artifact delivery paths. Use for package updates, CI permissions, release provenance, secrets or dependency compromise review.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "threat-model",
+      "plugin": "security",
+      "path": "plugins/security/skills/threat-model",
+      "version": "1.0.0",
+      "description": "Produce or update an actionable threat model. Use for changed trust boundaries, sensitive data, privileged capabilities or explicit abuse/security review.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "specialized-engineering",
+      "plugin": "specialist",
+      "path": "plugins/specialist/skills/specialized-engineering",
+      "version": "1.0.0",
+      "description": "Apply a specialized engineering profile when its invariants materially differ. Use for payments/ledgers, collaboration, SDK/CLI/extensions, embedded or scientific systems; not to add generic ceremony.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "concurrency-networking",
+      "plugin": "systems",
+      "path": "plugins/systems/skills/concurrency-networking",
+      "version": "1.0.0",
+      "description": "Design and troubleshoot concurrent and networked systems. Use for races, cancellation, deadlocks, sockets, protocol parsing or bounded resource handling.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "memory-and-ffi",
+      "plugin": "systems",
+      "path": "plugins/systems/skills/memory-and-ffi",
+      "version": "1.0.0",
+      "description": "Implement or review memory-sensitive and foreign-interface code. Use for ownership, unsafe operations, ABI boundaries, native parsers or resource lifetime defects.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/implementation.md"
+      ]
+    },
+    {
+      "name": "add-web-page",
+      "plugin": "web",
+      "path": "plugins/web/skills/add-web-page",
+      "version": "2.0.0",
+      "description": "Add a web page or page section test-first on any framework \u2014 read the design, inventory tokens, copy, states, breakpoints and motion, write end-to-end and build-output tests first, build it per web-conventions, then check accessibility, the performance budget and CSP/privacy, and compare screenshots side by side with the design. Use when building a new page, landing section or web screen from a design. Trigger on 'add a page', 'new landing section', 'build this page', 'turn this design into a web page', 'add a section to the site'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "build-web-screen",
+      "plugin": "web",
+      "path": "plugins/web/skills/build-web-screen",
+      "version": "2.0.0",
+      "description": "Build a screen of a web app (dashboard, admin, authenticated tool) test-first \u2014 read the design or, with no design, write a state table and low-fidelity wireframe the owner approves in the spec; inventory components, tokens, copy and every state; use the generated API client only from the data layer; server-state caching and invalidation; forms that mirror server limits and show the server's field errors; cookie session with CSRF protection; 401/403/404 handled (including a member removed mid-session); errors keyed on problem codes; optimistic updates only for reversible actions; accessibility, performance budget and screenshots against the design. Trigger on /build-web-screen, 'build the dashboard', 'add an admin screen', 'web app page', 'list and detail screen', 'form screen', 'supervisor view'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "name": "web-conventions",
+      "plugin": "web",
+      "path": "plugins/web/skills/web-conventions",
+      "version": "2.0.0",
+      "description": "How a web front end is structured and written on any framework \u2014 for both content sites (marketing, docs: zero client script by default, sections, copy dictionaries) and web apps (dashboards, authenticated tools: screen \u2192 view model/hooks \u2192 repository \u2192 generated API client, server-state caching, forms mirroring server limits, cookie sessions with CSRF protection, errors keyed on problem codes) \u2014 plus design tokens from one source, a tested strict CSP, no third-party requests by default, accessibility, performance budgets and tests on the built output. Use when writing or reviewing web UI code. Trigger on 'web conventions', 'where does this go in the front end', 'component structure', 'dashboard structure', 'data fetching', 'design tokens', 'CSP', 'inline script', 'third-party script', 'SPA or static'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/astro.md",
+        "references/ecosystems.md",
+        "references/react.md"
+      ]
+    }
+  ]
+}

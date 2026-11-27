@@ -4,7 +4,7 @@ description: "Turn a raw product idea into a short product brief and an MVP scop
 argument-hint: "[the idea in a few sentences]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Shape an idea
@@ -14,6 +14,8 @@ Turn `$ARGUMENTS` (an idea, a pitch, a problem statement) into `docs/product/bri
 This skill decides **what** to build and in which order. **How** comes later (`bootstrap-project`, `spec`).
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - An existing repository? Read `README.md`, `AGENTS.md`, `docs/product/` and any roadmap first; extend the existing brief instead of starting a second one.
 - A new idea with no repository yet: keep the two files in the conversation or in a scratch folder outside any repository. `bootstrap-project` accepts them from there and commits them into `docs/product/` on its bootstrap branch — do not wait for a repository to exist.

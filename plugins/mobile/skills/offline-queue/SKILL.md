@@ -4,16 +4,18 @@ description: "Build or change a durable on-device outbox that never loses data s
 argument-hint: "[what is queued, or the queue change]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Offline queue
 
 Build or change the on-device queue for `$ARGUMENTS` (what kind of record is queued, or the change). If empty, ask what the app must send and what happens if one record is lost.
 
-Phones go offline for days, get killed mid-upload and run out of storage. A queue that drops a record "because the network failed" loses user data with no trace, and a queue that re-sends without a stable identity creates duplicates. The rule: **every record lands exactly once; every loss is planned, accepted in the spec, listed and tested; everything else is retried until it lands.**
+Phones go offline for days, get killed mid-upload and run out of storage. A queue that drops a record "because the network failed" loses user data with no trace, and a queue that re-sends without a stable identity creates duplicates. The rule: **durably accepted records remain recoverable until confirmed or explicitly discarded under the agreed policy. Stable identity prevents duplicate logical creates; it does not guarantee delivery. Unknown outcomes remain pending or visible for recovery.**
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, decision records, and the existing queue code if any (local database service, uploader, retry timer).
 2. Find the server endpoint that receives batches and its dedupe rule (`add-endpoint`, backend plugin), the shared core if any (`shared-core`), and the background mechanism that runs uploads (`background-work`).
@@ -26,16 +28,16 @@ Phones go offline for days, get killed mid-upload and run out of storage. A queu
 | Decision | Rule |
 |---|---|
 | Write path | The record is written to the local store **before** anything else happens; the write is on the queue's own thread, never the main thread |
-| Identity | Each record gets a **client-generated id** (a random UUID) at creation, which is its **permanent** identity: the server stores it as a unique key on the record itself (not in a time-windowed idempotency store — a phone offline for a week must not create a duplicate) and a repeat **returns the original resource** (same id, success status), never an error and never a second row (`add-endpoint`, backend plugin) |
+| Identity | Each record gets a **client-generated id** (a random UUID) at creation, which is its **permanent** identity: the server stores it as a unique key on the record itself (not in a time-windowed idempotency store — a phone offline for a week must not create a duplicate) and an authorized replay of the same payload **returns the original resource**; a different payload under the same identity is a conflict, and another caller cannot read the original (`add-endpoint`, backend plugin) |
 | Single flight | **One uploader at a time** per queue: the foreground trigger, the background worker and a retry timer all go through one lease or lock (a database row lease with an expiry, or the OS's unique-work mechanism) — two uploaders running at once is a classic cause of duplicates after the app is killed |
 | Batching | Upload small records in batches (e.g. up to N records or K kB), never one request per record; delete rows only after the server confirmed them, and map each confirmation back by its client id |
 | Attachments | Files (photos, documents) are **not** stored in the row: they are written to **app-private storage excluded from cloud backup** (encrypted when sensitive) and referenced by path + hash + size from a child row. Before queueing: compress to the agreed size and **strip metadata** (EXIF, location, device serials) — keep any needed field (capture time) as explicit structured data (`security-privacy-review`, quality plugin). Each file is uploaded on its own (resumable or chunked when large; `add-file-upload`, backend plugin); the **parent record completes only when every child is confirmed**; the file is deleted only after the parent is confirmed. Check free disk space before accepting a new attachment and tell the user when it is low |
-| Retry | Backoff with a cap, e.g. 30 s doubling to 5 min, with jitter; the retry delay comes from one rule (the core), not from the OS scheduler's own backoff, which can grow to hours |
+| Retry | Backoff with a cap, e.g. 30 s doubling to 5 min, with jitter; the retry delay comes from one rule (the core), coordinated with the OS scheduler's constraints and retry policy; never bypass platform limits to promise exact timing |
 | Server answers | A table in the core: success (including "already have it") → delete; retryable (timeout, 5xx, 429 with its delay) → keep and retry; auth expired → refresh then retry; "you may no longer send" → the planned-loss path, if the spec accepts it, else a visible blocked state; **a batch refused as invalid (400/413)** → split the batch to find the poison record. A **single** record or file refused on its own (invalid, too large) is **never dropped silently**: it moves to a visible "needs attention" state the user can see, fix or discard themselves, and it is counted and reported |
-| Planned losses | **Only those the spec explicitly accepts**, listed with numbers — for example: sign-out, another account signs in on the device, the server says this device no longer sends, a retention limit (older than N days or beyond M records, oldest first). Each is counted and reported. Nothing else may drop a record. **When data must never be lost** (submissions, payments, evidence), there are no default losses: sign-out and account switch are **blocked while records are unsent** (the user sees how many and can wait or export), retention limits become a visible warning instead of a drop, and the owner decides any exception |
+| Planned losses | **Only those the spec explicitly accepts**, listed with numbers — for example: sign-out, another account signs in on the device, the server says this device no longer sends, a retention limit (older than N days or beyond M records, oldest first). Each is counted and reported. Nothing else may drop a record. **When data must never be lost** (submissions, payments, evidence), there are no default losses: sign-out revokes the session immediately; pending records remain encrypted and bound to the original account in a quarantined outbox, with authenticated recovery/export or explicit discard according to the agreed policy, retention limits become a visible warning instead of a drop, and the owner decides any exception |
 | Unreadable queue | A read error, a damaged row or an undeletable confirmed row **ends the run with a retry** — never "nothing to send" and never "done" |
-| Storage failure | After N failed writes in a row (e.g. 3), block with a visible problem (`storage unavailable`) reported to the user and, where others rely on the data, to the server |
-| Time | Each record carries the device time **and** a monotonic or server-corrected timestamp; the server tolerates and flags clock skew instead of rejecting |
+| Storage failure | Every failed durable write is immediately reported as not saved; never acknowledge success for it. Block further acceptance while storage is unavailable, preserve existing data, and retry only with an explicit recovery path |
+| Time | Each record carries wall time and provenance; monotonic measurements are useful only within their boot/session epoch, and server time is used where authoritative; the server tolerates and flags clock skew instead of rejecting |
 | Schema | The stored format is versioned; a new build reads rows written by the old build |
 | Privacy | Records and files with personal data stay in app-private storage, excluded from backup, encrypted when sensitive; cleared on sign-out only once nothing unsent remains (or the spec accepts the loss); no record content in logs |
 
@@ -50,17 +52,17 @@ In the core's or the queue module's tests (`tdd`, quality plugin), failure paths
 - process killed after write, before upload → record uploaded after restart;
 - process killed after the server confirmed, before delete → the repeat is deduplicated by the server (one row, the original returned, success answer);
 - process killed **during** an upload (mid-batch, mid-file) → resumed after restart, one row, one file;
-- **two uploaders started at once** (foreground trigger + background worker) → only one runs; the server sees each record once;
+- **two uploaders started at once** (foreground trigger + background worker) → only one runs; duplicate transport attempts are tolerated and create only one logical record;
 - a repeat after a long offline period (beyond any idempotency window, e.g. 8 days) → still one row;
 - a parent with three attachments, the second upload fails → parent stays pending, retries only what is missing, completes after all three are confirmed;
 - a single file the server refuses as too large → moved to "needs attention", visible, nothing else blocked, nothing dropped;
 - low disk space → a new attachment is refused with a visible message, queued data untouched;
 - server 5xx / timeout → retried with the backoff sequence (assert the exact delays), capped;
-- batch refused as invalid → split, the poison record dropped and counted, the others sent;
+- batch refused as invalid → split, the invalid record persisted in needs-attention and counted, the others sent; restart preserves the invalid record and its recovery controls;
 - unreadable queue / damaged row → the run ends with retry, not "done";
-- 3 failed writes → blocked with the storage problem, reported;
-- each planned loss → exactly the listed records removed, counted, reported — and nothing on any other path; when the spec accepts no loss, sign-out with unsent records is blocked;
-- retention limit → oldest dropped first, at exactly the stated numbers;
+- the first failed write → not acknowledged as saved, a visible storage problem, existing records intact; recovery never fabricates the missing record;
+- each planned loss → exactly the listed records removed, counted, reported — and nothing on any other path; sign-out revokes auth without exposing the original account's pending data to another account;
+- retention limit → discard only under an explicit accepted loss policy; otherwise retain and show capacity/recovery controls;
 - rows written by the previous build (real bytes from that build, not hand-written fixtures) still read;
 - clock skew of ±1 day.
 

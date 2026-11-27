@@ -1,10 +1,10 @@
 ---
 name: bootstrap-project
-description: "Set up a new repository so agents can build it safely from day one — create the repo and an initial commit, protect main, set up the tracker (milestones, labels, templates) and a bootstrap issue, then on its branch record the stack decisions, build a walking skeleton (one request end to end, one scheduled job when the product needs one, deployed to a test environment), write AGENTS.md with the real commands, safety-critical paths and rules, install the placement table and allowlist architecture tests with empty baselines, lint/format, CI on hosted runners, and open the PR that closes the issue. Covers web and mobile setup. Use after shape-idea, or when an existing repo has no agent rules, conventions or CI. Trigger on /bootstrap-project, 'set up the repo', 'start a new project', 'scaffold the app', 'add AGENTS.md', 'make this repo agent-ready'."
+description: "Set up a new repository so agents can build it safely from day one — create the repo and an initial commit, protect main, set up the tracker (milestones, labels, templates) and a bootstrap issue, then on its branch record the stack decisions, build a walking skeleton (one request end to end, one scheduled job when the product needs one, deployed to a test environment), write AGENTS.md with the real commands, safety-critical paths and rules, install the placement table and allowlist architecture tests with reviewed legacy baselines with no new violations, lint/format, CI on hosted runners, and open the PR that closes the issue. Covers web and mobile setup. Use after shape-idea, or when an existing repo has no agent rules, conventions or CI. Trigger on /bootstrap-project, 'set up the repo', 'start a new project', 'scaffold the app', 'add AGENTS.md', 'make this repo agent-ready'."
 argument-hint: "[product name or path to the brief]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Bootstrap a project
@@ -14,6 +14,8 @@ Make the repository for `$ARGUMENTS` (a product name, or the brief) ready for ag
 Agents follow written rules and copy the code next to them. A repository with no rules teaches them whatever the first file does, so the rules, the checks and the first good example come **before** the features.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - The brief and MVP scope from `shape-idea` — from `docs/product/` if a repository exists, otherwise **from the conversation or the scratch folder** where `shape-idea` left them. None anywhere → run `shape-idea` first.
 - An existing repository: read `README.md`, the manifests, CI files, `AGENTS.md`/`CLAUDE.md`. Keep what exists and works; skip the steps that are already done.
@@ -60,12 +62,14 @@ Folders follow the layers in `engineering-principles` and the stack conventions 
 
 ## 5. AGENTS.md — the facts every skill reads
 
-Write `AGENTS.md` at the root (and a thin `CLAUDE.md` pointing to it, if the team uses Claude Code). Template: [references/agents-md-template.md](references/agents-md-template.md). It holds: what the product is; the layout; the **commands** table (every command copied from a real run); the tracker, labels, milestones, branch and commit rules; the **merge gates** and who merges (`merge`); the project's **safety-critical paths** (this list wins over any example in the skills) and privacy rules; pointers to conventions, the placement table, decision records and the workflow map. Keep it short.
+Write `AGENTS.md` at the root (and a thin `CLAUDE.md` pointing to it, if the team uses Claude Code). Template: [references/agents-md-template.md](references/agents-md-template.md). It holds: what the product is; the layout; the **commands** table (every command copied from a real run); the tracker, labels, milestones, branch and commit rules; the **merge gates** and who merges (`merge`); the project's **safety-critical paths** (this list wins over any example in the skills) and privacy rules; pointers to conventions, the placement table, decision records and the workflow map. Keep it short — under ~200 lines; stack-specific rules go in path-scoped rule files where the agent host supports them, so they load only when matching files are touched.
+
+**The agent brief** (`docs/agent-brief.md`, ≤ 100 lines, template in [references/agent-brief-template.md](references/agent-brief-template.md)): the condensed, project-specific form of the conventions — commands per area, the placement map, naming, the high-risk areas, and the rules reviews keep finding. Subagents and reviewers get this instead of being told to read every conventions skill (`work-context` §3).
 
 ## 6. Conventions, enforcement and CI
 
 1. Copy the placement table from `engineering-principles` ([placement-table.md](../engineering-principles/references/placement-table.md)) into `docs/conventions.md` with the real paths.
-2. Add the **architecture tests** for its rows (allowlists, empty baselines — [architecture-tests.md](../engineering-principles/references/architecture-tests.md)). Prove each can fail (break it once, watch it go red, revert).
+2. Add the **architecture tests** for its rows (allowlists, reviewed legacy baselines with no new violations — [architecture-tests.md](../engineering-principles/references/architecture-tests.md)). Prove each can fail (break it once, watch it go red, revert).
 3. Linter and formatter with the strict preset; warnings are errors; no blanket suppressions. One command (`make check` or equivalent) runs lint, format check, architecture tests and all suites.
 4. CI (`ci` skill and its template): **hosted runners only for a public repository** — never attach a self-hosted runner to a public repo; anyone who opens a pull request can run code on it. Stable job names, path filters, pinned action versions, a "PR links an issue" check. Add the job names to the protection rule from step 1.
 5. Optionally enable the `guardrails` plugin hooks (secret scan, no commits on main).

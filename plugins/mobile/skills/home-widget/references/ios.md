@@ -8,3 +8,5 @@
 - **Control Center controls** (iOS 18+): `ControlWidget` with App Intents.
 - Previews: `#Preview(as: .systemSmall) { … } timeline: { … }` per state.
 - Cross-platform bridges (e.g. `home_widget` for Flutter, `react-native-widget-extension`) only move the snapshot; the widget UI is still SwiftUI.
+- **Rendering vs reloading:** WidgetKit renders the timeline entries you already supplied at their dates, so the live → stale entry at `staleAfter` appears on time without your app running. **Reloads are budgeted**: `reloadTimelines` and the timeline's reload policy are rate-limited per day (a frequently viewed widget gets a few dozen) and may be deferred; reloads requested while the app is in the foreground do not count against the budget. Use `Text(date, style: .relative)` for an age that stays current without reloads.
+- Diagnostics: the widget extension's own crashes and exits appear in MetricKit payloads of the containing app; there is no callback when a reload was deferred.

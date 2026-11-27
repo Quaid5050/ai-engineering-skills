@@ -1,20 +1,11 @@
-# meta 1.0.0
+# meta 2.0.0
 
 Keep the workflow improving: create or update skills with a fresh-agent dry run, record architecture decisions, and turn a lesson from a real project into a skill change.
 
-## Install
+Install declared dependencies. Load only relevant skills/resources; required availability is not a recursive workflow.
 
-```text
-/plugin marketplace add Quaid5050/ai-engineering-skills
-/plugin install meta@ai-engineering-skills
-```
-
-## Skills
-
-| Skill | What it does |
+| Skill | Purpose |
 |---|---|
-| [`capture-lesson`](skills/capture-lesson/SKILL.md) | Turn a lesson from real work into a test, lint, gate or rule — and log it |
-| [`create-skill`](skills/create-skill/SKILL.md) | Create or update a skill; fresh-agent dry run on two stacks before registering |
-| [`decision`](skills/decision/SKILL.md) | Record an architecture decision (ADR) with options, consequences and a revisit signal |
-
-See the [catalogue](../../README.md#catalogue) and the [workflow map](../../docs/engineering-workflow.md). License: MIT.
+| [capture-lesson](skills/capture-lesson/SKILL.md) | Turn a lesson from real work — a bug that slipped through, a review that missed something, a postmortem follow-up, an audit finding, a pattern an agent copied wrongly — into a durable change: write it as a lesson (what happened, why it was not caught, which rung should have caught it), generalise it so it holds on any stack, decide the cheapest earliest guard (a test or lint first, then a skill gate or checklist row, then a convention), make the edit with create-skill, log it and, for this marketplace, version and changelog it. Trigger on /capture-lesson, 'we learned', 'add this lesson', 'the skill missed this', 'update the skills after this bug', 'postmortem follow-up', 'make sure this never happens again'. |
+| [create-skill](skills/create-skill/SKILL.md) | Create or update an agent skill in the house structure — research the real workflow, commands and paths, check overlap with existing skills (compose, don't duplicate), draft SKILL.md with a trigger-rich description, a read-the-project phase, numbered phases with gates, rules and composition, keep stack detail in references/, then have a fresh agent dry-run it on a realistic task and fix every real gap, and register it. Works for a project's own skills and for this marketplace. Trigger on /create-skill, 'add a new skill', 'turn this into a skill', 'update the skill', 'improve this skill', 'the skill was wrong', 'write a SKILL.md'. |
+| [decision](skills/decision/SKILL.md) | Record an architecture or engineering decision as a short decision record (ADR) — context with paths, at least two real options including keeping what exists, each with cost now, cost later, what it locks in and an authoritative source, the decision, consequences and follow-up edits, and a concrete 'revisit when' signal — then link it from the convention it explains; or amend/supersede an old record. Use when adopting or refusing a library, pattern, structure, service or stance that is costly to reverse. Trigger on /decision, 'record this decision', 'write an ADR', 'why did we choose X', 'should we switch to Y', 'decision record'. |

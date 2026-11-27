@@ -1,20 +1,21 @@
 # AI Engineering Skills
 
-A framework-agnostic skills and agents marketplace for the **whole engineering lifecycle with AI coding agents** — from a raw idea to a product in users' hands, and back again when something breaks. Backend, mobile app and web. Any stack.
+Risk-based engineering workflows for AI coding agents: **71 skills in 17 plugins**, shared foundations and optional platform references. Existing skill names and paths remain stable.
 
-It installs as a **Claude Code plugin marketplace**, and every skill is a plain [Agent Skills](https://agentskills.io/specification) `SKILL.md`, so Codex, Cursor, Gemini CLI, GitHub Copilot and other agents can use them too.
+**Fast by default, strict where it matters.** `work-context` classifies every task once — Quick, Standard or Structural/High-risk — and every skill runs at that depth. A copy fix does not get an architect; a feature built from scratch always does.
 
-## Why this exists
+## Start here
 
-Coding agents follow written rules and copy the code next to them. They are fast, and they are confidently wrong in exactly the places nobody wrote down. These skills are the written-down part: each one is a workflow that was hardened by real failures — audits, bugs that passed every test, reviews that missed things — and each lesson became a gate, a check or a rule. The ideas that matter most:
+| Task | Tier | Route |
+|---|---|---|
+| Copy, style, docs, config, test-only, a small fix with a known cause | Quick | Change → targeted check → self-review of the diff |
+| Behaviour inside existing structure (a slice following a pattern, a bug fix in existing code) | Standard | 3–6 line plan with inline design check → `implement` test-first → one independent review |
+| Feature or module from scratch, data model, contract, new dependency, cross-cutting refactor, auth/money/personal data/safety | Structural / High-risk | `spec` → `design-review` before code → failure-path tests → independent review with design pass → recovery plan |
+| Production incident | — | Authorized containment → investigation → recovery → postmortem |
 
-- **Design review before code.** Every feature and non-trivial fix gets an independent architect review of its *plan*, posted on the issue before the first code commit: where each part lands, what already exists to reuse, and *would the next feature have to write this again?*
-- **A separate design pass in every code review.** Not bugs — placement, duplication across features, reuse. A wrong placement the next feature would copy is a `major` finding.
-- **One home per technical kind of code.** Secrets per purpose, one storage port, one upload reader, rate limiters, background loops, shared code — each with a stated home and a test. A `utils` folder is not bad; a folder with no rules is.
-- **Allowlist architecture tests with empty baselines.** Denylists ("the domain doesn't use the ORM") pass every kind of code nobody thought of. Allowlists don't. No exceptions by precedent.
-- **Test-first, failure paths first** on anything where a silent failure harms a person or loses money or data.
-- **Merge gates** including "the merging agent reads the diff itself" — and **the speed rule**: going faster may cut test reruns and review rounds, never the tests written, the design review or the design pass.
-- **The project wins.** Every skill first reads the target project's own `AGENTS.md`, conventions and stack, and adapts. Stack detail lives in optional `references/<stack>.md` files, never in the core text.
+**Why it stays fast:** skills are read once per session and keep detail in `references/` (CI caps a skill body at 3,000 words); subagents get a short brief (`docs/agent-brief.md` in your project) instead of re-reading whole skills; re-reviews cover only the fix delta; full suites run once on the final head.
+
+See the [workflow](docs/engineering-workflow.md), [coverage tiers](docs/compatibility.md) and [evaluation evidence](docs/evaluation.md). Documented coverage is not certification of every platform.
 
 ## Install
 
@@ -25,170 +26,58 @@ Coding agents follow written rules and copy the code next to them. They are fast
 /plugin install lifecycle@ai-engineering-skills
 ```
 
-`lifecycle` pulls in `quality` and `agents` as dependencies. Add the area plugins you need:
+Add area plugins as needed. Manifests declare dependencies. Independent roles are in `agents`; opt-in command preflights are in `guardrails`. Verify your host's plugin, role and hook support.
 
-```text
-/plugin install backend@ai-engineering-skills
-/plugin install mobile@ai-engineering-skills
-/plugin install web@ai-engineering-skills
-/plugin install meta@ai-engineering-skills
-/plugin install guardrails@ai-engineering-skills     # opt-in hooks: secret scan, no commits on main
-```
+### Other Agent Skills clients
 
-From a shell (CI, scripts):
-
-```bash
-claude plugin marketplace add Quaid5050/ai-engineering-skills
-claude plugin install lifecycle@ai-engineering-skills
-```
-
-Skills are namespaced by plugin: `/lifecycle:new-feature`, `/quality:code-review`, `/backend:add-endpoint`. Agents: `agents:architect`, `agents:reviewer`, `agents:tester`. Agents also pick skills automatically from their descriptions.
-
-Update later with `/plugin marketplace update ai-engineering-skills`.
-
-### Other agents (Codex, Cursor, Gemini CLI, Copilot, …)
-
-The skills are standard `SKILL.md` folders. Copy or link them into the folder your agent reads:
+Requires Python 3.10+; the installer uses the standard library.
 
 ```bash
 git clone https://github.com/Quaid5050/ai-engineering-skills
 cd ai-engineering-skills
-scripts/install-skills.sh /path/to/your-project/.agents/skills          # copy all skills
-scripts/install-skills.sh ~/.codex/skills --link                         # or link, to stay in sync
-scripts/install-skills.sh .cursor/skills --plugins lifecycle,quality,backend
+python3 scripts/install_skills.py /path/to/project/.agents/skills --plugins lifecycle,backend --dry-run
+python3 scripts/install_skills.py /path/to/project/.agents/skills --plugins lifecycle,backend
 ```
 
-Common locations (check your tool's current docs — they change): `.agents/skills/` (a shared location many agents read), `.codex/skills/` or `~/.codex/skills/` (Codex), `.cursor/skills/` (Cursor), `.gemini/skills/` (Gemini CLI), `.github/skills/` (GitHub Copilot). The three review agents are plain Markdown role descriptions; [docs/other-agents.md](docs/other-agents.md) shows how to use them where an agent has no subagents.
-
-## Start here
-
-| You have | Run |
-|---|---|
-| An idea and no repository | `shape-idea` → `bootstrap-project` → `new-feature` |
-| A repository with no agent rules | `bootstrap-project` (it adds `AGENTS.md`, the placement table, architecture tests, CI) |
-| A feature to build | `new-feature` (it chains everything below) |
-| A bug | `file-bug` → `investigate-bug` → `bugfix` |
-| Production is broken | `incident` → `postmortem` → `capture-lesson` |
-
-The full lifecycle map, with which skill runs at each step: [docs/engineering-workflow.md](docs/engineering-workflow.md).
+Required skills are included automatically. Copy mode is the default; `--link` is for trusted local development. See [host adapters and recovery](docs/other-agents.md).
 
 ## Catalogue
 
-### `lifecycle` — idea to production
-
-| Skill | When to use |
+| Plugin | Capabilities |
 |---|---|
-| `shape-idea` | A raw idea → product brief, riskiest assumptions, MVP scope in milestones |
-| `bootstrap-project` | New repo (or one with no rules): stack decisions, walking skeleton, `AGENTS.md`, placement table + architecture tests, CI on hosted runners, labels and milestones |
-| `new-feature` | Build one feature end to end; routes through every step below with gates |
-| `investigate-feature` | Before specifying: design, scope, existing code, states, data, safety, privacy → build pack |
-| `spec` | Multi-area, schema, safety-critical or privacy work: requirements with acceptance criteria, failure modes, rollout; fresh-agent review + design review before approval |
-| `feature-to-issues` | Approved spec → epic + vertical-slice sub-issues, riskiest first |
-| `file-feature` | One scoped slice → an issue with criteria and tests to write first |
-| `file-bug` | Record a bug: observed vs expected, repro, severity → priority, regression test to add |
-| `start-issue` | Branch from the issue, plan, design review posted before code |
-| `design-review` | The mandatory review of a plan before code: placement, reuse, "would the next feature write this again?" |
-| `implement` | The build-and-verify contract for features, fixes and maintenance; evidence per change type |
-| `investigate-bug` | Reproduce first, five hypotheses, five whys, blast radius, "prevent the class" |
-| `bugfix` | Regression test red → root-cause fix → green; blast radius and data repair |
-| `pre-commit` | Before every commit: branch, staged paths, secrets, generated code, checks, conventional message |
-| `create-pr` | Open a PR with real evidence, per-area summary, safety notes; independent code review posted |
-| `ci` | Drive CI to green, debug failures, optimise, change workflows safely (hosted runners for public repos) |
-| `deploy-check` | Before merge: what breaks users after deploy — contract, migrations, native changes, config, rollback |
-| `merge` | The eight merge gates, the speed rule, merging, watching main |
-| `release` | Choose the release path, staged rollout with approvals, watch, roll back |
-| `observe` | Answer a production health question, or add errors/metrics/alerts for a change |
-| `incident` | Live problem: severity, mitigate first, timeline, communicate, recover |
-| `postmortem` | Blameless write-up; which rung caught it and which should have; follow-ups |
-| `cleanup` | After merge: issues, branches, worktrees, local services |
-| `engineering-principles` | Where code goes and why: layers, the concept test, ports, placement rows, patterns, allowlist tests |
+| [agents](plugins/agents/README.md) | Independent reviewers and scoped tester |
+| [ai](plugins/ai/README.md) | `agent-workflow`, `llm-integration`, `rag-pipeline` |
+| [architecture](plugins/architecture/README.md) | `safe-refactoring`, `system-design` |
+| [backend](plugins/backend/README.md) | `add-endpoint`, `add-file-upload`, `add-migration`, `add-scheduled-job`, `backend-conventions`, `data-check` |
+| [data](plugins/data/README.md) | `data-pipeline`, `database-operations`, `ml-lifecycle` |
+| [desktop](plugins/desktop/README.md) | `desktop-application` |
+| [foundation](plugins/foundation/README.md) | `safe-agent-execution`, `work-context` |
+| [guardrails](plugins/guardrails/README.md) | Advisory preflight and actual-index checks |
+| [lifecycle](plugins/lifecycle/README.md) | `bootstrap-project`, `bugfix`, `ci`, `cleanup`, `create-pr`, `deploy-check`, `design-review`, `engineering-principles`, `feature-to-issues`, `file-bug`, `file-feature`, `implement`, `incident`, `investigate-bug`, `investigate-feature`, `merge`, `new-feature`, `observe`, `postmortem`, `pre-commit`, `release`, `shape-idea`, `spec`, `start-issue` |
+| [meta](plugins/meta/README.md) | `capture-lesson`, `create-skill`, `decision` |
+| [mobile](plugins/mobile/README.md) | `background-work`, `design-to-screen`, `device-test`, `home-widget`, `mobile-conventions`, `offline-queue`, `shared-core` |
+| [operations](plugins/operations/README.md) | `infrastructure-change`, `recovery-drill`, `service-reliability` |
+| [quality](plugins/quality/README.md) | `accessibility-audit`, `analytics-event`, `code-review`, `perf-check`, `security-privacy-review`, `static-catalogs`, `tdd`, `testing-doctrine`, `write-tests` |
+| [security](plugins/security/README.md) | `identity-access`, `supply-chain`, `threat-model` |
+| [specialist](plugins/specialist/README.md) | `specialized-engineering` |
+| [systems](plugins/systems/README.md) | `concurrency-networking`, `memory-and-ffi` |
+| [web](plugins/web/README.md) | `add-web-page`, `build-web-screen`, `web-conventions` |
 
-### `quality` — tests, review, security, accessibility, performance
+The [machine-readable catalogue](catalog/skills.json) includes required dependencies, resources, owners and conservative support tiers. Regenerate with `python3 scripts/update_catalog.py`.
 
-| Skill | When to use |
-|---|---|
-| `testing-doctrine` | The rules every test follows: exact, hard-coded, fakes only at real boundaries, failure paths first, prove it can fail |
-| `tdd` | Red-green-refactor, one behaviour at a time |
-| `write-tests` | Write tests for code or a diff at the right level (stack references: .NET, Python, Node, JVM, Flutter, Swift) |
-| `code-review` | Review a diff or PR: dimensions + the separate design pass + risk tier, posted on the PR |
-| `security-privacy-review` | Data flow, authorisation and isolation, consent, abuse cases, the logging rule, OWASP API pass, retention |
-| `accessibility-audit` | WCAG 2.2 AA for web and mobile: automated checks, screen readers, text scaling, contrast |
-| `perf-check` | Measure against a budget, profile, change one thing, guard it (backend, web, mobile references) |
-| `static-catalogs` | One row per case instead of a switch per attribute; when a data file plus codegen is justified; pin, migrate, guard |
-| `analytics-event` | Add a privacy-safe product event, or answer a product question from events |
+## Development
 
-### `backend`
-
-| Skill | When to use |
-|---|---|
-| `backend-conventions` | Structure server code: layers, thin edges, validation, errors, transactions, resilience, data integrity, architecture tests (.NET, Django, Node, Spring references) |
-| `add-endpoint` | Contract-first endpoint with forbidden-caller tests and regenerated clients |
-| `add-migration` | Schema change: expand → migrate → contract, read the SQL for locks and rewrites |
-| `add-scheduled-job` | Server jobs and outbound notifications: one scheduler, claimed rows, a unique sent-ledger, access re-checked at run time, zone-aware schedules |
-| `add-file-upload` | Uploads and attachments: one upload reader + storage port, type from bytes, size caps, metadata stripped, complete only when all files arrive |
-| `data-check` | Read-only, privacy-safe database questions and migration verification |
-
-### `mobile`
-
-| Skill | When to use |
-|---|---|
-| `mobile-conventions` | App architecture (view → view model → repository → service), shared code with rules, permissions UX, offline storage, performance (Flutter, React Native, Kotlin, Swift references) |
-| `shared-core` | One functional core shared by Android and iOS, thin platform shells, interop rules (Kotlin Multiplatform reference) |
-| `background-work` | Anything that runs while the app is closed: OS mechanisms, battery, app killers, every stop reported |
-| `offline-queue` | A durable on-device outbox that never loses a record silently |
-| `design-to-screen` | Build a screen from a design: inventory, tokens, every state, tests first, screenshot comparison |
-| `home-widget` | Home/lock-screen widgets, live activities, tiles: all states, precomputed snapshot, privacy |
-| `device-test` | Real-device checklist (low-end Android, recent Android, iPhone) recorded in the PR |
-
-### `web`
-
-| Skill | When to use |
-|---|---|
-| `web-conventions` | Structure a web front end — content sites and web apps: thin routes, components, tokens, server-state cache, auth and errors, zero-JS by default for content, CSP, privacy (React/Next.js, Astro references) |
-| `build-web-screen` | An app screen: data fetching, forms, auth/session, 401/403/404 handling, every state, tests first; a no-design wireframe path |
-| `add-web-page` | A content page or section, test-first, with accessibility, performance and CSP checks |
-
-### `agents`
-
-| Agent | When to use |
-|---|---|
-| `architect` | Independent design review of a plan before code, posted on the issue |
-| `reviewer` | Independent code review with the design pass, posted on the PR |
-| `tester` | Fill test gaps in existing code, failure paths first |
-
-### `meta` — keep the workflow improving
-
-| Skill | When to use |
-|---|---|
-| `create-skill` | Create or update a skill; fresh-agent dry run on two stacks before registering (a project's own skills, or this marketplace's) |
-| `decision` | Record an architecture decision (ADR) with options, consequences and a revisit signal |
-| `capture-lesson` | Turn a lesson from real work into a test, lint, gate or rule — and log it |
-
-### `guardrails` — opt-in hooks
-
-| Hook | What it does |
-|---|---|
-| Secret scan | Blocks `git commit` when staged, unstaged or untracked changes add something that looks like a key or token |
-| No commits on main | Blocks `git commit` on `main`/`master` (set `GUARDRAILS_ALLOW_MAIN_COMMIT=1` to allow once) |
-
-## Staying up to date
-
-Lessons from real projects become skill changes through a written process: [docs/lessons.md](docs/lessons.md). Every plugin has a semantic version; changes are in [CHANGELOG.md](CHANGELOG.md). To contribute, see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Repository layout
-
-```
-.claude-plugin/marketplace.json     the marketplace (lists every plugin)
-plugins/<plugin>/.claude-plugin/plugin.json
-plugins/<plugin>/skills/<skill>/SKILL.md (+ references/)
-plugins/agents/agents/*.md
-plugins/guardrails/hooks/hooks.json + scripts/
-docs/                               workflow map, skill format, lessons, other agents
-scripts/check.py                    CI checks (frontmatter, manifests, links, framework names, privacy)
-scripts/install-skills.sh           install skills into another agent's folder
-AGENTS.md                           rules for agents working on this repository
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+python scripts/check.py
+python -m unittest discover -s tests -v
+claude plugin validate . --strict
 ```
 
-## License
+The real container boundary test is opt-in locally: `RUN_CONTAINER_TESTS=1 python -m unittest discover -s tests -p test_execution_boundary.py -v`. It requires Docker and its pinned image; never mount credentials or the Docker socket into agent execution environments.
 
-MIT — see [LICENSE](LICENSE).
+## Audit and migration
+
+The [historical audit](docs/audits/2026-11-26/comprehensive-audit.md) is pinned to the original revision. [Remediation](docs/remediation.md) records implementation and evidence limits; [migration notes](docs/migration-v2.md) explain breaking changes. Contributions: [CONTRIBUTING.md](CONTRIBUTING.md). License: [MIT](LICENSE).

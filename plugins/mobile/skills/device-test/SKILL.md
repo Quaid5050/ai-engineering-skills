@@ -4,7 +4,7 @@ description: "Real-device test checklist for mobile changes that touch backgroun
 argument-hint: "[PR, branch or feature]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Device test
@@ -14,6 +14,8 @@ Run the rows that apply to `$ARGUMENTS` (a PR, branch or feature) and record the
 Emulators and simulators catch logic errors. Background limits, vendor battery killers, notification delivery on a locked phone and real battery drain only show on real hardware, in a release build.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, the project's device list, performance and battery budgets, and its rule for **when** device tests run (per PR, or batched into one pass before release).
 2. Find the build commands for a release-mode build on each platform and the test accounts/environment to use.
@@ -47,7 +49,7 @@ Scripted network loss, forced idle/doze, real process death and scripted locatio
 
 **Offline and uploads**
 - [ ] Airplane mode 10 min while creating data → queued, uploaded on reconnect, nothing missing, no duplicates.
-- [ ] Offline for **days** (set the device clock or leave it overnight in airplane mode) with several records and attachments → all uploaded on reconnect, exactly once.
+- [ ] Offline for **days** (set the device clock or leave it overnight in airplane mode) with several records and attachments → all durable records recovered on reconnect; retries create one logical record per identity.
 - [ ] Killed while offline → data still uploads after the next start.
 - [ ] Killed **during** an upload (force-stop mid-transfer of a large attachment) → resumes after restart; the server has one record and one copy of each file.
 - [ ] Flaky network (throttled, dropping) and a captive portal (Wi-Fi that answers with a login page) → no false "sent", retries, no duplicates.

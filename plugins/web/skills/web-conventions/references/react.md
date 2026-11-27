@@ -44,8 +44,8 @@ How the generic web rows map onto React. Most web **apps** are a client-rendered
 | Headers / CSP | `next.config.js` `headers()` or middleware with a nonce for the scripts Next.js injects |
 | Images | `next/image` with `width`/`height`, `sizes`, `alt` |
 
-- No `next/font/google` at runtime if the policy is no third-party requests — download and use `next/font/local`.
-- No inline `dangerouslySetInnerHTML` except JSON-LD.
+- `next/font/google` downloads at build time and self-hosts for visitors. Use local font files when the build must also avoid external requests; distinguish build and browser network policies.
+- Avoid raw HTML interpolation. JSON-LD also needs safe serialization, including escaping `<` so untrusted text cannot terminate the script element. Test hostile strings; apply a framework-compatible nonce/hash CSP.
 - E2E: Playwright against `next build && next start`. Build-output checks: a Node script over `.next/` or `out/`.
 
 ## Quick greps

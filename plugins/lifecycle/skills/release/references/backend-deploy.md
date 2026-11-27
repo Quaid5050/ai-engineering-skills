@@ -20,8 +20,8 @@ A migration that is not additive never runs before the code that needs it; it wa
 
 ## Scheduled jobs and workers during a deploy
 
-- **Exactly one scheduler.** Rolling and blue/green deploys run old and new instances side by side; if each runs the scheduler, every scheduled job fires twice (duplicate reminders, double charges). Run the scheduler as its own single-instance process, or guard it with a lock / leader election that both versions honour.
-- **Drain workers.** On shutdown a worker stops taking new jobs and finishes (or releases) the current one within a grace period; jobs that are re-delivered after a visibility timeout or a late acknowledgement must be idempotent (a unique sent-ledger key, `add-scheduled-job` in the backend plugin).
+- **Coordinate scheduling.** Verify the actual runner's clustered/leader/deduplicated-trigger model across old and new instances. Recoverable claims and downstream idempotency still protect effects when triggers or workers overlap; leadership alone is not a delivery guarantee.
+- **Drain workers.** On shutdown a worker stops taking new jobs and finishes (or releases) the current one within a grace period; jobs that are re-delivered after a visibility timeout or a late acknowledgement must be idempotent (a stable operation key with recoverable outbox state, `add-scheduled-job` in the backend plugin).
 - **Payload compatibility.** A job enqueued by the old version may be run by the new one and the reverse: job payloads change additively, like the API.
 - **Pausing:** know how to pause the scheduler and disable one job without a deploy (a flag or an admin command) — it is the first move in an incident with duplicate sends.
 

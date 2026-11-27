@@ -1,0 +1,15 @@
+{
+  "name": "foundation",
+  "version": "1.0.0",
+  "description": "Shared task context: picks the Quick, Standard or Structural/High-risk tier once per task, keeps a task card so nothing is re-read, briefs subagents with a digest, and sets safe execution boundaries.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "foundation",
+    "engineering"
+  ]
+}

@@ -4,7 +4,7 @@ description: "Record a bug as an issue with a fixed template — symptom-style t
 argument-hint: "[description | error link | user report | --parent <epic> …]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # File bug
@@ -12,6 +12,8 @@ metadata:
 Record `$ARGUMENTS` (a description, an error-tracker link, a user report, or `--parent <epic>` plus a description) as an issue. This skill **records**; `investigate-bug` finds the cause; `bugfix` fixes it. If an investigation already ran in this conversation, put its findings in the issue instead of re-investigating. If `$ARGUMENTS` is empty, ask what happened, where, and what should have happened.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 `AGENTS.md`: tracker, labels, milestones, priority definitions, how versions and environments are named, which paths are safety-critical.
 

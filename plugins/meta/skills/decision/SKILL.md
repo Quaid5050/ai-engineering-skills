@@ -4,7 +4,7 @@ description: "Record an architecture or engineering decision as a short decision
 argument-hint: "[the question, e.g. 'which database?']"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Decision
@@ -12,6 +12,8 @@ metadata:
 Record the decision `$ARGUMENTS` (the question). If empty, ask which decision to record.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - Where records live (`docs/decisions/`, `docs/adr/`, or as the project says) and the format of the newest one; numbering.
 - The conventions skill or doc the decision shapes, and earlier records on the same topic.

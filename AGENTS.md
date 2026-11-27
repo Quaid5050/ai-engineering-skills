@@ -8,11 +8,15 @@ This repository is a skills and agents marketplace. You are editing **instructio
 - Agents: `plugins/agents/agents/*.md`. Hooks: `plugins/guardrails/hooks/hooks.json` + `scripts/`.
 - The house structure every skill follows: [docs/skill-format.md](docs/skill-format.md). The lifecycle map: [docs/engineering-workflow.md](docs/engineering-workflow.md).
 
+Install development dependencies with `python3 -m pip install -r requirements-dev.txt`.
+
 ## Commands
 | Task | Command |
 |---|---|
 | All repository checks (CI runs the same) | `python3 scripts/check.py` |
-| One check | `python3 scripts/check.py frameworks` (also: `manifests skills agents links privacy`) |
+| Regression tests | `python3 -m unittest discover -s tests -v` |
+| Regenerate catalogue | `python3 scripts/update_catalog.py` |
+| One check | `python3 scripts/check.py frameworks` (also: `manifests catalog skills agents links privacy`) |
 | Validate the marketplace | `claude plugin validate . --strict` |
 | Validate one plugin | `claude plugin validate plugins/<plugin> --strict` |
 | Try a plugin locally without installing | `claude --plugin-dir plugins/<plugin>` |

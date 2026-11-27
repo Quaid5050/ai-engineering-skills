@@ -1,10 +1,10 @@
 ---
 name: web-conventions
-description: "How a web front end is structured and written on any framework — for both content sites (marketing, docs: zero client script by default, sections, copy dictionaries) and web apps (dashboards, authenticated tools: screen → view model/hooks → repository → generated API client, server-state caching, forms mirroring server limits, cookie sessions with CSRF protection, errors keyed on problem codes) — plus design tokens from one source, no inline scripts (CSP), no third-party requests by default, accessibility, performance budgets and tests on the built output. Use when writing or reviewing web UI code. Trigger on 'web conventions', 'where does this go in the front end', 'component structure', 'dashboard structure', 'data fetching', 'design tokens', 'CSP', 'inline script', 'third-party script', 'SPA or static'."
+description: "How a web front end is structured and written on any framework — for both content sites (marketing, docs: zero client script by default, sections, copy dictionaries) and web apps (dashboards, authenticated tools: screen → view model/hooks → repository → generated API client, server-state caching, forms mirroring server limits, cookie sessions with CSRF protection, errors keyed on problem codes) — plus design tokens from one source, a tested strict CSP, no third-party requests by default, accessibility, performance budgets and tests on the built output. Use when writing or reviewing web UI code. Trigger on 'web conventions', 'where does this go in the front end', 'component structure', 'dashboard structure', 'data fetching', 'design tokens', 'CSP', 'inline script', 'third-party script', 'SPA or static'."
 argument-hint: "[web change, file to place, or diff]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Web conventions
@@ -12,6 +12,8 @@ metadata:
 How web front-end code is laid out and written. Apply it to `$ARGUMENTS` (a change, a file to place, or a diff). If empty, apply it to the change in hand. The why is `engineering-principles` (lifecycle plugin). Framework idioms: [references/react.md (SPA and Next.js)](references/react.md), [references/astro.md](references/astro.md).
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` / the web folder's README: framework, rendering mode (static, server-rendered, single-page app, hybrid), commands (lint, type-check, unit, build, e2e), the design source, the token source (possibly shared with a mobile app), and content rules.
 2. Decide which **kind** this is — a **content site**, a **web app**, or both in one repository (then each part follows its own section below).
@@ -33,7 +35,7 @@ How web front-end code is laid out and written. Apply it to `$ARGUMENTS` (a chan
 | Build guards | A scripts folder, not shipped | Checks over the built output |
 
 - **Tokens and contrast:** a new colour is a token in the source first. A brand colour that fails contrast with white is decoration only; text and icons on it use the darker variant. Contrast is tested (`accessibility-audit`, quality plugin).
-- **No inline scripts** (strict CSP `script-src 'self'`, nonces only where the framework injects its own), except structured data. Never weaken the CSP to make code work.
+- **Strict CSP:** use the deployed framework's supported nonce/hash strategy and test actual response headers and hydration. Generate unpredictable per-response nonces; authorize required scripts deliberately. Structured data needs safe serialization against closing-script injection. Avoid broad `unsafe-inline` allowances.
 - **No third-party requests by default** (CDN fonts, analytics, embeds, pixels). One needs a decision record and a privacy note.
 - **Images** through the framework's image pipeline with `width`/`height`, `alt` (`alt=""` when decorative), sized for their slot.
 - **Security headers** (CSP, `Referrer-Policy`, `Permissions-Policy`, `X-Content-Type-Options`, HSTS) configured once, checked on the built output.
@@ -75,11 +77,13 @@ Same layering as a mobile app (`mobile-conventions`, mobile plugin) and the serv
 
 - [ ] The kind (content site / app) is clear and its section was followed.
 - [ ] Routes thin; components typed; no literal user-facing text; tokens only; contrast rule respected.
-- [ ] No inline script, no third-party request, CSP untouched; headers checked on the build.
+- [ ] Only CSP-authorized scripts and approved third-party requests; headers checked on the build.
 - [ ] Apps: screens never import the generated client; server state in the cache layer; errors keyed on problem codes; 401/403/404 handled in one place; session in httpOnly cookies with CSRF protection; optimistic only for reversible actions; every state built.
 - [ ] Content sites: zero-JS preferred; behaviour through `init*()` + `data-*` hooks; claims match scope.
 - [ ] Accessibility basics; reduced motion; budget impact stated.
 - [ ] Tests at the right level; all commands green.
+
+For other supported ecosystems, load [references/ecosystems.md](references/ecosystems.md) only when relevant.
 
 ## Rules
 

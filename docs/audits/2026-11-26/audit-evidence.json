@@ -1,0 +1,151 @@
+{
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "commit": "4dab7293821283e30bee7d7f3814c10e8ee72f2a",
+  "audit_date": "2026-11-26",
+  "tracked_files": 127,
+  "lines": 7925,
+  "skill_count": 51,
+  "reference_count": 38,
+  "all_tracked_bytes_match_git_commit": true,
+  "probes": [
+    {
+      "name": "secret scan normal staged fixture",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 2,
+        "stderr": "Blocked: these files look like they add a secret (key, token or service-account JSON). Move the value to configuration or the environment and commit placeholders only:\n  fixture.txt\nIf the file is not meant to be committed, add it to .gitignore."
+      }
+    },
+    {
+      "name": "secret scan git -C",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "secret scan cd then commit",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "main branch normal commit",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 2,
+        "stderr": "Blocked: you are committing directly on 'main'. Create a branch for the issue first (git switch -c <type>/<n>-<slug>).\nTo allow it once (e.g. the first commit of a new repository), prefix the command: GUARDRAILS_ALLOW_MAIN_COMMIT=1 git commit \u2026"
+      }
+    },
+    {
+      "name": "main branch git global option",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "main branch allow text in echo",
+      "expected": "block exit 2",
+      "observed": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "malformed hook payload",
+      "expected": "explicit failure",
+      "observed": {
+        "exit": 0,
+        "stderr": ""
+      }
+    },
+    {
+      "name": "filtered quality install",
+      "expected": "explicit dependency resolution or warning",
+      "observed": {
+        "exit": 0,
+        "count": 8,
+        "has_principles": false,
+        "output": "copy: 8 skills into <temporary-audit-directory>/installed\nAgents (architect, reviewer, tester) are in plugins/agents/agents/*.md \u2014 see docs/other-agents.md."
+      }
+    },
+    {
+      "name": "copy reinstall",
+      "expected": "explicit owned update workflow",
+      "observed": {
+        "exit": 0,
+        "old_retained": true,
+        "output": "skip accessibility-audit: <temporary-audit-directory>/installed/accessibility-audit exists (not ours)\nskip analytics-event: <temporary-audit-directory>/installed/analytics-event exists (not ours)\nskip code-review: <temporary-audit-directory>/installed/code-review exists (not ours)\nskip perf-check: <temporary-audit-directory>/installed/perf-check exists (not ours)\nskip security-privacy-review: <temporary-audit-directory>/installed/security-privacy-review exists (not ours)\nskip tdd: <temporary-audit-directory>/installed/tdd exists (not ours)\nskip testing-doctrine: <temporary-audit-directory>/installed/testing-doctrine exists (not ours)\nskip write-tests: <temporary-audit-directory>/installed/write-tests exists (not ours)\ncopy: 0 skills into <temporary-audit-directory>/installed\nAgents (architect, reviewer, tester) are in plugins/agents/agents/*.md \u2014 see docs/other-agents.md."
+      }
+    },
+    {
+      "name": "foreign symlink install collision",
+      "expected": "preserve or request explicit replacement",
+      "observed": {
+        "exit": 0,
+        "replaced": true
+      }
+    },
+    {
+      "name": "unknown plugin filter",
+      "expected": "nonzero and actionable error",
+      "observed": {
+        "exit": 0,
+        "output": "copy: 0 skills into <temporary-audit-directory>/unknown\nAgents (architect, reviewer, tester) are in plugins/agents/agents/*.md \u2014 see docs/other-agents.md."
+      }
+    },
+    {
+      "name": "frontmatter duplicate name",
+      "expected": "reject malformed/duplicate data",
+      "observed": {
+        "errors": [],
+        "parsed": [
+          {
+            "name": "second",
+            "description": "Use when x"
+          },
+          "body\n"
+        ]
+      }
+    },
+    {
+      "name": "frontmatter unclosed quote",
+      "expected": "reject malformed/duplicate data",
+      "observed": {
+        "errors": [],
+        "parsed": [
+          {
+            "name": "demo",
+            "description": "\"Use when x"
+          },
+          "body\n"
+        ]
+      }
+    },
+    {
+      "name": "documented sent-ledger crash window",
+      "expected": "pending notification retried",
+      "observed": {
+        "first": "crash-before-send",
+        "retry": "skip",
+        "deliveries": 0
+      }
+    }
+  ],
+  "limitations": [
+    "Probes ran directly against scripts in isolated temporary repositories, not through a live agent hook event.",
+    "Sent-ledger probe models the documented algorithm; this repository contains no deployed application implementation.",
+    "No production, account, real-device, full git-history, or model-comparison testing was performed."
+  ],
+  "checks": {
+    "repository_checker": "All six check groups passed",
+    "claude_plugin_validate": "Marketplace and eight plugins passed --strict; CLI 2.1.285",
+    "shell_syntax": "Installer and three guardrail scripts passed bash -n"
+  },
+  "publication_note": "Temporary local filesystem paths were replaced with a generic placeholder for public publication. The audit commit and probe outcomes are unchanged."
+}

@@ -1,7 +1,7 @@
 {
   "name": "agents",
-  "version": "1.0.0",
-  "description": "Independent subagents: architect (design review of a plan before any code), reviewer (cold code review with a design pass), tester (fills test gaps, failure paths first).",
+  "version": "2.0.0",
+  "description": "Independent subagents that work from a short brief: architect (design review before code, Structural/High-risk work only), reviewer (diff review at the task's tier, delta re-reviews), tester (fills test gaps, failure paths first).",
   "author": {
     "name": "Quaid5050",
     "url": "https://github.com/Quaid5050"
@@ -16,6 +16,6 @@
     "testing"
   ],
   "dependencies": [
-    "quality"
+    "foundation"
   ]
 }

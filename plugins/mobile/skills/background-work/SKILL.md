@@ -1,19 +1,21 @@
 ---
 name: background-work
-description: "Change mobile background work safely — periodic sync, uploading queued records, a long-running user-visible task — treating it as safety-critical when users rely on it: decide in the shared core first, change the app ↔ native contract first, follow the platform rules (user-visible foreground work where the OS requires it, adaptive scheduling, battery savers and vendor app killers detected and surfaced, restart after reboot or update, permission flow), report every stop with a reason, write failure-path tests first, do an emulator/simulator pass, then device and battery tests before merge. Use when adding or changing anything that runs while the app is not on screen. Trigger on 'background task', 'background sync', 'runs in the background', 'stops after a while', 'killed in the background', 'foreground service', 'battery drain', 'restart after reboot', 'doze'."
+description: "Change mobile background work safely — periodic sync, uploading queued records, a long-running user-visible task — treating it as safety-critical when users rely on it: decide in the shared core first, change the app ↔ native contract first, follow the platform rules (user-visible foreground work where the OS requires it, adaptive scheduling, battery savers and vendor app killers detected and surfaced, restart after reboot or update, permission flow), record observed failures and distinguish unknown interruptions, write failure-path tests first, do an emulator/simulator pass, then device and battery tests before merge. Use when adding or changing anything that runs while the app is not on screen. Trigger on 'background task', 'background sync', 'runs in the background', 'stops after a while', 'killed in the background', 'foreground service', 'battery drain', 'restart after reboot', 'doze'."
 argument-hint: "[the background behaviour to add or change]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Background work
 
 Change the background behaviour in `$ARGUMENTS`. If empty, ask what should run while the app is closed and what the user relies on it for.
 
-Background work fails quietly: the OS kills it, a battery saver delays it, a permission is downgraded — and nobody knows. If users rely on it (fresh data, alerts, uploads they expect), it is **safety-critical**: it never stops silently, and it gets failure-path tests and a device test.
+Background work fails quietly: the OS kills it, a battery saver delays it, a permission is downgraded — and nobody knows. Classify by consequence: a delayed feed refresh differs from a missed safety alert. Persist progress and freshness; device evidence is required for platform-dependent claims.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, decision records, the native READMEs and the project's battery/performance budgets.
 2. Find the bridge contract between app code and native code, the shared core if any (`shared-core`), the queue (`offline-queue`), and their test commands.
@@ -25,21 +27,21 @@ Background work fails quietly: the OS kills it, a battery saver delays it, a per
 ## 1. The flow of a change
 
 1. **Decide in the core.** Any new or changed rule — when to run, how often, when to retry, what blocks, what is reported — is a change in the core (the shared native core, or the cross-platform framework's code when that is the recorded core) with its test written first (`tdd`, quality plugin). No core at all? The rule goes in one tested, pure unit per platform, with shared test vectors so both behave the same — and a design question is raised to pick one core.
-2. **Run the core tests on both targets.**
+2. **Run the core tests on supported, affected targets.**
 3. **Contract first:** a new field or call between app code and native code changes the bridge definition, then regenerates both sides. Never hand-edit generated files.
 4. **Wire the shells only for OS work:** a new OS input passed in as a parameter, a new adapter method returning failures (never "empty"). If you are writing an `if` about policy in shell code, it belongs in step 1.
 5. **Platform tests** where an adapter changed, then native lint.
-6. **Emulator/simulator pass** on both platforms (§4), then **device and battery** (§5).
+6. **Emulator/simulator pass** on affected supported platforms (§4), then **device and battery** (§5).
 
-## 2. Platform rules (both platforms)
+## 2. Rules for supported platforms
 
 - **Use the mechanism the OS intends.** Continuous user-visible work runs as user-visible foreground work with an ongoing notification that says what is running and offers actions (pause, open). A **transfer the user started** (uploading a submission, a large file) uses the OS's user-initiated transfer mechanism where it exists, and a background transfer session that keeps going after the app is suspended. Deferrable work goes to the OS job scheduler with constraints (network, charging). Know each mechanism's **time limits** on current OS versions — some foreground work types are now capped per day — and design for being stopped. Never a hand-rolled timer loop that keeps the process awake.
 - **One runner at a time.** The foreground trigger, the background job and a retry timer must not run the same work concurrently: use the scheduler's unique-work policy plus a lease in storage (`offline-queue`).
 - **Adaptive, not fixed.** Run often only when it matters (the user is active, data changes fast), back off when idle. Never "every few seconds, just in case".
 - **Battery savers and vendor app killers.** Detect when the work was stopped or delayed (a heartbeat the server or the next run checks), surface it to the user with the fix (exempt from battery optimisation, vendor-specific setting) in an onboarding reliability check, and report it.
-- **Restart after reboot and after an app update** when the user had it on.
+- **Restore eligible work after reboot/update** only through platform-supported mechanisms; force-stop, user termination and platform restrictions may require user relaunch.
 - **Permissions:** explanation screen before every system prompt; background-level access only after foreground; "only while using" or "approximate" is handled by telling the user what will not work (`mobile-conventions` §4).
-- **Every stop has a reason** — killed, permission lost, battery saver, storage full, signed out — reported to the app UI and, where others rely on it, to the server, so a stale state shows **age and reason**, never a fake "live".
+- **Record observed stop reasons** and last-success timestamps. The OS may kill a process without callback; report stale or unknown interruption rather than inventing a cause or promising immediate server notification.
 - **Privacy:** no personal data in logs in release builds; debug logs only with synthetic data.
 
 ## 3. Tests (failure paths first)
@@ -52,7 +54,7 @@ Write these before the happy path (`testing-doctrine`, quality plugin):
 - server error / timeout → bounded retry with backoff, then a visible problem;
 - duplicate or out-of-order runs → one effect, not two — **paired** with a test that dedupe does not swallow a genuine second event;
 - device clock skew;
-- boundary: the run happens exactly at its scheduled time, not one tick early or never.
+- boundary: eligibility is computed correctly just before/at/after the requested time; separately test delayed execution and missed windows. OS scheduling is not exact.
 
 Each asserts the work still happens **or** the failure is visible to someone. "Nothing happened and nobody knows" is the bug these tests exist for.
 
@@ -62,17 +64,27 @@ Scripted location/network/time where relevant, forced idle/doze, and **real proc
 
 ## 5. Device and battery (required)
 
-`device-test` rows for background work on a **low-end Android**, a recent Android and an iPhone, in a **release** build: locked phone 30 min, app swiped away, reboot, airplane mode, battery saver on. Battery per the project's budget (for example ≤ X %/h active, ≤ Y %/h idle). Results recorded in the change. If the project batches device tests into one pass before release, list these rows as open in the PR — never skip them silently.
+`device-test` rows for background work on representative supported devices, including a constrained device where relevant, in a **release** build: locked phone 30 min, app swiped away, reboot, airplane mode, battery saver on. Battery per the project's budget (for example ≤ X %/h active, ≤ Y %/h idle). Results recorded in the change. If the project batches device tests into one pass before release, list these rows as open in the PR — never skip them silently.
 
-**Gate:** failure-path tests green, both platforms built, device and battery rows done or listed as open.
+**Gate:** failure-path tests green, affected supported targets built, device and battery rows done or listed as open.
+
+## OS background execution limits
+
+The OS decides when background work runs and may end it without a callback. Design for that:
+
+- **No exact timing.** Deferred jobs run inside OS windows that idle modes, battery savers, standby buckets and quotas can push back by hours; foreground work types have per-day caps on current versions. Never promise "every N minutes" in copy or a spec; state the expected range and test the missed-window path.
+- **Persist progress per attempt:** last success time, attempt id, start time, and the stop reason when the OS reports one. An attempt that started and never recorded an end is **interrupted / unknown**, never success.
+- **Know the stop kinds apart.** A user force-stop or swipe-away on some platforms cancels scheduled work until the next launch; OS eviction for memory or a quota expiry is resumed by the scheduler; a reboot needs the platform's restart mechanism. Each gets its own test row, and the reliability screen says which one the user can fix.
+- **Read the platform's exit diagnostics** on the next launch to attach an observed reason to an interrupted attempt; the sources per platform are in the references. When none is available, show "stopped, reason unknown" with the last success time.
+- Test on the supported OS versions the project lists; limits change between releases.
 
 ## Rules
 
 - No change to safety-critical background work without a failure-path test and a device test.
-- No silent failure: every stop is reported and visible as a reason.
+- Surface observed failures and stale/unknown progress; do not promise notification while the process cannot run.
 - Rules change once (the core); a one-platform change says why the other is unaffected.
 - Native changes ship by store release, never an over-the-air patch (`release`, lifecycle plugin).
-- A change to timing or frequency changes how fresh data is: it goes through `spec` (lifecycle plugin) first.
+- Record freshness impact; use a spec when risk or unresolved requirements justify one.
 
 ## Composition
 

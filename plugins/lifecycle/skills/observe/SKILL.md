@@ -4,7 +4,7 @@ description: "Answer health questions from production signals, or add the signal
 argument-hint: "[question | add <change>]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Observe
@@ -12,6 +12,8 @@ metadata:
 `$ARGUMENTS` is either a **question** ("is the 2.3.0 release healthy?", "why are notifications slow since 14:00?") or `add <change>` to instrument new behaviour. Default environment: the one named, else local.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 From `AGENTS.md` and the repo: which error tracker, metrics, tracing and log backends exist, how instruments are named and registered, where alert rules live (as code if possible), health endpoints, dashboards, and the targets for each signal. **What is not wired yet** is said as such: until it is, "observe" means local logs and the test suite, and the first instrument sets it up as its own issue.
 
@@ -22,12 +24,12 @@ Adapt to the product; keep the safety ones first.
 | Signal | Why | Typical target |
 |---|---|---|
 | Crash-free sessions / users per release and platform | Client stability | ≥ 99.5% |
-| Delivery success and lag of critical notifications or messages | Safety and trust | 100% delivered or a fallback sent; p95 lag within the spec |
+| Delivery success and lag of critical notifications or messages | Safety and trust | Delivery/acknowledgement SLO and p95/p99 lag defined; unknown outcomes and failed fallbacks remain visible |
 | Freshness of background data (share of users whose last sync is recent) | Background work silently killed | Per OS version and device maker |
 | Server 5xx rate and p95/p99 latency per route | Backend health | 5xx < 0.5%; latency per budget |
 | Queue/backlog lag, failed jobs, outbox age | Pipeline health | No growing backlog |
 | Client-side offline queue: depth and **age of the oldest unsent record**, reported on reconnect | Data stuck on devices (killed background work, a poison record, storage full) | Oldest unsent record younger than the spec allows |
-| Scheduled jobs: runs, duplicates prevented by the sent-ledger, lag behind schedule | Missed or doubled scheduled effects | Zero missed runs; lag within the spec |
+| Scheduled jobs: runs, duplicate attempts and provider-reconciled outcomes, lag behind schedule | Missed or doubled scheduled effects | Backlog age, exhausted retries and uncertain outcomes within the defined SLO |
 | Third-party provider errors (payments, email, SMS, push) | Delivery channels | Alert when the error rate rises |
 
 ## 2. Answer a question
@@ -46,7 +48,7 @@ For every new failure mode the change introduces, someone must find out **withou
 - **Errors:** unexpected exceptions reach the global handler or the error tracker with context; caught errors on safety paths are reported through one helper. Never an empty catch.
 - **Metrics:** counters and histograms named `<app>.<area>.<thing>` (e.g. `shop.orders.payment_result`, `shop.notifications.lag_seconds`), tags with **low cardinality only** (`platform`, `result`, `channel`). Never user ids, emails, free text or locations as tags.
 - **Traces:** a span around each hot-path operation, each batch, and each outbound call (payments, messaging, other services).
-- **Logs:** structured, with named placeholders; follow the privacy logging rule in `security-privacy-review` (quality plugin): no personal data, tokens or precise locations in anything shipped off the device or server. Pseudonymous ids are fine in logs, never as metric tags.
+- **Logs:** structured, with named placeholders; follow the privacy logging rule in `security-privacy-review` (quality plugin): no personal data, tokens or precise locations in anything shipped off the device or server. Pseudonymous ids remain potentially personal: minimize, access-control and expire them; avoid unbounded metric tags.
 - **Alerts:** each safety signal gets a rule with a threshold, a window and an **owner**, written as code where the project supports it, and named in the PR.
 - **Product analytics** (did people use it?) are separate: `analytics-event` (quality plugin).
 

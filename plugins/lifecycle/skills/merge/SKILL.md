@@ -1,74 +1,67 @@
 ---
 name: merge
-description: "The one definition of the merge gates, and merging once they hold — required CI green on a head commit that contains current main, a posted code review covering that head with no open critical or major finding, the PR closing its issue, area checks CI does not run pasted from a local run, a design review posted before the first production-code commit for any feature or non-trivial fix, a design pass with no open major, the merging session reading the diff itself, and the deploy-check and security-privacy verdicts posted where they apply. Stacked PRs bottom-up; a red main is fixed first. Speed may cut test reruns and review rounds, never the tests written, the design review or the design pass. Use when a PR looks ready. Trigger on /merge, 'merge this', 'is this ready to merge', 'can I merge', 'merge gates', 'ship the PR'."
+description: "Check a PR's merge gates for the exact head commit at its risk tier — CI on the head against current main, a review covering the head, the issue link, area checks CI skips, the design review for structural work, the design pass, the merging session's own read of the diff, required security and deploy verdicts — then merge only when the project's policy allows. Explicit no-merge instructions always stop before merging. Trigger on /merge, 'merge this', 'is this ready to merge', 'check the gates', 'merge the stack'."
 argument-hint: "[PR]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Merge
 
-Check the merge gates for `$ARGUMENTS` (a PR; default the current branch's PR) and merge when they hold. If it is not ready, say exactly which gate fails and what fixes it.
+Check the gates for `$ARGUMENTS` (a PR; default the current branch's PR) and merge when they hold and the policy allows. If not ready, say exactly which gate fails and what fixes it. Eligibility is not authorization; a user's no-merge instruction always wins.
 
 ## 0. Read the project
 
-From `AGENTS.md` / `CLAUDE.md` / `CONTRIBUTING.md`:
+Reuse the task card and tier from `work-context` (foundation plugin). From the project's agent rules read:
 
-- **The merge policy:** may the agent merge itself once the gates hold, or must it ask? **Default: ask.** Some projects let the agent merge every PR whose gates hold, including high-risk ones; follow exactly what the project says.
-- The merge method (merge commit, squash, rebase), the required check names, area checks CI does not run, and any extra gates the project adds. Project gates add to the eight below; they never remove one.
-- **Optional project policies** (only if `AGENTS.md` states them): PR CI is switched off and local checks stand in for it; some area checks run only on main and must be run locally; device tests are batched into one real-device pass before release; the agent merges without asking. Without such a statement, none of them applies.
+- **The merge policy:** may the agent merge once the gates hold, or must it ask? **Default: ask.** Follow exactly what the project says.
+- The merge method, required check names, area checks CI does not run, and the project's extra gates. Project gates add to the ones below; they never remove one.
+- **Optional project policies**, only if stated: PR CI off with local checks standing in; area checks that run only on main; device tests batched into one pass before release; agent merges without asking.
+
+Never assume the default branch is called main.
 
 ## 1. The gates
 
-A PR is ready only when **all** of these hold:
+A PR is ready only when every gate that applies to its tier holds:
 
-1. **CI green on the head commit, against current main.** Every required check is green, or skipped because its area did not change. A PR that is behind main (or was just retargeted) merges main in, pushes, and gets a fresh green run. If the project's policy says PR CI is off, this gate is the project's full local check run on the head commit with its summary pasted in the PR.
-2. **A posted code review covering the head commit** (`code-review`, quality plugin, run by the `reviewer` agent, agents plugin), with no open `critical` or `major` finding. Commits after the reviewed one are only reviewed fixes, or get a re-review note.
-3. **The PR closes its issue** (`Closes #<issue>` in the body).
-4. **Area checks CI does not run** (only if the project lists any), run locally on the head commit with their output in the PR.
-5. **Design review before production code.** For a feature or a non-trivial fix (`engineering-principles` §5), the slice or bug issue has a design review (`design-review`) posted **before the first commit with production code** — a reproduction test or characterisation tests may come first — and no design finding is open. For a slice of a specified feature, the epic's spec-level review exists too.
-6. **The design pass** of the code review has no open `major` finding.
-7. **The merging session has read the diff itself.** Green tests and a positive review are not enough: read `gh pr diff <PR>` and confirm it does what the issue says, nothing more, and follows the design review.
-8. **Required verdicts are posted.** `deploy-check` when the change touches the API, data, platform code, configuration or scheduling; `security-privacy-review` (quality plugin) when it touches personal data, auth, sharing, uploads, payments or analytics. No unsafe deploy-check row and no critical privacy finding is open, unless the owner's acceptance is quoted in the PR.
+| # | Gate | Quick | Standard | Structural / High-risk |
+|---|---|---|---|---|
+| 1 | Required CI green **on the head commit, against current main** (a PR behind main merges main in and gets a fresh run; PR CI off → the project's full local check on the head, summary in the PR) | ✓ | ✓ | ✓ |
+| 2 | A review covering the head with no open `critical`/`major` (`code-review`); later commits are reviewed fixes or get a delta re-review | self-review | independent | independent |
+| 3 | The PR links its task (`Closes #<issue>` when the change completes it; a partial change only references it) | if the project tracks issues | ✓ | ✓ |
+| 4 | Area checks CI does not run, run locally on the head with output in the PR | if touched | if touched | if touched |
+| 5 | Design review before production code (`design-review`), no open blocking finding | — | inline design check in the plan | ✓ separate; independent when a subagent or second person is available, otherwise a labelled self-review (a project may require independence) |
+| 6 | The design pass has no open `major` | — | ✓ on the diff | ✓ against the design review |
+| 7 | **The merging session has read the diff itself** (`gh pr diff <PR>`): it does what the task says, nothing more, and follows the design | ✓ | ✓ | ✓ |
+| 8 | Required verdicts: `deploy-check` when API, data, platform code, configuration or scheduling changed; `security-privacy-review` when personal data, auth, sharing, uploads, payments or analytics changed; nothing unsafe open unless the owner's acceptance is quoted | if touched | if touched | if touched (always for a declared high-risk area) |
 
-**The speed rule:** speed may reduce test **reruns** and review **rounds**. It never reduces the tests written, the design review, or the design pass.
+Review and check evidence must come from a trusted identity and cover the candidate; a comment title, an author-controlled timestamp or a copied summary is not proof, and a later code change invalidates it.
 
-```bash
-gh pr view <PR> --json headRefOid,mergeStateStatus,statusCheckRollup,body,closingIssuesReferences
-gh pr view <PR> --comments          # the newest "## Code review — <SHA>" must cover the head
-gh issue view <issue> --comments    # the "## Design review — <date>" and its timestamp vs the first production-code commit
-gh pr diff <PR>                     # gate 7
-```
+**The speed rule:** speed may cut test **reruns**, review **rounds** and ceremony the tier does not require. It never cuts the tests written, the design review a Structural change needs, or the design pass its tier requires.
 
-**Gate:** each of the eight is ticked with its evidence (a link, a SHA, a command output). One failing gate → fix it, never bypass it.
+Commands are in [references/commands.md](references/commands.md).
+
+**Gate:** each applicable gate is ticked with evidence (a link, a SHA, a command output); each inapplicable one says why. A failing gate is fixed, never bypassed.
 
 ## 2. Merge
 
-1. Policy says ask → show the ticked gates and ask. Policy allows the agent to merge → merge without asking.
-2. `gh pr merge <PR> --merge` (or the project's method).
-3. Confirm the issue closed; update the epic's checklist if there is one.
+1. Policy says ask, or the user has not authorized merging → show the ticked gates and ask. Policy allows → merge.
+2. Use the expected-head merge (or the merge queue) so a changed head cannot merge under stale evidence: `gh pr merge <PR> --merge --match-head-commit <sha>` (or the project's method).
+3. Close the issue only if this change fulfils it; update the epic checklist.
 4. **Watch main's CI** after the merge. A red main is fixed before anything else merges.
 
-**Stacked PRs:** merge bottom-up. After the bottom one merges, retarget the next to main (`gh pr edit <next> --base main`), merge main in, wait for a fresh green run and a review that covers the new head, then merge.
-
-**Open device tests** do not hold a merge only when the project's policy batches them into one real-device pass before release; list them in the PR as open and run `device-test` (mobile plugin) before `release`. Otherwise they are part of gate 4.
+**Stacked PRs** and **batched device tests**: see [references/commands.md](references/commands.md).
 
 ## Rules
 
-- A failing gate is fixed, never bypassed: no admin merge, no disabled check, no "review later".
-- Never merge someone else's PR, or a PR from a fork, without the user's OK.
-- Releases and deploys keep their own approvals (`release`); merging is not releasing.
-- Report states precisely: implemented, verified, PR open, CI green, merged, released are six different things.
+- No admin merge, no disabled check, no "review later".
+- Never merge someone else's PR or a fork's PR without the user's OK.
+- Merging is not releasing; releases and deploys keep their own approvals (`release`).
+- Report precisely: implemented, verified, PR open, CI green, merged, released are six different states.
 
 ## Composition
 
 | From | This skill | To |
 |---|---|---|
-| `ci` (green), `create-pr` (review posted), `deploy-check` (verdict) | Gates checked, merged | `release`, `cleanup` |
-| `design-review` | Gate 5 evidence | — |
-| `deploy-check`, `security-privacy-review` (quality) | Gate 8 verdicts | — |
-
-## Report
-
-Each gate → evidence; the merge commit; main's CI state after the merge; anything left open (device tests, follow-up issues).
+| `ci` (green), `code-review` (covers head), `deploy-check` / `security-privacy-review` (verdicts), `design-review` (Structural) | Gates checked; merged when allowed | `release`, `cleanup` |

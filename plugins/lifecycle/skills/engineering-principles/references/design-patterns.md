@@ -21,7 +21,7 @@ If a change needs edits in many unrelated places, a pattern is missing or misuse
 
 | Pattern | Use when | Not when |
 |---|---|---|
-| **Layers with the dependency rule** (clean / onion) | Always: edge → use case → domain; outer depends on inner | — |
+| **Layers with the dependency rule** (clean / onion) | For applications whose responsibilities benefit from these boundaries: edge → use case → domain; outer depends on inner | — |
 | **Ports and adapters** (hexagonal) | The thing is outside the process and may be swapped or faked: vendors, the OS, other services, the clock | It is your own in-process code in the same layer |
 | **Service layer** (application service) | A use case coordinates rules, data, a transaction and side effects | A pure rule (put it on the entity) or a single read (a projection is enough) |
 | **Domain model** (rich entities) | Invariants must hold whoever changes the data | Plain read models |
@@ -47,7 +47,7 @@ If a change needs edits in many unrelated places, a pattern is missing or misuse
 |---|---|---|
 | **Factory method** (static creation) | Creating an object must enforce invariants or assign an id/time | A record with no rules |
 | **Builder** | Many optional parts assembled step by step (mostly frameworks) | Your own code with few parameters — named parameters instead |
-| **Abstract factory** | Families of related objects that vary together | Almost always |
+| **Abstract factory** | Families of related objects that vary together | Almost when the actual responsibility warrants it |
 | **Singleton** | One shared instance — **through the DI container only** | Never as static mutable state: tests cannot replace it |
 
 ### Structural

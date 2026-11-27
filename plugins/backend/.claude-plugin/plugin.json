@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Backend conventions (layers, ports and adapters, one home per technical kind of code, allowlist architecture tests), contract-first endpoints, safe schema migrations and read-only data checks. References for .NET, Django, Node and Spring.",
   "author": {
     "name": "Quaid5050",
@@ -17,6 +17,7 @@
     "migrations"
   ],
   "dependencies": [
-    "lifecycle"
+    "foundation",
+    "quality"
   ]
 }

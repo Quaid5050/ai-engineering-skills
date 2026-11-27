@@ -4,7 +4,7 @@ description: "File one already-scoped feature slice as an issue with a fixed tem
 argument-hint: "[one-line feature | design frame | --parent <epic> description]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # File feature
@@ -12,6 +12,8 @@ metadata:
 File `$ARGUMENTS` (a one-line feature, a design frame, or `--parent <epic>` plus a description) as an issue. Use it **after** the slice is scoped: you know what the person will be able to do and how to tell it is done. Not scoped yet (fuzzy goal, competing approaches, several risky areas) → `investigate-feature` and `spec` first. If `$ARGUMENTS` is empty, ask for the feature in one line.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 `AGENTS.md`: the tracker and repository, the label set, milestone names, priority definitions, where specs live. Missing labels → offer the `bootstrap-project` label script (it changes the repo: owner's OK).
 
@@ -36,7 +38,7 @@ Fill every field from the conversation, the spec and the design. Ask at most **o
 
 ## 2. Draft and preview
 
-Use this template exactly; never add or drop a section (write `None`).
+Use relevant sections of this template; mark genuinely inapplicable requirements with a reason. Small tasks may use a concise equivalent that preserves acceptance criteria and validation.
 
 ```markdown
 **Design:** <frame> · **MVP:** <id · milestone> · **Spec:** docs/specs/<NNN>-<slug>/spec.md#<section>
@@ -80,7 +82,7 @@ Issue link, labels, parent, and the first test to write. Add the row to the spec
 
 ## Rules
 
-- One issue = one vertical slice a person can use. Never "add the table" / "add the endpoint" / "add the screen" as separate issues.
+- Prefer cohesive vertical slices. Infrastructure prerequisites, experiments, library changes and migration enablers can be separate issues when their dependencies and acceptance criteria are explicit.
 - Never create, label or link without approval; never edit someone else's issue unasked.
 - Feature labels (`feature:<slug>`) are created by `feature-to-issues`.
 

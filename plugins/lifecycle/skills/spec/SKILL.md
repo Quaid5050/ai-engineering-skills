@@ -4,7 +4,7 @@ description: "Write and get approval for a feature spec — problem and users, d
 argument-hint: "[feature name, MVP id, or spec folder]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Spec
@@ -12,6 +12,8 @@ metadata:
 Write the spec for `$ARGUMENTS` at `docs/specs/<NNN>-<slug>/spec.md` — the same folder and docs branch (`docs/<docs-issue>-<slug>`) `investigate-feature` created. If `$ARGUMENTS` is empty, ask which feature. A small, clear change goes straight to `file-feature`.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - `AGENTS.md`: where specs live, the contract file, the commands, the tracker.
 - The investigation `docs/specs/<NNN>-<slug>/investigation.md`. Missing → run `investigate-feature` first; never write a spec from memory of the product.
@@ -76,21 +78,21 @@ Spawn a fresh agent (no access to this conversation) with only the spec path and
 
 ## 3. Design review
 
-Run `design-review` on the technical part — **always** by the `architect` agent (agents plugin), whatever the spec's size — and fold its decisions, reuse and risks into the spec. Post it on the **epic** when the feature will have several slices (create the epic first with `feature-to-issues` step 3.2 if it does not exist yet), otherwise (a single-slice feature, whose issue does not exist yet) on the **docs issue** from `investigate-feature`. Each slice still gets its own short slice-level review before its first production-code commit (`start-issue`). A design finding the spec does not resolve blocks approval.
+Use `design-review` for high-risk or costly-to-reverse decisions and whenever project policy requires it. Reuse the existing task/spec revision and review location; create a provisional epic only when needed for coordination and already authorized. Standard plans can receive a focused design assessment within the ordinary review. Review changed risks without repeating unchanged assessments.
 
-**Gate:** the review notes and the design review are in the spec; no open design finding.
+**Gate:** applicable review evidence is recorded; no unresolved blocking finding. Record why independent pre-change review is or is not required.
 
 ## 4. Approval
 
-Show the owner: requirements, top three risks, open questions (and the state table and flow when there is no design). Set `status: approved` only after they say so and commit (`docs(specs): <feature> spec`). Then:
-- multi-slice → `feature-to-issues`, which adds `issues.md` to the same branch; **then** open the docs PR with `create-pr` (it closes the docs issue, not the epic);
-- one slice → `file-feature`, then open the docs PR.
+Show requirements, material risks and unresolved decisions. Reuse explicit approval already covering this spec/scope; ask only where a material product decision remains. Record the approval source and revision. Then:
+- multi-slice → `feature-to-issues` when tracker coordination is needed; otherwise keep the agreed slice plan on the existing branch;
+- one clear authorized slice → `implement`; use `file-feature` if tracking policy requires it.
 
-Slices start only after the docs PR is merged (or they pin the spec commit they were planned against).
+Pin the spec revision used for implementation. A separate docs PR is optional unless project policy requires it.
 
 ## Rules
 
-- No slice issues and no code before approval.
+- Resolve material scope decisions before dependent implementation; do not request the same approval twice.
 - The spec is the source of truth; issues link to its sections instead of copying them.
 - Update the spec when a decision changes during the build — a stale spec is worse than none.
 
@@ -98,4 +100,4 @@ Slices start only after the docs PR is merged (or they pin the spec commit they 
 
 | From | This skill | To |
 |---|---|---|
-| `investigate-feature` | Approved `spec.md` with a posted spec-level design review | `feature-to-issues` or `file-feature`, then the docs PR (`create-pr`) |
+| `investigate-feature` | Approved scope/spec revision with risk-appropriate review | `implement`; tracking and separate docs PR only as needed |

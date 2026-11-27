@@ -4,7 +4,7 @@ description: "How a mobile app is structured and written on any stack â€” view â
 argument-hint: "[a change, a file to place, or a diff]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Mobile conventions
@@ -12,6 +12,8 @@ metadata:
 How app code is laid out and written. Apply it to `$ARGUMENTS` (a change, a file to place, or a diff). If empty, apply it to the change in hand. The principles behind it are `engineering-principles` (lifecycle plugin); background work is `background-work`, a shared cross-platform core is `shared-core`, screens from designs are `design-to-screen`.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, the app's README and any decision records.
 2. Identify the stack from the manifest and build files, then open the matching reference: [references/flutter.md](references/flutter.md), [references/react-native.md](references/react-native.md), [references/kotlin.md](references/kotlin.md) (native Android), [references/swift.md](references/swift.md) (native iOS).

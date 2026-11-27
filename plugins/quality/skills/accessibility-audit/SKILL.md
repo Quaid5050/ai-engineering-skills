@@ -4,7 +4,7 @@ description: "Audit a screen, page, feature or PR for accessibility against WCAG
 argument-hint: "[screen, page, feature folder, PR or design]"
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
 # Accessibility audit
@@ -12,6 +12,8 @@ metadata:
 Audit `$ARGUMENTS` (a screen, page, feature folder, PR or design). If empty, audit the UI files in the current branch's diff. Critical flows must be usable by everyone: someone with large text, someone using a screen reader, someone in a hurry or under stress.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` and the design system: the colour tokens, the type scale, the components, any measured contrast table.
 2. Find the existing accessibility helpers in the tests (guideline matchers, an "expect accessible" helper, axe runs).
@@ -54,6 +56,10 @@ For UI-heavy changes: navigate the flow end to end with the platform screen read
 ## 4. Output
 
 Findings with severity (`critical` = a critical action cannot be completed with a screen reader, keyboard or large text), `file:line`, the WCAG criterion, and the fix; plus the list of checks passed. The automated checks become part of the fix.
+
+## Conformance and locale coverage
+
+Map applicable success criteria to evidence; a starter checklist or automated scan is not complete conformance. Include focus not obscured, dragging alternatives, redundant entry, accessible authentication, status announcements and meaningful order. Test keyboard, assistive technology, zoom/text scaling and reduced-motion alternatives manually where automation cannot establish behavior. Native applications use platform semantics and applicable WCAG2ICT guidance. Localization includes pluralization, dates/numbers/currency, Unicode/bidi, input methods and layout expansion, not just translation/RTL.
 
 ## Rules
 

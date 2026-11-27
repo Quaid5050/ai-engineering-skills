@@ -4,7 +4,7 @@ description: "Build a screen of a web app (dashboard, admin, authenticated tool)
 argument-hint: "[screen name, design frame, or spec section]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Build a web screen
@@ -12,6 +12,8 @@ metadata:
 Build the web app screen for `$ARGUMENTS` (a screen name, a design frame, or a spec section). If empty, ask which screen and who uses it. For a page of a content site use `add-web-page` instead.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. `AGENTS.md`, `web-conventions` (this plugin) §3 and its framework reference: the layering, the query cache, the generated client and its command, the auth/session handling, the commands (lint, type-check, tests, build, e2e).
 2. The spec section and its acceptance criteria; the endpoints in the contract this screen calls, their error codes and limits.
@@ -48,7 +50,7 @@ Run them; they fail because the screen does not exist (`tdd`, quality plugin).
 
 ## 4. Build
 
-Per `web-conventions` §3: a thin route; the screen renders state from its view model/hooks; the repository is the only importer of the generated client; server state in the query cache; forms with client checks from the contract's limits; optimistic updates only for reversible, low-stakes actions; no tokens in script-readable storage; no inline scripts.
+Per `web-conventions` §3: a thin route; the screen renders state from its view model/hooks; the repository is the only importer of the generated client; server state in the query cache; forms with client checks from the contract's limits; optimistic updates only for reversible, low-stakes actions; no tokens in script-readable storage; no untrusted or unapproved inline executable scripts.
 
 ## 5. Verify
 
@@ -59,6 +61,10 @@ Per `web-conventions` §3: a thin route; the screen renders state from its view 
 5. **Screenshots** of each state at the design's widths, side by side with the design (or the approved wireframe); differences fixed or explained in the PR.
 
 **Gate:** every state built and tested, budget met, screenshots compared.
+
+## Cache and privileged execution boundaries
+
+Scope private query/cache keys to the authoritative account/tenant and resource; invalidate or partition them on sign-out/account switching. Server-rendered data and server actions independently authenticate and authorize each operation. A client boundary or hidden UI is not authorization. Verify private cache-control and sensitive response isolation across users.
 
 ## Rules
 

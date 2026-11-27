@@ -4,7 +4,7 @@ description: "Build a behaviour test-first, one test at a time — pick the next
 argument-hint: "[behaviour, acceptance criterion or issue]"
 license: MIT
 metadata:
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
 # TDD
@@ -12,6 +12,8 @@ metadata:
 Build `$ARGUMENTS` (a behaviour, an acceptance criterion, or an issue) one test at a time. Rules for the tests themselves: `testing-doctrine`. Commands and folders: `write-tests`. If `$ARGUMENTS` is empty, take the next item from the current issue's "Tests to write first".
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` for the test commands, especially how to run **one** test.
 2. Read the issue or spec: the acceptance criteria and its test list are the order of work.
@@ -21,7 +23,7 @@ Build `$ARGUMENTS` (a behaviour, an acceptance criterion, or an issue) one test 
 
 ## 1. The loop
 
-1. **Pick the next behaviour** from the test list: the issue's tests first, then edges, then errors; for safety-critical code the failure paths first (`testing-doctrine` §3). One behaviour only.
+1. **Pick the next behaviour** from the test list: the issue's tests first, then edges, then errors; for safety-critical code the failure paths first (`testing-doctrine`). One behaviour only.
 2. **RED.** Write one test. Run only that test. It must fail **for the reason you expect** — an assertion on the missing behaviour, not an unintended compile error, a missing fixture or a typo. Paste the failure line.
    - A compile error is an acceptable first red only when the type or function genuinely does not exist yet; add the empty shell and run again until the failure is the assertion.
 3. **GREEN.** Write the least code that makes this test pass. Hard-coding is fine if the next test will force the general solution. Run the test, then the rest of the file.
@@ -33,9 +35,9 @@ Build `$ARGUMENTS` (a behaviour, an acceptance criterion, or an issue) one test 
 ## 2. Stop and rethink when
 
 - A test is hard to write → the design is telling you something (too many dependencies, logic in an edge). Fix the design, not the test.
-- You want to mock your own class → inject the real one; fake only the boundaries in `testing-doctrine` §2.
+- You want to mock implementation details → test observable behavior. An owned architectural boundary may use a double when a separate integration test verifies the real collaboration.
 - Green needs a lot of code at once → the test is too big; split the behaviour.
-- A test passes immediately → it is not testing new behaviour, or the behaviour already exists. Do the break-it check from `testing-doctrine` §4.
+- A test passes immediately → it is not testing new behaviour, or the behaviour already exists. Do the break-it check from `testing-doctrine`.
 
 ## 3. Exceptions
 
@@ -46,7 +48,7 @@ Build `$ARGUMENTS` (a behaviour, an acceptance criterion, or an issue) one test 
 
 ## Rules
 
-- Never write several tests and then all the code. Never write code without a red test asking for it.
+- Prefer small red/green cycles. The exceptions above and risk-based testing doctrine apply; do not manufacture tests for wording-only changes.
 - Never change a test to match the code unless the test was wrong — and say why.
 - Keep the loop fast: run the single test, not the whole suite, during red/green.
 
