@@ -4,7 +4,7 @@ description: "Review a diff or PR on any stack — shape first, then every appli
 argument-hint: "[PR number, branch, path, or empty for the current branch]"
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Code review

@@ -4,7 +4,7 @@ description: "Write the tests for a file, feature, behaviour or diff in this pro
 argument-hint: "[file, feature, behaviour, or empty for the branch diff]"
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Write tests

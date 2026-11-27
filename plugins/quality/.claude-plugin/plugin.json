@@ -1,7 +1,7 @@
 {
   "name": "quality",
-  "version": "1.1.0",
-  "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks and privacy-safe product analytics. Framework-agnostic, with stack references.",
+  "version": "1.2.0",
+  "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks, static catalogs (one row per case instead of repeated switches) and privacy-safe product analytics. Framework-agnostic, with stack references.",
   "author": {
     "name": "Quaid5050",
     "url": "https://github.com/Quaid5050"

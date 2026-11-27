@@ -4,7 +4,7 @@ description: "Review a change, spec or feature for how it could expose someone's
 argument-hint: "[PR, branch, spec or feature]"
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Security & privacy review

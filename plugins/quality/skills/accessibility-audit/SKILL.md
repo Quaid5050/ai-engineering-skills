@@ -4,7 +4,7 @@ description: "Audit a screen, page, feature or PR for accessibility against WCAG
 argument-hint: "[screen, page, feature folder, PR or design]"
 license: MIT
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Accessibility audit
