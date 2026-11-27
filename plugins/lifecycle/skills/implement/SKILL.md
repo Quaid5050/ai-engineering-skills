@@ -31,7 +31,7 @@ Reuse what the caller did — branch, plan, failing test, approvals; do not re-i
 
 **Gate by tier:**
 - Quick: the intent is one clear sentence.
-- Standard: the plan has the inline design check (placement, reuse, tests — `work-context` §2a). An answer that needs new structure makes the task Structural.
+- Standard: the plan has the inline design check (placement, reuse, next feature, tests — `work-context` §2a). An answer that needs new structure makes the task Structural.
 - Structural / High-risk: the `design-review` is done before production code (a bug's reproduction test may come first), and the build follows its decisions.
 
 ## 2. Build

@@ -27,7 +27,7 @@ Reuse a suitable existing branch, or create a task branch/worktree without movin
 
 ## 3. Plan by risk
 
-Use the tier from `work-context`. Quick: one sentence of intent and the targeted check. Standard: a 3–6 line plan with the inline design check (placement, reuse, tests). Structural / High-risk: written failure/threat/compatibility decisions, then `design-review` before production code. Do not create a docs PR merely to begin ordinary implementation.
+Use the tier from `work-context`. Quick: one sentence of intent and the targeted check. Standard: a 3–6 line plan with the inline design check (placement, reuse, next feature, tests). Structural / High-risk: written failure/threat/compatibility decisions, then `design-review` before production code. Do not create a docs PR merely to begin ordinary implementation.
 
 ## Rules
 

@@ -31,10 +31,10 @@ A PR is ready only when every gate that applies to its tier holds:
 | 2 | A review covering the head with no open `critical`/`major` (`code-review`); later commits are reviewed fixes or get a delta re-review | self-review | independent | independent |
 | 3 | The PR links its task (`Closes #<issue>` when the change completes it; a partial change only references it) | if the project tracks issues | ✓ | ✓ |
 | 4 | Area checks CI does not run, run locally on the head with output in the PR | if touched | if touched | if touched |
-| 5 | Design review before production code (`design-review`), no open blocking finding | — | inline design check in the plan | ✓ separate, independent |
-| 6 | The design pass has no open `major` | — | new files only | ✓ full |
+| 5 | Design review before production code (`design-review`), no open blocking finding | — | inline design check in the plan | ✓ separate; independent when a subagent or second person is available, otherwise a labelled self-review (a project may require independence) |
+| 6 | The design pass has no open `major` | — | ✓ on the diff | ✓ against the design review |
 | 7 | **The merging session has read the diff itself** (`gh pr diff <PR>`): it does what the task says, nothing more, and follows the design | ✓ | ✓ | ✓ |
-| 8 | Required verdicts: `deploy-check` when API, data, platform code, configuration or scheduling changed; `security-privacy-review` when personal data, auth, sharing, uploads, payments or analytics changed; nothing unsafe open unless the owner's acceptance is quoted | — | if touched | if touched (always for a declared high-risk area) |
+| 8 | Required verdicts: `deploy-check` when API, data, platform code, configuration or scheduling changed; `security-privacy-review` when personal data, auth, sharing, uploads, payments or analytics changed; nothing unsafe open unless the owner's acceptance is quoted | if touched | if touched | if touched (always for a declared high-risk area) |
 
 Review and check evidence must come from a trusted identity and cover the candidate; a comment title, an author-controlled timestamp or a copied summary is not proof, and a later code change invalidates it.
 

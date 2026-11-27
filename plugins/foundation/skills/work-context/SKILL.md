@@ -22,9 +22,11 @@ Classify by **what the change creates and what a mistake would cost**, not by li
 |---|---|---|
 | **Structural / High-risk** | A new feature or module from scratch · a new layer, service, package or app boundary · a new or changed data model, migration or stored format · a new public resource or event type, or a **breaking** contract change (removed or renamed field, changed meaning, new required input) · a new dependency or framework · a cross-cutting refactor (several features or layers) · an area the project declares high-risk (auth and permissions, money, personal data, safety-critical, destructive data, delivery guarantees, background execution, release signing) | — |
 | **Standard** | New or changed behaviour **inside existing structure**: a feature slice that follows an existing pattern, a bug fix in existing code, a new screen state, a new endpoint in an existing resource, an **additive** optional field or query parameter, a new test-backed rule | Anything above |
-| **Quick** | No new behaviour, or a tiny reversible one with no trigger above: copy, styling, a UI tweak within an existing component, docs, comments, test-only changes, config/tooling, a patch-level dependency bump, a rename inside one module, a one-line fix whose cause is already known | A one-line change to a permission, an access or tenant filter in a query, a retry or a safety path — that is High-risk |
+| **Quick** | No new behaviour, or a tiny reversible one with no trigger above: copy, styling, a UI tweak within an existing component, docs, comments, test-only changes, config/tooling, a patch-level dependency bump, a rename inside one module, a one-line fix whose cause is already known | A one-line change to a permission, an access or tenant filter in a query, a retry or a safety path — that is High-risk. Config that touches security headers, CORS, CI permissions, deploys, feature flags or runtime behaviour is at least Standard. Removing or weakening a failure-path test, a lint, an architecture test or a hook is High-risk. |
 
 **Structural vs High-risk.** Both get the right-hand column. A High-risk change that creates **no** structure (a one-line fix on a safety path, a retry or permission fix) runs it in focused form: no spec, the plan states the failure modes and the rollback in a few lines, and the design review answers only failure modes, tests and recovery (`design-review` questions 7 and 9).
+
+**Path floor.** A project may list paths whose changes are at least Standard or High-risk (for example the shared core, native background code, migrations, contracts, auth, hooks and lint rules); a tool or the reviewer applies it from the diff. The reviewer re-checks the tier: a tier too low for what the diff touches is a `major` finding. A tier raised mid-work stops coding until that tier's missing steps (for example the design review) are done.
 
 Already-clean, already-reviewed code that the diff does not restructure is **not** re-reviewed for design. A new screen built from existing components is Standard; a new navigation model is Structural.
 
@@ -34,7 +36,7 @@ Already-clean, already-reviewed code that the diff does not restructure is **not
 |---|---|---|---|
 | Tracker issue | Only if the project requires one | Existing issue or request is enough unless the project requires one | Issue with acceptance criteria |
 | Plan | One sentence in the task card | 3–6 lines: behaviour, files, tests | Structural: spec or plan with failure/threat model · High-risk without structure: failure modes and rollback in the plan |
-| Design review | None | **Inline design check** by the implementer: placement, reuse, tests (3 questions, §2a) | **Separate `design-review` before code** (architect agent when available) |
+| Design review | None | **Inline design check** by the implementer: placement, reuse, next feature, tests (§2a) | **Separate `design-review` before code** (architect agent when available) |
 | Tests | Targeted check for what changed; a regression test for a behaviour fix | Test-first for new behaviour (`tdd`); targeted runs while working | Test-first with failure paths first; negative, crash and compatibility tests |
 | Full suites | Once, before commit, for the touched area | **Once on the final head** | Once on the final head, plus platform/device/data checks that apply |
 | Review | Self-review of the diff with the `code-review` short checklist | **One** independent review at the end (reviewer agent with a brief, §3) | Independent review with a full design pass; `security-privacy-review` when personal data, auth, sharing, uploads, payments or analytics are touched |
@@ -43,12 +45,12 @@ Already-clean, already-reviewed code that the diff does not restructure is **not
 
 ### 2a. The inline design check (Standard)
 
-Answer in the plan, in one line each: **Placement** — which existing file/layer gets each piece? **Reuse** — what existing component, query or helper did you search for and reuse? **Tests** — which behaviours get which tests? If an answer needs a new layer, abstraction, contract or data shape, the task is Structural: stop and run `design-review`.
+Answer in the plan, in one line each: **Placement** — which existing file/layer gets each piece? **Reuse** — what existing component, query or helper did you search for and reuse? **Next feature** — would the next feature of the same kind (one that exists or is planned) have to write this again? **Tests** — which behaviours get which tests? If an answer needs a new layer, abstraction, contract or data shape, the task is Structural: stop and run `design-review`.
 
 ### 2b. Review and test loops
 
 - One review per candidate head. Findings come back **batched**; fix them all, then re-review **only the delta** (`git diff <reviewed-head>..HEAD`) unless a fix changed structure.
-- At most **two** review rounds; a third means the plan was wrong — stop and re-plan with the user.
+- At most **two** review rounds; a third means the plan was wrong — stop and re-plan with the user. The cap never lets a finding stay open: it means re-plan, never merge.
 - While iterating, run only the tests for what changed. Re-run a full suite only when its inputs changed since its last green run. A docs-only or test-only fix does not re-run unrelated suites.
 - Never skip a check the project or the tier requires to save time; skip only what neither requires.
 

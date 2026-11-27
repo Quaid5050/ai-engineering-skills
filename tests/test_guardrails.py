@@ -1,4 +1,5 @@
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -209,6 +210,105 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(self.run_wrapper('check-staged-secrets.sh','git commit -m x',cwd=self.secret).returncode,2)
         self.assertEqual(self.run_wrapper('no-commit-on-main.sh','git commit -m x').returncode,2)
         self.assertEqual(self.run_wrapper('no-commit-on-main.sh','git log | grep commit').returncode,0)
+
+
+    # review follow-up 1: files written earlier in the same command
+    def test_files_written_before_add_and_commit_are_blocked(self):
+        self.feature(self.clean);self.commit_base(self.clean)
+        (self.base/'s').write_text(self.token)
+        for command in (f'echo {self.token} > k.txt && git add k.txt && git commit -m x',
+                        f'cp {self.base}/s . && git add s && git commit -m x',
+                        f'cat {self.base}/s | tee tracked.txt && git commit -am x',
+                        "sed -i.bak 's/safe/x/' tracked.txt && git add . && git commit -m x",
+                        'git stash pop && git add . && git commit -m x',
+                        'git checkout stash@{0} -- tracked.txt && git commit -am x',
+                        'git add missing.txt && git commit -m x'):
+            for kind in ('secrets','branch'):
+                with self.subTest(command=command,kind=kind):
+                    result=self.run_guard(kind,command)
+                    self.assertEqual(result.returncode,2);self.assertIn('separate commands',result.stderr)
+
+    def test_harmless_steps_before_add_and_commit_are_allowed(self):
+        self.feature(self.clean);self.commit_base(self.clean)
+        for command in ('git status 2>/dev/null && git add tracked.txt && git commit -m x',
+                        'git checkout -b other && git add . && git commit -m x',
+                        'echo done > /dev/null; git add "*.txt" && git commit -m x',
+                        'git diff --stat > /dev/null && git commit -m x'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('secrets',command).returncode,0)
+
+    def test_writes_before_a_plain_commit_are_allowed(self):
+        self.feature(self.clean)
+        self.assertEqual(self.run_guard('secrets','echo note > notes.txt && git commit -m x').returncode,0)
+
+    # review follow-up 2: git add -f stages ignored files
+    def test_forced_add_scans_ignored_files(self):
+        self.feature(self.clean);(self.clean/'.gitignore').write_text('local.env\n')
+        (self.clean/'local.env').write_text(self.token+'\n')
+        result=self.run_guard('secrets','git add -f local.env && git commit -m x')
+        self.assertEqual(result.returncode,2);self.assertIn('local.env:1',result.stderr)
+        self.assertEqual(self.run_guard('secrets','git add . && git commit -m x').returncode,0)
+
+    # review follow-up 3: quoting cannot hide the command from the pre-filter
+    def test_wrapper_sees_quoted_and_continued_commands(self):
+        for command in ('git co""mmit -m x',"g''it commit -m x",'git c\\ommit -m x','git c\\\nommit -m x',
+                        'g${EMPTY}it commit -m x'):
+            with self.subTest(command=command):
+                result=self.run_wrapper('no-commit-on-main.sh',command)
+                self.assertEqual(result.returncode,2,result.stderr)
+
+    # review follow-up 4: aliases, functions, interpreters, branch operations
+    def test_git_aliases_are_resolved(self):
+        self.git(self.clean,'config','alias.ci','commit -a')
+        self.git(self.clean,'config','alias.lg','log --oneline')
+        self.git(self.clean,'config','alias.sh','!git commit')
+        self.assertEqual(self.run_guard('branch','git ci -m x').returncode,2)
+        self.assertEqual(self.run_guard('branch','git -c alias.save=commit save -m x').returncode,2)
+        self.assertIn('shell command',self.run_guard('branch','git sh').stderr)
+        self.assertEqual(self.run_guard('branch','git lg').returncode,0)
+        self.git(self.secret,'config','alias.ci','commit');self.feature(self.secret)
+        self.assertEqual(self.run_guard('secrets','git ci -m x',cwd=self.secret).returncode,2)
+
+    def test_function_bodies_and_interpreters_are_checked(self):
+        for command in ('function f { git commit -m x; }; f',
+                        'python3 -c "import os; os.system(\'git commit -m x\')"',
+                        "perl -e 'system(\"git commit -m x\")'",'node -e "run(\'git commit\')"',
+                        "awk 'BEGIN{system(\"git commit -m x\")}'"):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        self.assertEqual(self.run_guard('branch','python3 -c "print(1)" && git status').returncode,0)
+
+    def test_branch_operations_on_the_default_branch(self):
+        self.commit_base(self.clean)
+        for command in ('git merge feature','git cherry-pick abc123','git rebase --continue','git revert HEAD',
+                        'git am < fix.patch'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        for command in ('git merge --abort','git rebase --quit','git log --merges'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,0)
+        self.feature(self.clean)
+        self.assertEqual(self.run_guard('branch','git rebase main').returncode,0)
+        self.assertEqual(self.run_guard('secrets','git merge main').returncode,0)
+
+    # review follow-up 5: git time fits the hook timeouts and a timeout blocks
+    def test_git_timeout_blocks_with_a_message(self):
+        guard=load_guard()
+        def slow(cmd,*a,**k): raise subprocess.TimeoutExpired(cmd,k.get('timeout',0))
+        payload=json.dumps({'cwd':str(self.clean),'tool_input':{'command':'git commit -m x'}})
+        with mock.patch.object(guard.subprocess,'run',slow),mock.patch('sys.stdin',io.StringIO(payload)),\
+                mock.patch('sys.stderr',new_callable=io.StringIO) as err:
+            self.assertEqual(guard.main(['secrets']),2)
+        self.assertIn('did not answer',err.getvalue())
+
+    def test_git_budgets_fit_inside_hook_timeouts(self):
+        guard=load_guard()
+        hooks=json.loads((ROOT/'plugins/guardrails/hooks/hooks.json').read_text())['hooks']['PreToolUse'][0]['hooks']
+        timeouts={Path(h['args'][-1]).name:h['timeout'] for h in hooks}
+        self.assertLess(guard.SECRETS_BUDGET,timeouts['check-staged-secrets.sh'])
+        self.assertLess(guard.BRANCH_BUDGET,timeouts['no-commit-on-main.sh'])
+        for h in hooks:
+            self.assertEqual(h['command'],'bash');self.assertTrue((SCRIPTS/Path(h['args'][-1]).name).exists())
 
 
 if __name__=='__main__':

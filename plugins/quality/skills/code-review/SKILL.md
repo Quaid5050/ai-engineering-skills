@@ -27,7 +27,7 @@ Reuse the task card and tier from `work-context` (foundation plugin). Read the p
 | Tier | Who | What |
 |---|---|---|
 | **Quick** | The author, as a labelled self-review | The short checklist below. No design pass. |
-| **Standard** | One independent reviewer (the `reviewer` agent, agents plugin), briefed with the task card, the diff and the agent brief | Dimensions 1–3 always; others the diff touches; the design pass for **new** files and moved code only |
+| **Standard** | One independent reviewer (the `reviewer` agent, agents plugin), briefed with the task card, the diff and the agent brief | Dimensions 1–3 always; others the diff touches; the design pass over the **diff** (unchanged code is context, not a target); re-check the tier |
 | **Structural / High-risk** | Independent reviewer; `security-privacy-review` too when dimension 2 hits | Every applicable dimension and the full design pass against the design review |
 
 The project's rules can require more (for example an independent review of every change); follow them. Never call a self-review independent.
@@ -62,7 +62,7 @@ The first three outrank the rest.
 
 ## 3a. Design pass
 
-Review the diff once more for design only — is the code in the right place, and will it be copied wrongly? Standard: new files and moved code only. Structural / High-risk: everything, against the posted design review.
+Review the diff once more for design only — is the code in the right place, and will it be copied wrongly? Standard: the changed code, against the plan's inline design check. Structural / High-risk: the changed code, against the posted design review.
 
 1. **Placement:** each new or moved file is in its placement row for its kind.
 2. **Duplication across features:** does the diff add something another feature already has? **Search** for it; do not guess.

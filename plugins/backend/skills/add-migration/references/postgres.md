@@ -30,12 +30,12 @@ Run in a retry loop (the migration tool or deploy script retries a lock timeout 
 
 ```sql
 -- must run outside a transaction block: mark the migration non-transactional in the tool
-CREATE INDEX CONCURRENTLY IF NOT EXISTS ix_orders_workspace_created
+CREATE INDEX CONCURRENTLY ix_orders_workspace_created
   ON orders (workspace_id, created_at DESC);
 ```
 
 - It takes longer and does two table scans, but allows reads and writes throughout.
-- If it fails (deadlock, unique violation, timeout) it leaves an **`INVALID`** index: `DROP INDEX CONCURRENTLY ix_...;` and retry. Check with `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;`.
+- If it fails (deadlock, unique violation, timeout) it leaves an **`INVALID`** index: `DROP INDEX CONCURRENTLY ix_...;` and retry. Do not use `IF NOT EXISTS` with a retry loop: the retry then "succeeds" and keeps the invalid index. Check with `SELECT indexrelid::regclass FROM pg_index WHERE NOT indisvalid;`.
 - `DROP INDEX CONCURRENTLY` likewise for removals.
 
 ## Constraints without a long lock: `NOT VALID` + `VALIDATE`

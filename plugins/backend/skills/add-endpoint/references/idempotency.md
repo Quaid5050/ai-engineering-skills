@@ -28,9 +28,9 @@ On a request with a key:
 
 1. Authenticate, then **re-check authorization now** (the access unit, current membership and role). A caller who lost access gets `404`/`403` even if a stored response exists.
 2. Look up `(scope, key)`.
-   - None → insert it as `in_progress` (unique constraint), run the use case, store the status and body, return it.
+   - None → insert it as `in_progress` with a lease (`locked_until`, unique constraint), run the use case, store the status and body, return it. When the effect is in the same database, write the stored response in the same transaction as the effect.
    - Found, same fingerprint, finished → return the **original status (`201` or `200`) and body**, unchanged; optionally mark it with an `Idempotent-Replayed: true` header.
-   - Found, same fingerprint, `in_progress` → `409` with a retry-after, or wait briefly; never run the use case twice.
+   - Found, same fingerprint, `in_progress` and the lease still valid → `409` with a retry-after, or wait briefly; never run the use case twice. Lease expired (the server crashed mid-request) → reclaim it with a compare-and-set on the lease, then reconcile: if the effect already happened, return its result; otherwise run it.
    - Found, **different fingerprint** → `422` (or `409`, per the project's error catalogue) with a stable code such as `idempotency_key_reused`; nothing is changed.
 3. After `expires_at` the row may be deleted; a key reused after that is a new operation. Document it in the contract.
 
