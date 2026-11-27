@@ -163,6 +163,12 @@ def check_manifests() -> None:
 REQUIRED_SECTIONS = ("## 0. Read the project", "## Rules", "## Composition")
 
 
+# A skill body loads in full each time it is used, and again in every subagent
+# that uses it. Anthropic's guidance keeps a body under ~5k tokens / 500 lines.
+SKILL_BODY_WORD_LIMIT = 3000
+AGENT_BODY_WORD_LIMIT = 600
+
+
 def check_skills() -> None:
     for name, info in plugins().items():
         version = info["manifest"].get("version")
@@ -195,6 +201,10 @@ def check_skills() -> None:
             lines = body.count("\n")
             if lines > 450:
                 fail(f"{where}: {lines} lines; move reference material to references/ (limit 450)")
+            words = len(body.split())
+            if words > SKILL_BODY_WORD_LIMIT:
+                fail(f"{where}: body is {words} words; a loaded skill costs context on every use — "
+                     f"move tables, templates and stack detail to references/ (limit {SKILL_BODY_WORD_LIMIT})")
 
 
 def check_agents() -> None:
@@ -207,6 +217,13 @@ def check_agents() -> None:
             fail(f"{rel(agent)}: name must equal the file name {agent.stem!r}")
         if not fm.get("description"):
             fail(f"{rel(agent)}: description is empty")
+        known = {p.parent.name for p in ROOT.glob("plugins/*/skills/*/SKILL.md")}
+        for skill in fm.get("skills") or []:
+            if skill not in known:
+                fail(f"{rel(agent)}: preloads unknown skill {skill!r}")
+        words = len(_.split())
+        if words > AGENT_BODY_WORD_LIMIT:
+            fail(f"{rel(agent)}: body is {words} words; an agent prompt is loaded on every spawn (limit {AGENT_BODY_WORD_LIMIT})")
 
 
 # ---------------------------------------------------------------- links

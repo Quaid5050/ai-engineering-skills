@@ -1,6 +1,6 @@
 # agents 2.0.0
 
-Independent roles with host-enforced scope. Install the declared foundation dependency and the relevant skills for the task.
+Independent subagents that work from a short brief: architect (design review before code, Structural/High-risk work only), reviewer (diff review at the task's tier, delta re-reviews), tester (fills test gaps, failure paths first).
 
 | Role | Purpose |
 |---|---|

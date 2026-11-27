@@ -1,6 +1,6 @@
 ---
 name: new-feature
-description: "Deliver a feature with a risk-based workflow and relevant verification. Use when asked to build a feature end to end; route small changes directly and reserve separate specifications/reviews for justified risk."
+description: "Build a feature end to end by the shortest route its tier allows — small changes go straight to implement, features that follow existing structure get a short plan and one review, features built from scratch get investigation, spec and a design review before code. Trigger on /new-feature, 'build this feature', 'implement feature', 'new screen', 'add a feature'."
 argument-hint: "[feature name, MVP id or design frame]"
 license: MIT
 metadata:
@@ -15,15 +15,17 @@ Deliver the feature in `$ARGUMENTS` within the user's scope. Route only to appli
 
 Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
-Reuse `work-context` (foundation plugin): outcome, actual commands, relevant code, existing decisions, permissions and risk tier. Missing product decisions are raised once; independent discovery can continue.
+Keep the task card: outcome, actual commands, relevant code, existing decisions, permissions and tier. Missing product decisions are raised once; independent discovery can continue.
 
 ## 1. Choose the shortest sufficient route
 
-| Tier | Route |
+| Tier (`work-context`) | Route |
 |---|---|
-| Quick | Inspect the affected code, implement the bounded change, targeted checks and diff review. |
-| Standard | Short plan/acceptance criteria, relevant specialist guidance, implementation with meaningful tests, one focused review and required checks. |
-| High-risk | Written design/failure/threat model, independent design review where available, failure/recovery/compatibility tests and deployment-readiness evidence. |
+| Quick | Inspect the affected code, implement the bounded change, targeted checks, self-review of the diff. |
+| Standard — a feature that follows existing structure (a new screen from existing components, a new endpoint in an existing resource) | 3–6 line plan with the inline design check, `implement` test-first, one independent review at the end, required checks once on the final head. |
+| Structural / High-risk — a feature built from scratch, a new module, data model, contract or dependency, or a declared high-risk area | `investigate-feature` when unclear → `spec` → `design-review` before code → `implement` with failure-path tests → independent review with design pass → deploy readiness. |
+
+A feature from scratch is Structural even when small. Slices that follow its reviewed design are Standard.
 
 Use `investigate-feature` when requirements or existing behavior are unclear. Use `spec` when coordination, uncertainty or irreversible choices justify a durable design. Use `feature-to-issues` for genuinely independent slices. Reuse an existing issue/request; create a tracker item or separate docs PR only when requested or required by the project.
 

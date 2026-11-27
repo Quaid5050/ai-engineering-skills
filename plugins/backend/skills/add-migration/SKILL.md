@@ -61,6 +61,8 @@ Reject and rework if you see, on a large table:
 
 Set a lock timeout for the migration session if the database supports it, so a blocked migration fails instead of queueing all traffic.
 
+Concrete statements per engine (which changes rewrite or scan, concurrent index builds, deferred validation, timeouts, a worked rename): open [references/postgres.md](references/postgres.md) when the target is that engine.
+
 **Gate:** you can say, for each statement, what lock it takes and for how long on the largest table.
 
 ## 5. Apply and verify locally

@@ -12,7 +12,7 @@
     {
       "name": "agents",
       "source": "./plugins/agents",
-      "description": "Independent subagents: architect (design review of a plan before any code), reviewer (cold code review with a design pass), tester (fills test gaps, failure paths first).",
+      "description": "Independent subagents that work from a short brief: architect (design review before code, Structural/High-risk work only), reviewer (diff review at the task's tier, delta re-reviews), tester (fills test gaps, failure paths first).",
       "version": "2.0.0",
       "category": "development"
     },
@@ -54,7 +54,7 @@
     {
       "name": "foundation",
       "source": "./plugins/foundation",
-      "description": "Shared task context, risk-based workflow and safe execution boundaries, without mandatory orchestration.",
+      "description": "Shared task context: picks the Quick, Standard or Structural/High-risk tier once per task, keeps a task card so nothing is re-read, briefs subagents with a digest, and sets safe execution boundaries.",
       "version": "1.0.0",
       "category": "development"
     },
@@ -68,7 +68,7 @@
     {
       "name": "lifecycle",
       "source": "./plugins/lifecycle",
-      "description": "Quick, Standard and High-risk delivery workflows with scoped planning, exact-candidate verification and authorized release actions.",
+      "description": "The delivery lifecycle at the depth each task needs: Quick, Standard and Structural/High-risk routes for idea, bootstrap, investigation, spec, design review (structural work only), test-first implementation, PR, CI, deploy check, merge gates, release, observe, incident, postmortem and cleanup. Framework-agnostic.",
       "version": "2.0.0",
       "category": "development"
     },
@@ -96,7 +96,7 @@
     {
       "name": "quality",
       "source": "./plugins/quality",
-      "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks, static catalogs (one row per case instead of repeated switches) and privacy-safe product analytics. Framework-agnostic, with stack references.",
+      "description": "Testing doctrine, TDD, writing tests, code review at the task's tier with a design pass, security and privacy review, accessibility audit, performance checks, static catalogs (one row per case instead of repeated switches) and privacy-safe product analytics. Framework-agnostic, with stack references.",
       "version": "2.0.0",
       "category": "development"
     },

@@ -1,7 +1,7 @@
 {
   "name": "lifecycle",
   "version": "2.0.0",
-  "description": "Quick, Standard and High-risk delivery workflows with scoped planning, exact-candidate verification and authorized release actions.",
+  "description": "The delivery lifecycle at the depth each task needs: Quick, Standard and Structural/High-risk routes for idea, bootstrap, investigation, spec, design review (structural work only), test-first implementation, PR, CI, deploy check, merge gates, release, observe, incident, postmortem and cleanup. Framework-agnostic.",
   "author": {
     "name": "Quaid5050",
     "url": "https://github.com/Quaid5050"

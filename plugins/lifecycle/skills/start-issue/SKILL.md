@@ -15,7 +15,7 @@ Prepare the requested issue or task in `$ARGUMENTS` for implementation.
 
 Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
-Reuse `work-context`. Inspect working-tree status, current/default branches, relevant issue/request and repository policy. Use actual remote/default branch names.
+Inspect working-tree status, current/default branches, relevant issue/request and repository policy. Use actual remote/default branch names.
 
 ## 1. Establish scope
 
@@ -27,7 +27,7 @@ Reuse a suitable existing branch, or create a task branch/worktree without movin
 
 ## 3. Plan by risk
 
-Quick: affected behavior/files and targeted checks. Standard: short implementation plan and acceptance criteria. High-risk: written failure/threat/compatibility decisions and required independent design review. Do not create a docs PR merely to begin ordinary implementation.
+Use the tier from `work-context`. Quick: one sentence of intent and the targeted check. Standard: a 3–6 line plan with the inline design check (placement, reuse, tests). Structural / High-risk: written failure/threat/compatibility decisions, then `design-review` before production code. Do not create a docs PR merely to begin ordinary implementation.
 
 ## Rules
 

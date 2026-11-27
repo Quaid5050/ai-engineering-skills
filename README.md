@@ -2,17 +2,18 @@
 
 Risk-based engineering workflows for AI coding agents: **71 skills in 17 plugins**, shared foundations and optional platform references. Existing skill names and paths remain stable.
 
-Load only what the task needs. Small reversible fixes use a short path; sensitive data, destructive migrations and uncertain external effects receive deeper review. Checklist duration is not evidence of quality.
+**Fast by default, strict where it matters.** `work-context` classifies every task once — Quick, Standard or Structural/High-risk — and every skill runs at that depth. A copy fix does not get an architect; a feature built from scratch always does.
 
 ## Start here
 
-| Task | Route |
-|---|---|
-| Small, clear fix | `work-context` → scoped implementation → relevant verification |
-| Ordinary feature | `new-feature` → short plan → `implement` → focused review |
-| Sensitive or hard-to-reverse change | Independent pre-change review → failure tests → implementation → recovery evidence |
-| Production incident | Authorized containment → investigation → recovery → postmortem |
-| New platform | Shared engineering skill + the relevant reference |
+| Task | Tier | Route |
+|---|---|---|
+| Copy, style, docs, config, test-only, a small fix with a known cause | Quick | Change → targeted check → self-review of the diff |
+| Behaviour inside existing structure (a slice following a pattern, a bug fix in existing code) | Standard | 3–6 line plan with inline design check → `implement` test-first → one independent review |
+| Feature or module from scratch, data model, contract, new dependency, cross-cutting refactor, auth/money/personal data/safety | Structural / High-risk | `spec` → `design-review` before code → failure-path tests → independent review with design pass → recovery plan |
+| Production incident | — | Authorized containment → investigation → recovery → postmortem |
+
+**Why it stays fast:** skills are read once per session and keep detail in `references/` (CI caps a skill body at 3,000 words); subagents get a short brief (`docs/agent-brief.md` in your project) instead of re-reading whole skills; re-reviews cover only the fix delta; full suites run once on the final head.
 
 See the [workflow](docs/engineering-workflow.md), [coverage tiers](docs/compatibility.md) and [evaluation evidence](docs/evaluation.md). Documented coverage is not certification of every platform.
 

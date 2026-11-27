@@ -112,6 +112,7 @@
       "owner": "maintainers",
       "resources": [
         "SKILL.md",
+        "references/idempotency.md",
         "references/protocols.md"
       ]
     },
@@ -148,7 +149,8 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/postgres.md"
       ]
     },
     {
@@ -156,7 +158,7 @@
       "plugin": "backend",
       "path": "plugins/backend/skills/add-scheduled-job",
       "version": "2.0.0",
-      "description": "Design durable scheduled work and notifications: persisted intent, recoverable leases, scoped idempotency, explicit uncertain outcomes, access rechecks, bounded retries and crash tests. Use when adding reminders, scheduled jobs, workers or notification delivery. Trigger on 'scheduled job', 'background worker', 'duplicate notification', 'missed delivery'.",
+      "description": "Add or change server-side scheduled and background work and the notifications it sends \u2014 first ask whether a stored 'until' time is enough; otherwise persist intent in a durable outbox with the business change, claim work with recoverable leases, scope idempotency to the operation, model uncertain outcomes explicitly, re-check access and consent at run time, zone-aware schedules with DST tests, notifications through one port with templates and preferences, one retry owner, metrics for lag and failures, crash-window tests first. Use for reminders, digests, expiries, escalations, retries and cleanup jobs. Trigger on /add-scheduled-job, 'cron job', 'scheduled task', 'scheduled job', 'send a reminder', 'background job', 'background worker', 'send an email when', 'notification sent twice', 'duplicate notification', 'missed delivery', 'retry a failed send', 'job queue', 'worker'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -167,6 +169,7 @@
       "owner": "maintainers",
       "resources": [
         "SKILL.md",
+        "references/notification-port.md",
         "references/stacks.md"
       ]
     },
@@ -186,10 +189,12 @@
       "owner": "maintainers",
       "resources": [
         "SKILL.md",
+        "references/default-profile.md",
         "references/django.md",
         "references/dotnet.md",
         "references/ecosystems.md",
         "references/node.md",
+        "references/review-checklist.md",
         "references/spring.md"
       ]
     },
@@ -306,7 +311,7 @@
       "plugin": "foundation",
       "path": "plugins/foundation/skills/work-context",
       "version": "1.0.0",
-      "description": "Choose proportionate engineering steps and reuse current project context. Use when starting or resuming an engineering change; not for ordinary factual conversation.",
+      "description": "Pick the right amount of process for an engineering change and reuse what is already known. Classifies the task Quick, Standard or Structural/High-risk with concrete triggers, says which steps, reviews, subagents and test runs each tier gets, keeps a short task card so nothing is re-read, and briefs subagents with a digest instead of whole skills. Use at the start or resumption of any code change. Trigger on 'how much process', 'is a design review needed', 'quick fix', 'small change', 'why is this so slow', 'risk tier'.",
       "requires": [],
       "optional_companions": [],
       "support": "documented",
@@ -331,6 +336,7 @@
       "owner": "maintainers",
       "resources": [
         "SKILL.md",
+        "references/agent-brief-template.md",
         "references/agents-md-template.md",
         "references/labels.md"
       ]
@@ -431,7 +437,7 @@
       "plugin": "lifecycle",
       "path": "plugins/lifecycle/skills/design-review",
       "version": "2.0.0",
-      "description": "Review consequential design decisions, risks and verification before expensive work. Use for high-risk plans, costly-to-reverse choices or an explicit architecture review; do not impose a separate review on every small change.",
+      "description": "Review a plan before code when the change creates structure \u2014 a new feature or module from scratch, a new layer or service, a data model, migration or public contract, a new dependency, a cross-cutting refactor, or a project-declared high-risk area. Placement, reuse, the next feature, patterns, data, contract, failure modes, performance and tests, done by someone who did not write the plan and posted where it can be checked. Not for UI tweaks, changes inside an existing pattern or already-reviewed code. Trigger on /design-review, 'review this design', 'is this plan right', 'architecture review', 'design review before I build'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -441,7 +447,8 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/template.md"
       ]
     },
     {
@@ -524,7 +531,7 @@
       "plugin": "lifecycle",
       "path": "plugins/lifecycle/skills/implement",
       "version": "2.0.0",
-      "description": "Implement a feature, fix or maintenance change with proportionate planning and verification. Use for authorized code changes; preserve existing work and load only affected specialist guidance.",
+      "description": "Build and verify an approved feature slice, bug fix or maintenance change at the depth its risk tier needs \u2014 mode (feature, bug, maintenance), search before writing, the area skill for each part, generated-file companions, test-first for behaviour, evidence chosen by what changed, one review at the end. Use for any authorized code change. Trigger on /implement, 'implement this', 'build this', 'make the change and verify it', 'upgrade this dependency', 'refactor this', 'clean up this code'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -534,7 +541,9 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/refactoring.md",
+        "references/routing.md"
       ]
     },
     {
@@ -596,7 +605,7 @@
       "plugin": "lifecycle",
       "path": "plugins/lifecycle/skills/merge",
       "version": "2.0.0",
-      "description": "Check exact-candidate merge eligibility and merge only when authorized. Use when asked to assess readiness or merge a PR; explicit no-merge instructions always stop before mutation.",
+      "description": "Check a PR's merge gates for the exact head commit at its risk tier \u2014 CI on the head against current main, a review covering the head, the issue link, area checks CI skips, the design review for structural work, the design pass, the merging session's own read of the diff, required security and deploy verdicts \u2014 then merge only when the project's policy allows. Explicit no-merge instructions always stop before merging. Trigger on /merge, 'merge this', 'is this ready to merge', 'check the gates', 'merge the stack'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -606,7 +615,8 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/commands.md"
       ]
     },
     {
@@ -614,7 +624,7 @@
       "plugin": "lifecycle",
       "path": "plugins/lifecycle/skills/new-feature",
       "version": "2.0.0",
-      "description": "Deliver a feature with a risk-based workflow and relevant verification. Use when asked to build a feature end to end; route small changes directly and reserve separate specifications/reviews for justified risk.",
+      "description": "Build a feature end to end by the shortest route its tier allows \u2014 small changes go straight to implement, features that follow existing structure get a short plan and one review, features built from scratch get investigation, spec and a design review before code. Trigger on /new-feature, 'build this feature', 'implement feature', 'new screen', 'add a feature'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -1047,7 +1057,7 @@
       "plugin": "quality",
       "path": "plugins/quality/skills/code-review",
       "version": "2.0.0",
-      "description": "Review a diff or PR on any stack \u2014 shape first, then every applicable dimension (safety-critical paths, privacy and tenant isolation, tests you can trust, correctness, contract, data, platform and battery, design and UX, performance, observability, simplicity, layer placement, conventions, repo hygiene), then a risk-appropriate design assessment (placement, duplication across features, reuse, technical code out of business layers, validation/secret/storage homes, design review posted before code). Each finding has severity, file:line, failure scenario, fix and the rung where it should have been caught; plus a merge risk tier. Use before every merge. Trigger on /code-review, 'review this', 'review the PR', 'review my changes', 'check the diff', 'is this ready to merge'.",
+      "description": "Review a diff or PR on any stack at the depth its risk tier needs \u2014 Quick changes get a short checklist, Standard changes one independent review of the diff, Structural/High-risk changes every dimension plus a full design pass. Dimensions: safety-critical paths, privacy and tenant isolation, tests you can trust, correctness, contract, data, platform and battery, design and UX, performance, observability, simplicity, layer placement, conventions, repo hygiene. Each finding has severity, file:line, failure scenario, fix and the rung where it should have been caught; plus a merge risk tier. Re-reviews cover only the fix delta. Use before merge. Trigger on /code-review, 'review this', 'review the PR', 'review my changes', 'check the diff', 'is this ready to merge'.",
       "requires": [
         "work-context",
         "safe-agent-execution",
@@ -1057,7 +1067,8 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/output.md"
       ]
     },
     {
@@ -1151,7 +1162,8 @@
       "support": "documented",
       "owner": "maintainers",
       "resources": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/boundaries-and-types.md"
       ]
     },
     {

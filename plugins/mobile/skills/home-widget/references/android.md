@@ -8,3 +8,5 @@
 - **Ongoing status:** an ongoing notification; on Android 16+ consider progress-centric notifications ("live updates").
 - Colours: map Material You dynamic colours to your tokens; check contrast on both light and dark wallpapers.
 - Previews: `previewLayout` / Glance `@Preview` per state.
+- **Refresh timing:** there is no pre-supplied timeline; the live → stale switch needs a scheduled update (WorkManager or an inexact alarm), which idle modes and standby buckets can delay. Render the age with `Chronometer`-style or last-update text so a late switch still reads as old.
+- Diagnostics: an update worker that never ran shows up as an interrupted attempt; `ApplicationExitInfo` on the next app start and the worker's `WorkInfo.stopReason` explain why.

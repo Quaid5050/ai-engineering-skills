@@ -1,5 +1,5 @@
 {
-  "description": "Advisory command preflight; actual-index secret patterns and branch checks. Host permissions enforce execution boundaries.",
+  "description": "Advisory pre-commit checks: credential patterns in the lines a git commit adds, and no commit on the default branch. Host permissions enforce execution boundaries.",
   "hooks": {
     "PreToolUse": [
       {

@@ -59,9 +59,15 @@ On representative supported devices (`device-test`): add the widget; toggle from
 
 **Gate:** all states tested in code and seen on a device (or listed as open per the project's device-test batching rule).
 
-## Scheduling and observation limits
+## Widget refresh limits
 
-Execution timing and refresh are controlled by the platform. Do not promise exact execution or a known reason for every termination. Persist last successful state, attempt identity and timestamps; interrupted/unknown is distinct from success. A widget uses supported timeline/rendering mechanisms and visible last-update information; an inexact worker cannot guarantee an exact stale transition. Test the actual supported OS/target versions and distinguish force-stop/user termination from OS eviction. Recheck authorization on widget actions and clear shared private snapshots on account change.
+A widget is drawn by the system from what the app gave it; the app does not run when the widget is shown.
+
+- **Pre-supply what you know.** Hand the system the states you can compute now (live until `staleAfter`, stale after) so it renders the change on time without the app running. Where the platform renders pre-supplied entries at their dates, that switch is reliable; a scheduled worker that must wake the app to flip the state is inexact and may be late.
+- **Reloads are budgeted.** Requests to rebuild the widget's content are rate-limited by the system and can be deferred; reload after a real data change, never on a timer, and never per view.
+- **Always show age.** Render the last-update time (or a relative age the system keeps current) so a delayed refresh reads as "updated 40 min ago", not as live.
+- **Actions re-check.** A widget action runs app code that re-checks the session and authorization; a signed-out or switched account clears the shared snapshot, and the widget shows the off state.
+- Test refresh on the supported OS versions: add, data change, app killed, device locked overnight; record any delay you see.
 
 ## Rules
 

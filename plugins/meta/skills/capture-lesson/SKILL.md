@@ -62,7 +62,7 @@ If it only holds for one stack, it belongs in that stack's `references/<stack>.m
 1. **A machine check** — an architecture test, a lint rule, a CI job, a hook. Prefer this whenever the rule is mechanical.
 2. **A gate** in the skill at the step where the mistake is made (a `**Gate:**` line, a required question in `design-review`, a row in `code-review`'s design pass).
 3. **A checklist row** in the convention or review checklist.
-4. **A rule** in the convention or `AGENTS.md`.
+4. **A rule** in the convention or `AGENTS.md` — and one line in the project's agent brief (`docs/agent-brief.md`) when reviewers and subagents need it.
 
 Usually it is a combination: the gate or rule for judgement, plus a check for the part a machine can see.
 

@@ -6,7 +6,9 @@ metadata:
   version: "1.0.0"
 ---
 
-# Identity Access
+# Identity and access
+
+> Draft skill: generic procedure, no stack references yet. Project rules win.
 
 Deliver the requested artifact in `$ARGUMENTS`; do not create infrastructure, accounts or unrelated migrations merely because this procedure mentions them.
 
@@ -46,4 +48,4 @@ Report the artifact, decisions, commands/results, revision, environment and rema
 
 | From | This skill | To |
 |---|---|---|
-| An applicable engineering task | Scoped implementation and acceptance evidence | Relevant tests, security review and deployment readiness; external actions only when authorized |
+| `spec`, `design-review` (lifecycle); `threat-model` | Complete identity lifecycle with resource-scoped authorization tests | `security-privacy-review`, `code-review` (quality); `deploy-check`, `release` (lifecycle) |

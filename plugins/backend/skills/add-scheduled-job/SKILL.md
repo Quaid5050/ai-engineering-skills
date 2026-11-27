@@ -1,6 +1,6 @@
 ---
 name: add-scheduled-job
-description: "Design durable scheduled work and notifications: persisted intent, recoverable leases, scoped idempotency, explicit uncertain outcomes, access rechecks, bounded retries and crash tests. Use when adding reminders, scheduled jobs, workers or notification delivery. Trigger on 'scheduled job', 'background worker', 'duplicate notification', 'missed delivery'."
+description: "Add or change server-side scheduled and background work and the notifications it sends — first ask whether a stored 'until' time is enough; otherwise persist intent in a durable outbox with the business change, claim work with recoverable leases, scope idempotency to the operation, model uncertain outcomes explicitly, re-check access and consent at run time, zone-aware schedules with DST tests, notifications through one port with templates and preferences, one retry owner, metrics for lag and failures, crash-window tests first. Use for reminders, digests, expiries, escalations, retries and cleanup jobs. Trigger on /add-scheduled-job, 'cron job', 'scheduled task', 'scheduled job', 'send a reminder', 'background job', 'background worker', 'send an email when', 'notification sent twice', 'duplicate notification', 'missed delivery', 'retry a failed send', 'job queue', 'worker'."
 argument-hint: "[what must happen, and when]"
 license: MIT
 metadata:
@@ -38,7 +38,7 @@ States distinguish pending, leased, acknowledged, retryable, uncertain, cancelle
 
 One layer owns the attempt budget and backoff. Honor server delays and deadlines; coordinate rather than multiply provider, queue and worker retries. Exponential backoff with jitter, timeouts, concurrency limits and a visible terminal/recovery path prevent retry storms.
 
-Compute recurring schedules from local time plus a stored zone and an explicit gap/overlap policy. Graceful shutdown stops claims and completes or releases work; expiry also recovers abrupt termination. Old queued payloads and overlapping worker versions must remain compatible. Notification templates and provider adapters reuse established boundaries.
+Compute recurring schedules from local time plus a stored zone and an explicit gap/overlap policy. Graceful shutdown stops claims and completes or releases work; expiry also recovers abrupt termination. Old queued payloads and overlapping worker versions must remain compatible. Outbound notifications (email, SMS, push, webhooks) go through one notification port; read [references/notification-port.md](references/notification-port.md) when the job sends anything to a person or another system.
 
 ## 4. Verify failure paths
 

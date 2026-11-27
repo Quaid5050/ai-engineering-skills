@@ -68,9 +68,15 @@ Scripted location/network/time where relevant, forced idle/doze, and **real proc
 
 **Gate:** failure-path tests green, affected supported targets built, device and battery rows done or listed as open.
 
-## Scheduling and observation limits
+## OS background execution limits
 
-Execution timing and refresh are controlled by the platform. Do not promise exact execution or a known reason for every termination. Persist last successful state, attempt identity and timestamps; interrupted/unknown is distinct from success. A widget uses supported timeline/rendering mechanisms and visible last-update information; an inexact worker cannot guarantee an exact stale transition. Test the actual supported OS/target versions and distinguish force-stop/user termination from OS eviction. Recheck authorization on widget actions and clear shared private snapshots on account change.
+The OS decides when background work runs and may end it without a callback. Design for that:
+
+- **No exact timing.** Deferred jobs run inside OS windows that idle modes, battery savers, standby buckets and quotas can push back by hours; foreground work types have per-day caps on current versions. Never promise "every N minutes" in copy or a spec; state the expected range and test the missed-window path.
+- **Persist progress per attempt:** last success time, attempt id, start time, and the stop reason when the OS reports one. An attempt that started and never recorded an end is **interrupted / unknown**, never success.
+- **Know the stop kinds apart.** A user force-stop or swipe-away on some platforms cancels scheduled work until the next launch; OS eviction for memory or a quota expiry is resumed by the scheduler; a reboot needs the platform's restart mechanism. Each gets its own test row, and the reliability screen says which one the user can fix.
+- **Read the platform's exit diagnostics** on the next launch to attach an observed reason to an interrupted attempt; the sources per platform are in the references. When none is available, show "stopped, reason unknown" with the last success time.
+- Test on the supported OS versions the project lists; limits change between releases.
 
 ## Rules
 

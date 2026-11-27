@@ -29,9 +29,9 @@ Reuse the current task context and risk tier from `work-context` (foundation plu
 
 **Safety-critical bug** (on the project's safety-critical list in `AGENTS.md`, or by default a critical action missed or duplicated, data exposed, lost or corrupted, a background worker dead): say so at the top of every reply; priority P0/P1; the PR needs `device-test` when platform code is involved.
 
-## 2. Design review (non-trivial fixes)
+## 2. Tier and design
 
-Classify by impact and uncertainty using `work-context`, not file count. High-risk fixes need the required pre-change design review; standard fixes include design in the focused review. A one-line access-control change can be high-risk, while a mechanical multi-file rename may be low-risk.
+Classify with `work-context` by impact, not file count. A fix that stays inside existing code is Standard: write the inline design check (where the fix lands, what existing guard it reuses, which test proves it). A fix that moves responsibilities, adds a shared piece for the bug class, changes a contract or stored data, is Structural: `design-review` before the fix. A fix on a declared high-risk area with no new structure gets the focused review (failure modes, tests, rollback) before the fix. The reproduction test may come first in both. A one-line access-control change is High-risk; a mechanical multi-file rename is Quick.
 
 ## 3. Branch
 
@@ -45,7 +45,7 @@ Make the reproduction a permanent test next to the related tests. It must fail o
 
 Change the deepest cause in our control (from supported causal evidence), not the symptom. Then the "why was this breakable" part, when small: a type, a guard at the boundary, a lint rule, an architecture test, an alert. Larger prevention work → its own issue.
 
-Run the test → **GREEN**; then the whole area suite.
+Run the test → **GREEN**; then the area suite once.
 
 **Gate:** red-before and green-after outputs are both captured.
 
@@ -62,7 +62,7 @@ Run the test → **GREEN**; then the whole area suite.
 
 ## 8. Review and PR
 
-`pre-commit` (`fix(<scope>): …`), `create-pr` (it opens the PR, then the reviewer agent posts the required code review). The PR's safety/privacy notes explain the failure mode, who was affected, and how the test proves it cannot silently happen again. Then `ci`, `deploy-check` and `merge`. If the bug reveals a gap in a skill or convention, run `capture-lesson` (meta plugin).
+`pre-commit` (`fix(<scope>): …`), `create-pr`, and the review at the tier's depth (`code-review`: self-review for Quick, one independent review for Standard and above). The PR's safety/privacy notes explain the failure mode, who was affected, and how the test proves it cannot silently happen again. Then `ci`, `deploy-check` and `merge`. If the bug reveals a gap in a skill or convention, run `capture-lesson` (meta plugin).
 
 ## Rules
 
@@ -75,4 +75,4 @@ Run the test → **GREEN**; then the whole area suite.
 
 | From | This skill | To |
 |---|---|---|
-| `investigate-bug`, `file-bug`, `incident` | Fixed, verified bug with a regression test | `pre-commit` → `create-pr` → `code-review` (posted) → `ci` → `deploy-check` → `merge`; `release` when users need a build; `capture-lesson` |
+| `investigate-bug`, `file-bug`, `incident` | Fixed, verified bug with a regression test | `pre-commit` → `create-pr` → `code-review` at the tier's depth → `ci` → `deploy-check` → `merge`; `release` when users need a build; `capture-lesson` |

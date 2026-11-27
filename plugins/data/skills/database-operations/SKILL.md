@@ -6,7 +6,9 @@ metadata:
   version: "1.0.0"
 ---
 
-# Database Operations
+# Database operations
+
+> Draft skill: generic procedure, no stack references yet. Project rules win.
 
 Deliver the requested artifact in `$ARGUMENTS`; do not create infrastructure, accounts or unrelated migrations merely because this procedure mentions them.
 
@@ -46,4 +48,4 @@ Report the artifact, decisions, commands/results, revision, environment and rema
 
 | From | This skill | To |
 |---|---|---|
-| An applicable engineering task | Scoped implementation and acceptance evidence | Relevant tests, security review and deployment readiness; external actions only when authorized |
+| `investigate-bug`, `incident` (lifecycle); `perf-check` (quality); `data-check` (backend) | Diagnosed workload, protected invariants and rehearsed recovery | `add-migration` (backend) for schema changes; `recovery-drill` for restores; `code-review` (quality); `deploy-check` (lifecycle) |

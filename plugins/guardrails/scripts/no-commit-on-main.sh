@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
-set -eu
-command -v python3 >/dev/null 2>&1 || { echo 'Blocked: python3 is required for this guard.' >&2; exit 2; }
-exec python3 "$(dirname "$0")/guard.py" branch "$@"
+# Advisory: block a git commit on the default branch (detached HEAD is allowed).
+d=${BASH_SOURCE[0]%/*}
+[ "$d" = "${BASH_SOURCE[0]}" ] && d=.
+exec "$BASH" "$d/run-guard.sh" branch "$@"

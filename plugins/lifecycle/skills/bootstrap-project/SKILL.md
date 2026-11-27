@@ -62,7 +62,9 @@ Folders follow the layers in `engineering-principles` and the stack conventions 
 
 ## 5. AGENTS.md — the facts every skill reads
 
-Write `AGENTS.md` at the root (and a thin `CLAUDE.md` pointing to it, if the team uses Claude Code). Template: [references/agents-md-template.md](references/agents-md-template.md). It holds: what the product is; the layout; the **commands** table (every command copied from a real run); the tracker, labels, milestones, branch and commit rules; the **merge gates** and who merges (`merge`); the project's **safety-critical paths** (this list wins over any example in the skills) and privacy rules; pointers to conventions, the placement table, decision records and the workflow map. Keep it short.
+Write `AGENTS.md` at the root (and a thin `CLAUDE.md` pointing to it, if the team uses Claude Code). Template: [references/agents-md-template.md](references/agents-md-template.md). It holds: what the product is; the layout; the **commands** table (every command copied from a real run); the tracker, labels, milestones, branch and commit rules; the **merge gates** and who merges (`merge`); the project's **safety-critical paths** (this list wins over any example in the skills) and privacy rules; pointers to conventions, the placement table, decision records and the workflow map. Keep it short — under ~200 lines; stack-specific rules go in path-scoped rule files where the agent host supports them, so they load only when matching files are touched.
+
+**The agent brief** (`docs/agent-brief.md`, ≤ 100 lines, template in [references/agent-brief-template.md](references/agent-brief-template.md)): the condensed, project-specific form of the conventions — commands per area, the placement map, naming, the high-risk areas, and the rules reviews keep finding. Subagents and reviewers get this instead of being told to read every conventions skill (`work-context` §3).
 
 ## 6. Conventions, enforcement and CI
 
