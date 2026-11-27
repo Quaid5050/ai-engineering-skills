@@ -4,7 +4,7 @@ description: "Drive a pull request through continuous integration and debug fail
 argument-hint: "[ship PR | debug run-or-PR | optimize | workflow <change>]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # CI
@@ -12,6 +12,8 @@ metadata:
 Handle `$ARGUMENTS`: `ship [PR]` (default), `debug [run|PR]`, `optimize`, or `workflow <change>`.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read the pipeline definition (`.github/workflows/*.yml` or the project's CI config) **before acting** — if it disagrees with this skill or with `AGENTS.md`, the file wins; say which line is stale.
 2. From `AGENTS.md`: which checks the merge gates require (`merge`), which areas CI does **not** cover (those checks run locally and are pasted in the PR), the runner type, and where CI docs live.
@@ -61,7 +63,7 @@ Measure the slowest jobs and steps over **three runs** (`gh run view <id> --json
 
 - On a `ci/…` or `chore/ci-…` branch, through a PR like any change.
 - Keep **job names stable** — the merge gates and branch protection refer to them. A rename updates both in the same PR.
-- Pin third-party actions (major version at least; a commit SHA for anything with write access). Least-privilege `permissions:` per workflow.
+- Pin actions to reviewed immutable commit SHAs and automation tools to explicit versions; use dependency updates to keep pins maintained. Least-privilege `permissions:` per workflow.
 - No secrets in workflow files; repository or environment secrets only, added with the user's OK. Never echo a secret.
 - **Security rule: never attach a self-hosted runner to a public repository.** Anyone can open a PR from a fork and run code on it. Public repositories use hosted runners; a private repository that will become public removes its self-hosted runners first.
 - Pull requests from forks get no secrets; workflows triggered by `pull_request_target` never check out and run the PR's code.

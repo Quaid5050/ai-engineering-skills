@@ -23,7 +23,7 @@ Forbidden (lint, no baseline): `java.*`, `android.*`, `platform.*`, `kotlinx.cor
 
 ## Swift interop (Objective-C export)
 
-- **Never throw into Swift.** A Kotlin exception reaching Swift crashes. Interfaces return `null`/`false`; entry points Swift calls catch everything and return an outcome. Do not add `@Throws` to push the problem to Swift.
+- **Design the error bridge.** Unexpected Kotlin exceptions crossing an Objective-C/Swift boundary can terminate the process. Use explicit typed outcomes or documented `@Throws` declarations mapped to Swift errors; preserve cancellation and avoid catch-everything or null/false results that erase the cause. Test the generated interface for the installed compiler/export mode.
 - **Enum entries `UPPER_SNAKE_CASE`**: `NOT_ALLOWED` → Swift `.notAllowed` (`NotAllowed` would become `.notallowed`). A Swift `switch` over a Kotlin enum needs `default`.
 - **No `Pair`/`Triple`, no default arguments** relied on by Swift (it sees every parameter); use a small `data class`. Constants go in a `companion object` (`Uploader.companion.BATCH_SIZE`).
 - **Numbers:** Kotlin `Int` → Swift `Int32`; nullable numbers and `Boolean`-returning lambdas are boxed (`KotlinLong?`, `KotlinBoolean`). Prefer `Long` epoch milliseconds and `Double`; put conversions in one `CoreBridge.swift` (`.kotlin`, `Clock.nowMs()`).
@@ -54,3 +54,5 @@ ktlint && swiftlint --strict
 - Kotlin, *Direct integration with Xcode*: https://kotlinlang.org/docs/multiplatform/multiplatform-direct-integration.html
 - Android, *Kotlin Multiplatform Android library plugin*: https://developer.android.com/kotlin/multiplatform/plugin
 - Gary Bernhardt, *Functional core, imperative shell*: https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell
+
+Deliberately declared `@Throws` exceptions can bridge to NSError/Swift throws; undeclared exceptions may terminate. Confirm the compiler/export mode and cancellation contract rather than imposing one universal no-exception rule. [Kotlin interop](https://kotlinlang.org/docs/native-objc-interop.html).

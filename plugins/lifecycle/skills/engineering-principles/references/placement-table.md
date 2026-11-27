@@ -1,6 +1,6 @@
 # Placement table template
 
-Copy this into the project's conventions (for example `docs/conventions.md`, linked from `AGENTS.md`) and fill in the **real** paths. One row per technical kind of code. Every row names the check that enforces it; a row without a check is a review question and says so.
+Adapt this business-application profile to the selected architecture, then copy relevant rows into the project's conventions (for example `docs/conventions.md`, linked from `AGENTS.md`) and fill in the **real** paths. One row per technical kind of code. Every row names the check that enforces it; a row without a check is a review question and says so.
 
 ```markdown
 ## Where each kind of code lives
@@ -13,11 +13,11 @@ Copy this into the project's conventions (for example `docs/conventions.md`, lin
 | Input shape validation | `src/<area>/api/<area>_validation.*` | Only place a field-error map is built | `ArchitectureTests.validation_home` |
 | Secrets and crypto | `src/security/<purpose>/` | One owner + one config section per purpose, validated at start | `ArchitectureTests.crypto_owners` (list of owners) |
 | Object storage | `src/storage/` (one port, one adapter per provider) | No per-feature storage class | `ArchitectureTests.storage_sdk_home` |
-| File formats / parsing | next to its port in `src/storage/` or `src/<area>/adapters/` | Never in domain | `ArchitectureTests.domain_no_raw_bytes` |
+| File formats / parsing | next to its port in `src/storage/` or `src/<area>/adapters/` | Core when parsing is the product responsibility; otherwise isolate protocol details | `ArchitectureTests.domain_no_raw_bytes` |
 | Rate limiters | `src/rate_limiting/` | Fail-open or fail-closed stated | `ArchitectureTests.limiter_home` |
 | Background loops | `src/background/` | One use-case call per pass | `ArchitectureTests.loops_call_one_use_case` |
-| Scheduled jobs | `src/jobs/` + one scheduler config | One scheduler instance; idempotent; claim with lease; unique sent-ledger; re-check access at run time | `ArchitectureTests.jobs_call_one_use_case` + race test |
-| Outbound notifications | `src/notifications/` (port + one adapter per channel, templates) | Preferences honoured; unique sent-ledger key; access re-checked at send | `ArchitectureTests.notification_sdk_home` |
+| Scheduled jobs | `src/jobs/` + one scheduler config | Coordinated triggers; idempotent; claim with lease; durable outbox with explicit completion state; re-check access at run time | `ArchitectureTests.jobs_call_one_use_case` + race test |
+| Outbound notifications | `src/notifications/` (port + one adapter per channel, templates) | Preferences honoured; stable operation key with recoverable outbox state; access re-checked at send | `ArchitectureTests.notification_sdk_home` |
 | File uploads | `src/uploads/` (one reader) + `src/storage/` | Type from bytes, size cap, metadata stripped, parent complete only when all files confirmed | `ArchitectureTests.raw_body_only_in_upload_reader` |
 | Shared code | `src/shared/` | Purpose: …; may contain: …; never imports a feature | `ArchitectureTests.shared_imports_no_feature` |
 | Wire contract | `contracts/api.yaml` → generated `src/<client>/api/` | Generated types stay in the data layer | `ArchitectureTests.generated_types_home` |

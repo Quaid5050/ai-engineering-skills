@@ -1,25 +1,14 @@
-# backend 1.0.0
+# backend 2.0.0
 
 Backend conventions (layers, ports and adapters, one home per technical kind of code, allowlist architecture tests), contract-first endpoints, safe schema migrations and read-only data checks. References for .NET, Django, Node and Spring.
 
-## Install
+Install declared dependencies. Load only relevant skills/resources; required availability is not a recursive workflow.
 
-```text
-/plugin marketplace add Quaid5050/ai-engineering-skills
-/plugin install backend@ai-engineering-skills
-```
-
-Installs with: `lifecycle`.
-
-## Skills
-
-| Skill | What it does |
+| Skill | Purpose |
 |---|---|
-| [`add-endpoint`](skills/add-endpoint/SKILL.md) | Contract-first endpoint with forbidden-caller tests and regenerated clients |
-| [`add-file-upload`](skills/add-file-upload/SKILL.md) | File uploads and attachments: one upload reader + storage port, presigned or multipart, type from bytes, metadata stripped, parent complete only when all files are confirmed |
-| [`add-migration`](skills/add-migration/SKILL.md) | Schema change: expand → migrate → contract, read the SQL for locks and rewrites |
-| [`add-scheduled-job`](skills/add-scheduled-job/SKILL.md) | Scheduled jobs and outbound notifications: one scheduler, claimed rows, unique sent-ledger, access re-checked at run time, DST-safe schedules |
-| [`backend-conventions`](skills/backend-conventions/SKILL.md) | Structure server code: layers, thin edges, validation, errors, transactions, resilience, data integrity, architecture tests (.NET, Django, Node, Spring references) |
-| [`data-check`](skills/data-check/SKILL.md) | Read-only, privacy-safe database questions and migration verification |
-
-See the [catalogue](../../README.md#catalogue) and the [workflow map](../../docs/engineering-workflow.md). License: MIT.
+| [add-endpoint](skills/add-endpoint/SKILL.md) | Add or change a backend API endpoint contract-first on any stack — the contract file first (paths, methods, schemas, problem-detail errors, auth, pagination, idempotency, compatibility), failing integration tests first including forbidden callers (non-member, wrong role, removed member), a thin handler over one use case per backend-conventions, regenerated clients, and a contract drift test. Use when adding or changing a route, request, response or error. Trigger on 'add an API for', 'new endpoint', 'change the API', 'add a route', 'REST endpoint', 'expose this over HTTP', 'API design'. |
+| [add-file-upload](skills/add-file-upload/SKILL.md) | Add or change file uploads and attachments on the server end to end — one upload reader at the edge and the one storage port (never a per-feature storage class), presigned vs multipart vs resumable chosen deliberately, type detected from the bytes, size caps that fail visibly, images re-encoded and metadata stripped (needed fields kept only as explicit, consented structured data), random names outside the web root, member-checked or signed short-lived reads, a parent record that commits only when all its attachments are confirmed, orphan cleanup, optional malware scanning, and tests including forbidden callers and oversize files. Trigger on /add-file-upload, 'upload a file', 'attach photos', 'image upload', 'presigned URL', 'multipart upload', 'store files', 'avatar upload', 'download a file'. |
+| [add-migration](skills/add-migration/SKILL.md) | Change a database schema safely on any stack — design the entity and mapping, keys and UTC timestamps, workload-justified indexes, expand → migrate → contract for running servers and released clients, generate the migration, read the generated SQL for table rewrites and long locks, apply and verify locally, and write the rollout and rollback notes. Use when adding or changing tables, columns, indexes or constraints. Trigger on 'change the schema', 'add a table', 'add a column', 'new index', 'migration', 'rename a column', 'drop a column', 'backfill'. |
+| [add-scheduled-job](skills/add-scheduled-job/SKILL.md) | Design durable scheduled work and notifications: persisted intent, recoverable leases, scoped idempotency, explicit uncertain outcomes, access rechecks, bounded retries and crash tests. Use when adding reminders, scheduled jobs, workers or notification delivery. Trigger on 'scheduled job', 'background worker', 'duplicate notification', 'missed delivery'. |
+| [backend-conventions](skills/backend-conventions/SKILL.md) | How a backend service is structured and written on any stack — layered modules with feature folders (edge → application → domain, persistence, adapters, workers, a hot-path module), what each layer may do and call, thin edges, two kinds of validation, errors as results mapped to problem details, data access through the ORM's unit of work, transactions and locks owned by the use case, time and cancellation, logging without personal data, options validated at start, one secret per purpose, resilience with one retry owner, background work, performance, data integrity and allowlist architecture tests. Use when writing or reviewing server code. Trigger on 'backend conventions', 'where does this go in the backend', 'service layer', 'business logic in the controller', 'repository or ORM', 'request/response DTO', 'validator', 'how do I structure this endpoint', 'transaction', 'N+1'. |
+| [data-check](skills/data-check/SKILL.md) | Look at a database safely — read-only sessions with a statement timeout on every call, local by default and shared environments only with explicit OK and a read-only role; schema, counts, integrity, tenant isolation, freshness and gaps, query plans, and verifying a migration or backfill with an expected cohort and control rows — without exposing personal data. Use when answering a data question, checking a migration, or chasing a data bug. Trigger on 'check the data', 'query the database', 'how many rows', 'is the data correct', 'verify the migration', 'explain this query', 'look at the table'. |

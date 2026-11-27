@@ -22,8 +22,8 @@ scripts/                   # build guards and tests (Node, not shipped)
 ## Idioms
 
 - Components declare `interface Props` in the frontmatter; `const { locale } = Astro.props`.
-- The only `<script>` is the processed one in the composition component importing `site.ts`, so Astro bundles one module. **No `is:inline`** except JSON-LD (`<script type="application/ld+json" set:html={...} />`).
-- `astro.config.mjs`: `output: 'static'`, `build.inlineStylesheets` as the project chose; scripts never inlined (CSP `script-src 'self'`).
+- The only `<script>` is the processed one in the composition component importing `site.ts`, so Astro bundles one module. Use `is:inline` only with understood processing/output semantics; safely serialize JSON-LD (including `<`) rather than interpolating untrusted content.
+- `astro.config.mjs`: `output: 'static'`, `build.inlineStylesheets` as the project chose; processed small scripts may be automatically inlined; configure a supported hash/nonce CSP or verified external output. Stylesheet settings do not control JavaScript inlining.
 - Images: `<Image>`/`<Picture>` from `astro:assets` for images in `src/`; pre-rendered media in `public/` carry `width`/`height`.
 - SVG colours in `style` (`style="fill: var(--brand)"`), not presentation attributes.
 - No UI framework islands (`client:*`) unless a decision record adds one.
@@ -31,14 +31,14 @@ scripts/                   # build guards and tests (Node, not shipped)
 ## Tests and checks
 
 - `astro check` (types, including locale dictionaries) + eslint.
-- Node unit tests (`node --test scripts/*.test.mjs`) over `dist/`: no third-party URLs, no inline scripts, headers file, no hex in components, tokens mirrored from the source.
+- Node unit tests (`node --test scripts/*.test.mjs`) over `dist/`: no unexpected network requests, scripts allowed by the selected CSP, actual deployed security headers, no hex in components, tokens mirrored from the source.
 - Playwright on the built `dist/` (served statically) with axe.
 - Commands: `npm run lint && npm test && npm run build && npm run e2e`.
 
 ## Quick greps
 
 ```bash
-grep -rn 'is:inline' src | grep -v 'ld+json'
+# Inspect emitted scripts and exercise the deployed CSP in a browser.
 grep -rn 'client:' src
 grep -rn '#[0-9a-fA-F]\{3,6\}\b' src/components src/layouts src/pages
 ```

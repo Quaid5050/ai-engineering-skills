@@ -4,7 +4,7 @@ description: "Check the working tree and commit it safely — not on the main br
 argument-hint: "[commit message or scope]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Pre-commit
@@ -12,6 +12,8 @@ metadata:
 Check the working tree and commit `$ARGUMENTS` (an optional commit message or scope). Run every step that applies to the changed paths; skip a step only when no file it covers changed, and say so.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`: the **commands per area** (format, lint/analyze, test, build), the code generators, the commit message convention, and the **author and attribution policy** (who commits; whether AI co-author trailers or "generated with" lines are allowed).
 2. Read the hooks the repo already has (`.git/hooks`, a hooks manager config, agent hooks) so you know what runs automatically — and what it does not catch.
@@ -35,13 +37,9 @@ Stage **named paths only** — never `git add -A` / `git add .`. Leave out build
 
 ## 3. Secrets and personal data
 
-```bash
-git diff --cached | grep -nEi '(api[_-]?key|secret|password|passwd|token|BEGIN [A-Z ]*PRIVATE KEY)' || true
-git diff --cached | grep -nE '[-+]?[0-9]{1,2}\.[0-9]{4,},\s*[-+]?[0-9]{1,3}\.[0-9]{4,}' || true   # lat,lng pairs
-git diff --cached | grep -nEi '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}' || true                      # emails
-```
+Use the project's redacting secret scanner against the exact staged snapshot. Output only safe location and category; never print matching lines or values, including deleted credentials. The optional guardrails plugin provides `python3 <guardrails-root>/scripts/guard.py secrets --git-hook` for a staged scan; use its installed path, not an invented command. If no scanner exists, perform a non-echoing inspection and report the missing automation.
 
-Check every hit by hand. A real secret → unstage, remove, move it to configuration, and tell the user (rotate it if it was ever pushed). Personal data (real names, emails, phone numbers, addresses, precise locations) is allowed only as obviously synthetic test fixtures. The `guardrails` plugin's hook blocks common key shapes at commit time; it does not replace this step.
+A real secret is removed before committing and handled according to its exposure scope. Synthetic test credentials must be clearly marked and cannot bypass checks for real credentials. For partially staged files, validate the staged candidate in an isolated worktree/export or stage the intended complete change; a working-tree test alone does not validate a different index.
 
 ## 4. Generated code is in sync
 

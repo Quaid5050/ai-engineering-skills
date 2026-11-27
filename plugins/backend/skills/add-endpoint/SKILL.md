@@ -4,7 +4,7 @@ description: "Add or change a backend API endpoint contract-first on any stack �
 argument-hint: "[what the endpoint does and who calls it]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Add endpoint
@@ -13,12 +13,16 @@ Add or change the endpoint for `$ARGUMENTS`. If empty, ask what it should do and
 
 ## 0. Read the project
 
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
+
 1. Read `AGENTS.md` / `CLAUDE.md` / the conventions: where the **contract file** lives (OpenAPI, GraphQL schema, protobuf), how clients are generated, the error-code catalogue, the access rule for tenant/workspace resources, and the test host.
 2. Read `backend-conventions` (this plugin) and its stack reference for the handler, service and test idioms.
 3. Find a similar existing endpoint and its tests; copy their structure, not their mistakes.
 4. Are there released clients (mobile apps, partners) still calling this API? Then every change must be compatible (`deploy-check`, lifecycle plugin).
 
 **Gate:** you know the contract file, the client generator command, the access rule and an example endpoint to follow.
+
+For non-HTTP protocols and compatibility edge cases, use [references/protocols.md](references/protocols.md). The table below is an example profile; preserve the chosen protocol semantics.
 
 ## 1. Contract first
 
@@ -35,9 +39,9 @@ Change the contract before any code: path, method, `operationId` (camelCase verb
 | Auth | Every endpoint requires authentication unless the contract marks it public (sign-in, health); rate limits on anything guessable or costly (codes, sign-in, search) |
 | Files | Uploads and downloads follow `add-file-upload` (this plugin): one upload reader, the storage port, presigned or multipart, size caps |
 | Isolation | A caller who is not a member of the owning tenant gets `404` (existence is not leaked); a member without the role gets `403` — or the project's stated rule. The **use case** checks it through the access unit on every request: no cached permission decisions, so a removed member loses access on their next request; removal also revokes that member's sessions or tokens scoped to the tenant |
-| Filtering and sorting | Explicit query parameters (`?status=open&sort=-createdAt`), each backed by an index; only the filters a screen needs; unknown values → `400` |
+| Filtering and sorting | Explicit query parameters (`?status=open&sort=-createdAt`), bounded and supported by workload-justified indexes; only the filters a screen needs; unknown values → `400` |
 | Pagination | Cursor-based for any list that can grow: `?limit=` (default 50, max 200) and `?after=<cursor>`, response `{ "items": [...], "next": "<cursor>" | null }`. An existing list's shape never changes for released clients — paging it is a new operation |
-| Idempotency | **Records a client may create offline** (mobile queues, drafts) carry a **client-generated id** that is a **permanent unique key**: a repeat — even weeks later — returns the original resource (same id, `200`/`201`), never an error and never a second row. **Online-only creates** a client may retry carry an `Idempotency-Key` header (UUID); the server stores key + caller + response for a window (e.g. 24 h) and replays the response for a repeat. Never use a time-windowed key for data that may sit in an offline queue longer than the window |
+| Idempotency | Scope operation identity by tenant, actor and operation; bind a canonical payload fingerprint. Concurrent identical retries return the same authorized result, while changed payloads conflict. Recheck current authorization before returning a stored response. Offline replay needs a durable business key and documented deletion/tombstone/retention semantics; online dedupe expiry must cover its retry contract. Never recreate deleted data silently or promise unlimited response retention. |
 | Compatibility | Released clients keep working: additive changes only (new optional fields, new endpoints). A breaking change is a new version of that resource (`/v2/...`); the old operation is marked `deprecated` and kept until the oldest supported client no longer calls it |
 
 **Gate:** the contract diff is reviewed and every response (including each error) is in it.
@@ -50,6 +54,7 @@ Integration tests through the real entry point, real database, the project's tes
 - validation: each invalid input → `400` naming the field;
 - **authorisation: unauthenticated → `401`; non-member → `404`; member without the role → `403`; removed member → `404`** (or the project's rule);
 - idempotency: the same create sent twice (same client id, or same key inside the window) → one row, the same response; for offline-created records, also after the key window has passed;
+- replay isolation: different tenant/caller cannot retrieve the response; same key with changed payload conflicts; deletion and expiry follow the documented contract;
 - revocation: a member removed between two requests gets `404` on the second, including through any cached session;
 - pagination: limit, cursor, last page `next: null` — for list endpoints;
 - conflict/limit errors from the domain → the right problem code.

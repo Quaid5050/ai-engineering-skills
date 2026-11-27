@@ -74,3 +74,7 @@ Numbered steps. Commands in code blocks, as examples to adapt, never as facts ab
 - `python3 scripts/check.py` — frontmatter, names, description length, JSON manifests, versions, relative links, framework names in `SKILL.md` bodies, privacy patterns.
 - `claude plugin validate . --strict` and `claude plugin validate plugins/<plugin> --strict`.
 - A fresh-agent dry run on a realistic task (`create-skill` §3).
+
+## Catalogue contract
+
+[The schema](../schemas/catalog.schema.json) describes `catalog/skills.json`. Required dependencies form an acyclic availability graph; optional companions/workflow transitions are separate. Resources include all supporting files. `scripts/check.py catalog` checks metadata, versions, graph and file parity. Frontmatter is strict YAML: duplicate keys, aliases, unsafe tags and non-string metadata are rejected.

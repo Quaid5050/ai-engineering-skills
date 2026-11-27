@@ -4,7 +4,7 @@ description: "Review a change, spec or feature for how it could expose someone's
 argument-hint: "[PR, branch, spec or feature]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Security & privacy review
@@ -14,6 +14,8 @@ Review `$ARGUMENTS` (a PR, branch, spec or feature) for how it could expose some
 Run it when a change touches: personal data, sharing or visibility, roles and invitations, authentication and sessions, payments, notifications, analytics, uploads, exports or deletion, or any new third-party SDK.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` / `SECURITY.md` and any privacy policy or data inventory in the repo: what the project calls personal or sensitive data, its retention periods, its authorisation status codes.
 2. Read the diff (or spec) and the code paths it reaches: entry points, use cases, storage, outbound calls, logs.
@@ -35,7 +37,7 @@ Anything you cannot fill in is the first finding.
 - Every endpoint, realtime method and job checks the caller **owns or is a member of** the resource **and** has the role the action needs.
 - Ids in URLs are never trusted: fetching another tenant's resource returns the project's not-found status (existence is not leaked), proven by an integration test with a non-member, a member without the role, and a removed member.
 - Realtime groups/channels are joined server-side from membership, never from a client-supplied name.
-- Losing access (removed, role changed, account closed) takes effect immediately, including caches — tested.
+- Define and test revocation latency for removed members, role changes and closed accounts. Revalidate sensitive operations and invalidate scoped caches. Already-issued bearer download URLs can remain usable until expiry unless the delivery design adds revocation; disclose that residual window.
 - Share links and invites: unguessable (≥ 128-bit random), expiring, revocable, scoped, rate-limited; revoking takes effect at once.
 
 ## 3. Consent and visibility
@@ -57,7 +59,7 @@ Ask "how would a controlling partner, an ex, an ex-employee, a malicious insider
 
 ## 5. Leaks — the logging rule
 
-**The logging rule (canonical; other skills refer here):** personal data — names, contact details, precise location, addresses, payment data, health data, message text, tokens and secrets — never appears in anything that leaves the device or server process: release-build client logs, shipped server logs at any level, exception messages, URLs and query strings, error-reporting events and breadcrumbs, metrics, traces, analytics. Local debug builds with synthetic data may print them. Opaque ids (UUIDs) are allowed in logs, never as metric tags (cardinality and re-identification).
+**The logging rule (canonical; other skills refer here):** personal data — names, contact details, precise location, addresses, payment data, health data, message text, tokens and secrets — never appears in anything that leaves the device or server process: release-build client logs, shipped server logs at any level, exception messages, URLs and query strings, error-reporting events and breadcrumbs, metrics, traces, analytics. Local debug builds with synthetic data may print them. Opaque ids can still identify people. Use only the minimum operational identifiers with documented access and retention; do not use unbounded ids as metric tags.
 
 - A structured log, telemetry attribute or exception that **contains an object carrying personal data** breaks the rule as much as the raw field — object destructuring and default `toString` of such types included. Make those types' string forms leave the data out.
 - Check the diff: search new log, print, telemetry and exception lines for personal fields; read every multi-line log call (line greps miss them).
@@ -70,7 +72,7 @@ Ask "how would a controlling partner, an ex, an ex-employee, a malicious insider
 - **Authentication:** one-time codes rate-limited per identifier and per IP, attempt limits, expiry, no user enumeration in errors. Sessions: short-lived access tokens + refresh, revoked on sign-out and account deletion, with a server-side way to revoke all sessions of a device or account (remote sign-out of a lost device).
 - **Tokens on mobile:** in the platform's secure storage (keychain / keystore), never in plain preferences or files.
 - **Tokens on the web:** session in an `HttpOnly`, `Secure`, `SameSite` cookie — never in `localStorage` where any injected script can read it; cookie-based sessions need CSRF protection (a CSRF token or double-submit for state-changing requests from a single-page app, plus `SameSite`); XSS defences: output encoding by default, no raw HTML from data, and a Content Security Policy without `unsafe-inline` scripts.
-- **Data at rest on the device:** queues, caches and files holding personal data live in app-private storage, excluded from cloud backup where the platform allows, and encrypted when the data is sensitive (the platform's file protection or an encrypted database with a key in secure storage); cleared on sign-out only when nothing unsent would be lost (`offline-queue`, mobile plugin).
+- **Data at rest on the device:** queues, caches and files holding personal data live in app-private storage, excluded from cloud backup where the platform allows, and encrypted when the data is sensitive (the platform's file protection or an encrypted database with a key in secure storage); authentication revoked on sign-out; unsent records are quarantined encrypted for the original account with an explicit retention/discard policy (`offline-queue`, mobile plugin).
 - **Secrets:** one owner and one configuration entry per purpose, validated at start-up; never a fallback to another purpose's key; never in the repo or the client bundle.
 - **Input:** validated at the boundary; size limits on uploads and batches; no query built by string concatenation.
 - **Uploads:** size limit; type checked from the bytes, not the name or declared type; re-encoded server-side; **metadata (EXIF, GPS, device serials) stripped** — on the device before upload where the client can do it, and again on the server before storage; stored outside the web root under a random name; served through a signed or authorised URL; never executed or rendered as HTML (`add-file-upload`, backend plugin).
@@ -99,6 +101,12 @@ Risk: low | medium | high
 **Gate:** each finding names the test (usually an integration test with a forbidden or removed caller) that will prove the fix.
 
 **Where it goes:** for a PR, post the review as **one** PR comment starting `## Security & privacy review — <short head SHA>` (checked against the project's attribution rules first); for a spec, under the spec's review notes. It is a required verdict for `merge` gate 8 (lifecycle plugin) whenever the change touches personal data, auth, sharing, uploads, payments or analytics.
+
+## Trust and verification coverage
+
+Use `safe-agent-execution` for repository/tool authority. Cover SSRF (redirect/DNS/egress behavior), shell/path/template injection, unsafe deserialization, resource exhaustion, key/credential lifecycle, session recovery/revocation, dependency/build trust and deletion/consent withdrawal. Stable IDs and hashes can be personal or linkable; do not treat pseudonymization as anonymization.
+
+When available, `threat-model`, `identity-access` and `supply-chain` (security plugin) provide deeper workflows. Map applicable versioned ASVS/MASVS controls to actual negative tests and evidence. For AI applications include poisoned retrieval/tool output, excessive agency, cross-tenant retrieval and bounded tool/resource budgets. Missing controls remain open findings, not a claim of compliance.
 
 ## Rules
 

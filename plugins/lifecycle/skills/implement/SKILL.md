@@ -1,116 +1,52 @@
 ---
 name: implement
-description: "The shared build-and-verify contract for any approved change — feature, bug fix or maintenance: check the issue gate and the posted design review, search before writing, build test-first with the area skills and their companions (contract and generated clients, migrations, strings, bridges, docs), refactor safely (pin behaviour, move then change, always green), verify by change type with real command output, never call missing devices or credentials a pass, then pre-commit, PR, independent review posted on it, CI, deploy check and merge. Trigger on /implement, 'implement this', 'build this approved change', 'make the change and verify it', 'refactor this', 'upgrade this dependency', 'clean up this code'."
+description: "Implement a feature, fix or maintenance change with proportionate planning and verification. Use for authorized code changes; preserve existing work and load only affected specialist guidance."
 argument-hint: "[issue number, spec slice, investigation report, or scoped request]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Implement
 
-Build `$ARGUMENTS` (an issue, a spec slice, an investigation report, or a scoped request) and prove it works. `new-feature`, `bugfix` and `start-issue` hand off here; this skill does not call them back. If no change is described, ask for it.
+Implement `$ARGUMENTS`: an authorized feature, fix or maintenance task. Keep the requested behavior and scope explicit.
 
 ## 0. Read the project
 
-- `AGENTS.md`: commands for build, lint and tests per area; which local checks CI does not run; the definition of done.
-- The conventions for every area you will touch: `engineering-principles` and the stack skill (`backend-conventions`, `mobile-conventions`, `shared-core`, `web-conventions`), plus the project's own conventions doc and placement table. Read them **before** writing code.
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
-## 1. Establish the handoff
+Reuse `work-context` and its risk tier. Inspect current working changes and relevant implementation/tests. Do not overwrite others' work. Use `safe-agent-execution` before running repository commands from an untrusted source.
 
-**Issue gate:** there is an issue for this change (docs and chores included), in its milestone, with a branch linked to it. None → stop and create it (`file-feature`, `file-bug`, `feature-to-issues`), then `start-issue`. Never build first and file the issue afterwards.
+## 1. Plan only what the task needs
 
-Pick the mode:
+Quick changes need a clear local intent, not a separate document. Standard changes need a short plan and acceptance criteria. High-risk work needs a failure/threat model and required design review. Reuse the current issue/request and existing authorization.
 
-| Mode | Input | Extra obligations |
-|---|---|---|
-| `feature` | Issue with acceptance criteria | Every criterion gets a test; every designed state is built; scope follows "Out of scope" |
-| `bug` | Investigation with root cause + failing test | The reproduction fails on the code before the fix and passes after; blast radius checked; data repair named if stored data is wrong |
-| `maintenance` | Dependency bump, refactor, tooling, docs | Behaviour does not change: existing tests stay green **unchanged**; no invented criteria; architecture baselines stay empty |
+Name the behavior, data or public contract that changes. For maintenance, distinguish behavior preservation from deliberate compatibility changes. Update characterization/tests when justified by changed APIs or seams; never rewrite expectations merely to bless a regression.
 
-Reuse what the caller did (branch, plan, failing test, approvals); do not re-investigate a supported diagnosis or redesign an approved spec.
+## 2. Build in verifiable increments
 
-**Search before you write.** For each piece you are about to add — a component, a query, a helper, a validator, an error code, an adapter — search for an existing one and reuse or extend it. A second implementation of the same thing is a review finding. Business rules you cannot find in the issue, spec or code are asked, never assumed.
+Use the relevant conventions and specialist skill only for affected areas. Prefer existing boundaries; do not restructure unrelated code. For a behavior change or bug, add meaningful tests and demonstrate the defect where practical. For characterization/generated/text changes, use applicable verification without manufacturing a red test.
 
-**Gate:** behaviour, areas, verification method and scope are concrete, and — for a feature slice or non-trivial fix — the issue has the posted `## Design review` (`design-review`) before any production code (a bug's reproduction test may already be committed); the build follows its decisions. An open product decision → ask, and work on the independent parts meanwhile.
+Implement, run focused checks and inspect the result. A failure is evidence: diagnose it, then fix or revert the scoped increment deliberately. Do not blindly revert every failing experiment or keep patching without understanding the failure. Use checkpoints for broad changes.
 
-## 2. Build
+## 3. Verify the candidate
 
-On the issue branch, never `main`. Behaviour changes follow `tdd` and `testing-doctrine` (quality plugin); the commands are in `write-tests` and `AGENTS.md`.
+Run the checks required by the project and risk: type/build/lint, relevant unit/integration/contract tests, plus security/accessibility/performance/device checks when applicable. Validate the actual staged/candidate snapshot. Repeat checks only after relevant inputs change or a concern remains unresolved.
 
-Use the area skill for each part:
+Obtain a focused review; high-risk work needs the required independent review. Resolve applicable security and deployment-readiness findings before final eligibility. If equipment or services are unavailable, record pending evidence and do not claim it passed.
 
-| Part | Skill |
-|---|---|
-| Endpoint / contract | `add-endpoint` (backend plugin) |
-| Schema | `add-migration` (backend plugin) |
-| Scheduled or background server job, outbound notifications | `add-scheduled-job` (backend plugin) |
-| File uploads and attachments (server side) | `add-file-upload` (backend plugin) + `security-privacy-review` (quality plugin) |
-| Mobile screen from a design | `design-to-screen` (mobile plugin) |
-| Web app screen (forms, data, auth) | `build-web-screen` (web plugin) |
-| Web content page or section | `add-web-page` (web plugin) |
-| Rules shared by Android and iOS | `shared-core` (mobile plugin) |
-| Mobile background work, offline queue | `background-work`, `offline-queue` (mobile plugin) |
-| Widget / live activity / tile | `home-widget` (mobile plugin) |
-| Personal data, auth, sharing, uploads | `security-privacy-review` (quality plugin) |
-| Product event | `analytics-event` (quality plugin) |
+## 4. Report and hand off
 
-**Companions** — find them before editing; change the source, never the generated output: contract file → generated clients; bridge definitions → generated platform code; string resources → generated accessors; entities → migration; new configuration → the example config file; docs that describe the changed behaviour.
-
-Keep to the issue's scope. Something else broken → `file-bug`, not a drive-by fix. Code you meet that breaks a convention → file it (or fix it in its own PR); never copy it.
-
-### Refactoring safely (maintenance mode)
-
-1. **Pin the behaviour first.** Missing coverage → characterisation tests on the old code, passing, committed alone.
-2. **Move, then change** — separate commits, tests green after each.
-3. **Small steps, always green.** A red step is reverted, not debugged forward.
-4. **The contract does not move** unless the slice says so.
-5. **Baselines stay empty.** A new rule lands with the code fixed; if impossible, a shrinking-only baseline with a reason per entry and an issue to empty it.
-
-## 3. Verify the actual change
-
-Choose checks by what changed:
-
-| Change | Evidence required |
-|---|---|
-| Domain / server behaviour | Unit + integration tests through the real entry point; build with warnings as errors |
-| API / auth | Integration tests for allowed **and** forbidden callers; regenerated client compiles; contract drift test green |
-| Data / migration | Applied to a local database; generated SQL read (`add-migration`); data checks (`data-check`) |
-| UI | One test per state; screenshots of each changed state with synthetic data, compared with the design |
-| Platform / background / widgets | Builds for every platform; `device-test` rows on real devices; battery reading when background behaviour changed |
-| Safety-critical (the project's list in `AGENTS.md`) | A test per failure mode in `testing-doctrine`, proving the critical action still happens or the failure is surfaced |
-| Privacy | `security-privacy-review` checks; forbidden-caller and removed-member tests |
-| Performance-sensitive | `perf-check` against the budget |
-| Maintenance | The full suites and lint for every affected area; all platform builds for a native dependency bump |
-
-Record each check as **command → result**. A missing device, emulator, credential or SDK is **blocked verification, never a pass**: say exactly what remains.
-
-**Gate:** each acceptance criterion has evidence and the required checks pass.
-
-## 4. Review and hand off
-
-1. `pre-commit`; small conventional commits.
-2. `create-pr` — it opens the PR and then has the `reviewer` agent (agents plugin) run `code-review` (quality plugin) with fresh context and **post** it on the PR; the author never reviews its own work independently. `security-privacy-review` runs for personal data, auth, sharing or uploads.
-3. `ci`, `deploy-check`, then `merge`.
-
-Final report (and the basis of the PR body):
-- **What was implemented**, against the acceptance criteria.
-- **Files changed**, grouped by area.
-- **Decisions** taken (decision records for costly ones).
-- **Checks run, with their actual output** — never "tests pass" without having run them; anything not run says why.
-- **Known limitations** and anything not verified.
-- **Technical debt** added or found, each with an issue.
-
-Keep **implemented**, **verified**, **PR open**, **CI green**, **merged**, **released** distinct — never round one up to the next.
+State changed behavior, important decisions, files, actual command/results and limitations. Commit/push/PR only as authorized. Leave release and merge to their own policy and explicit user constraints.
 
 ## Rules
 
-- No code without a red test asking for it (except config, docs and generated code, which use their own checks).
-- Never weaken or delete a test to make the change pass.
-- Never swallow an error on a safety-critical path.
+- Never hide failure, silently lose data or broaden permissions to finish.
+- Avoid speculative abstractions and unrelated cleanup.
+- An external write requires authorization for that destination and scope; reuse authorization already given.
 
 ## Composition
 
 | From | This skill | To |
 |---|---|---|
-| `start-issue`, `new-feature`, `bugfix` | Built, verified change with evidence | `pre-commit` → `create-pr` → `code-review` (posted) → `ci` → `deploy-check` → `merge` |
+| Task, `new-feature`, `bugfix` | Scoped implementation and evidence | `pre-commit`, `create-pr`, relevant readiness checks |

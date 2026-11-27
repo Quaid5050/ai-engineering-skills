@@ -4,7 +4,7 @@ description: "Create or update an agent skill in the house structure — researc
 argument-hint: "[workflow description, skill name to update, or a lesson]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Create skill
@@ -12,6 +12,8 @@ metadata:
 Create or update the skill for `$ARGUMENTS` — a workflow description, the name of a skill to update, or a lesson ("the review missed X"). A lesson from a real project goes through `capture-lesson` first; it calls this skill for the edit. If empty, ask which workflow the skill should cover.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 - Where skills live here: a project's `.claude/skills/<name>/SKILL.md` (or the agent's equivalent), or this marketplace's `plugins/<plugin>/skills/<name>/SKILL.md`.
 - Installed plugin skills are a cache: in a project that installed this marketplace, create or change the **project's own** skills (e.g. `.claude/skills/`), never the plugin files; propose marketplace changes as an upstream issue (`capture-lesson`).
@@ -44,6 +46,10 @@ metadata:
 ## 0. Read the project
 ## 1. <Phase>            (numbered steps; commands in code blocks as examples to adapt)
 **Gate:** <checkable condition>   (wherever a wrong move is costly)
+## Retained evaluation evidence
+
+Record scenario, skill/source revision, fixture, host/model/tool constraints, decisions, artifacts, actual commands and results. Routing positives, negatives and adversarial cases matter. A procedural walkthrough is labeled as such; it is not a live application evaluation. Compare task success, rework, time/cost and escaped defects with a baseline before claiming improvement. Keep evidence sanitized and reproducible.
+
 ## Rules
 ## Composition
 | From | This skill | To |
@@ -76,7 +82,11 @@ For a framework-agnostic skill, run the dry run **twice, on two different stacks
 
 ## Updating a skill
 
-When a skill was wrong (a command changed, a step missed a bug, a postmortem follow-up): fix the exact line, add the missing check **where it would have caught the problem**, and say in the commit body what went wrong. The code wins over the skill on facts; keep them in sync. A change that alters a gate or a rule others rely on is a MINOR version bump of the plugin; a removed or renamed skill is MAJOR (`CONTRIBUTING.md`).
+When a skill was wrong (a command changed, a step missed a bug, a postmortem follow-up): fix the exact line, add the missing check **where it would have caught the problem**, and say in the commit body what went wrong. The code wins over the skill on facts; keep them in sync. A breaking change to a gate or contract is MAJOR; a compatible addition is MINOR; a removed or renamed skill is MAJOR (`CONTRIBUTING.md`).
+
+## Retained evaluation evidence
+
+Record scenario, skill/source revision, fixture, host/model/tool constraints, decisions, artifacts, actual commands and results. Routing positives, negatives and adversarial cases matter. A procedural walkthrough is labeled as such; it is not a live application evaluation. Compare task success, rework, time/cost and escaped defects with a baseline before claiming improvement. Keep evidence sanitized and reproducible.
 
 ## Rules
 

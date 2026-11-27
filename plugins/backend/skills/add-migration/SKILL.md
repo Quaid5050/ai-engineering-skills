@@ -1,10 +1,10 @@
 ---
 name: add-migration
-description: "Change a database schema safely on any stack — design the entity and mapping, keys and UTC timestamps, indexes for every filter, expand → migrate → contract for running servers and released clients, generate the migration, read the generated SQL for table rewrites and long locks, apply and verify locally, and write the rollout and rollback notes. Use when adding or changing tables, columns, indexes or constraints. Trigger on 'change the schema', 'add a table', 'add a column', 'new index', 'migration', 'rename a column', 'drop a column', 'backfill'."
+description: "Change a database schema safely on any stack — design the entity and mapping, keys and UTC timestamps, workload-justified indexes, expand → migrate → contract for running servers and released clients, generate the migration, read the generated SQL for table rewrites and long locks, apply and verify locally, and write the rollout and rollback notes. Use when adding or changing tables, columns, indexes or constraints. Trigger on 'change the schema', 'add a table', 'add a column', 'new index', 'migration', 'rename a column', 'drop a column', 'backfill'."
 argument-hint: "[what data must be stored and who reads it]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Add migration
@@ -12,6 +12,8 @@ metadata:
 Make the schema change for `$ARGUMENTS`. If empty, ask what must be stored, who reads it and how much of it there will be.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / the conventions: the migration tool and its commands, where entities and mappings live, how local databases run, and how migrations are deployed (before the new code, in a job, by hand).
 2. Open the matching stack reference in `backend-conventions` (this plugin, its `references/` folder) for the exact commands and the "concurrent index" caveat of that tool.
@@ -25,7 +27,7 @@ Make the schema change for `$ARGUMENTS`. If empty, ask what must be stored, who 
 - Where the entity lives is the **stack's and project's decision** (`backend-conventions` references): some stacks keep a plain domain entity with a separate mapping in persistence; others use one model class as both, with rules as its methods. Follow the project's recorded choice; don't invent a second layer for one table.
 - Keys: UUIDs (time-ordered where available). Timestamps with time zone, UTC. Enums as short text. Units in column names.
 - Constraints per `backend-conventions` §4: `NOT NULL`, foreign keys with an explicit delete behaviour, unique indexes for uniqueness rules, `CHECK` for ranges, the same constants as the domain.
-- **An index for every `WHERE`, `JOIN` and `ORDER BY`** the new queries will run; partial indexes for "active" rows.
+- Choose indexes from measured query frequency, selectivity, join/order patterns and write/storage cost. A sequential scan can be optimal; verify representative plans rather than require a particular index.
 - Every row a member may read is reachable through its tenant id, so isolation can be checked.
 - Spatial data: one coordinate reference system stated in the column type, a spatial index on any geometry used in a filter. Time-series data: partition by time, index `(owner_id, time DESC)`, retention by policy, no foreign keys from the huge table into big tables if the database recommends against it.
 - Retention and deletion: what happens to these rows on account deletion?
@@ -50,9 +52,9 @@ Create the migration the project's way: **generated** by the ORM (then produce t
 
 Reject and rework if you see, on a large table:
 
-- a **table rewrite**: a column type change, `NOT NULL` added without a default on existing rows, a default that is not a constant;
+- a table scan or rewrite whose duration/resource cost is unacceptable: distinguish validation scans from rewrites; behavior depends on engine, version, type conversion and default-expression volatility;
 - a **non-concurrent index** build;
-- a lock-taking `ALTER` (constraint validation without `NOT VALID` + a separate `VALIDATE`);
+- lock duration that exceeds the budget; use deferred validation only for constraint types the selected engine/version actually supports;
 - a data backfill inside the migration;
 - a drop or rename the running code still reads;
 - no down path, and no stated "roll forward instead" reason.
@@ -65,12 +67,12 @@ Set a lock timeout for the migration session if the database supports it, so a b
 
 1. Start the local database (the project's compose file or test container), apply the migration with the project's command, run the full test suite.
 2. Apply **down** (or the documented rollback) once, then up again, if the tool supports it. Tools without down migrations (or projects that roll forward) state the roll-forward fix instead, and the migration is tested on a fresh database in the test suite.
-3. `data-check` (this plugin): the tables, columns, constraints and indexes exist; the new queries use the indexes (`EXPLAIN`); counts before/after a backfill match the expected cohort.
+3. `data-check` (this plugin): the tables, columns, constraints and indexes exist; representative query plans and measured cost meet the budget; counts before/after a backfill match the expected cohort.
 4. Integration tests for the new data run against this database.
 
 ## 5a. Adding a uniqueness rule over existing data
 
-A unique constraint added to a table that already holds duplicates fails — or, worse, gets added "not valid" and hides them. Order:
+A unique constraint over duplicate data cannot establish uniqueness. Deferred validation is not supported for all constraint types; do not assume a uniqueness rule can be added unvalidated. Order:
 
 1. **Count** the duplicates (`data-check`) and decide the repair rule with the owner (keep oldest, merge, mark).
 2. **Repair** in a reviewed, batched job or script (not inside the migration on a large table); re-count to zero.

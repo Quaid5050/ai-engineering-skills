@@ -4,7 +4,7 @@ description: "Write the tests for a file, feature, behaviour or diff in this pro
 argument-hint: "[file, feature, behaviour, or empty for the branch diff]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Write tests
@@ -12,6 +12,8 @@ metadata:
 Write tests for `$ARGUMENTS` (a file, a class, a feature or a behaviour). If empty, test the current branch's diff against the main branch. The rules are in `testing-doctrine` — read it first if you have not in this session. This skill is the **how**.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` / `CONTRIBUTING.md` for test commands, test folders and naming.
 2. Detect the stack from the manifests and the CI file; open the matching reference for toolchain detail:
@@ -22,7 +24,7 @@ The project's commands and folders win; the reference only fills gaps.
 
 ## 1. List the behaviours
 
-From the issue's acceptance criteria, the design's states, or the diff, list every behaviour in this order: happy path → variations → edges (empty, first item, exactly at a boundary, past it, maximum size) → errors (invalid input, forbidden caller, network or server failure). For safety-critical code put the failure paths from `testing-doctrine` §3 **first**.
+From the issue's acceptance criteria, the design's states, or the diff, list every behaviour in this order: happy path → variations → edges (empty, first item, exactly at a boundary, past it, maximum size) → errors (invalid input, forbidden caller, network or server failure). For safety-critical code put the failure paths from `testing-doctrine` **first**.
 
 Skip what is already covered: search the test folders for the behaviour's words.
 
@@ -44,19 +46,19 @@ Prefer the lowest level that proves the behaviour; add one integration test per 
 
 ## 3. Write them
 
-- Follow `testing-doctrine`: arrange/act/assert, hard-coded values, exact assertions including absence, no logic in the test.
+- Follow `testing-doctrine`: clear setup, action and independent oracle; explicit examples, properties or state-machine sequences as appropriate. Avoid reproducing the production algorithm as the expected result.
 - Time from the injected clock; never the real clock. Data synthetic.
-- Integration tests replace only true externals (vendors) through the project's test host.
+- Integration tests exercise real internal seams; unit doubles at owned architectural boundaries are acceptable when separate integration tests cover the real collaboration.
 - Forbidden callers: the authorisation tests the project defines (`add-endpoint`, backend plugin, says which status each caller gets).
 - Golden/screenshot updates only when the change is intended, and look at the image diff before committing.
 
 ## 4. Run
 
-1. The single new test (the red/green loop is `tdd`): it fails before the code exists, for the expected reason.
-2. The test file, then the area, then the full suite before commit.
-3. For each guard on a safety-critical path, do the break-it check from `testing-doctrine` §4.
+1. Run the focused test. New behavior uses red/green; characterization of existing behavior may start green. Demonstrate sensitivity to the relevant defect without manufacturing a failure.
+2. Run affected suites and required CI checks. Reuse unchanged evidence for the same candidate; broaden when dependency impact or failures justify it.
+3. For each guard on a safety-critical path, do the break-it check from `testing-doctrine`.
 
-**Gate:** every new test has been seen red for the right reason and is now green; the area suite is green.
+**Gate:** meaningful oracle and failure sensitivity established; applicable suites pass, with skipped/environment-dependent checks named.
 
 ## 5. Report
 

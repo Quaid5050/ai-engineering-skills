@@ -1,6 +1,6 @@
 {
   "name": "mobile",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Mobile app architecture, a shared cross-platform core, background work and battery, an offline queue that never loses data, permissions, screens from designs, home-screen widgets and real-device testing. References for Flutter, React Native, Kotlin, Swift and Kotlin Multiplatform.",
   "author": {
     "name": "Quaid5050",
@@ -19,6 +19,7 @@
     "device-testing"
   ],
   "dependencies": [
-    "lifecycle"
+    "foundation",
+    "quality"
   ]
 }

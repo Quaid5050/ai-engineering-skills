@@ -4,7 +4,7 @@ description: "Write a blameless postmortem after an incident or any bug where a 
 argument-hint: "[incident slug, issue or description]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Postmortem
@@ -14,6 +14,8 @@ Write the postmortem for `$ARGUMENTS` (an incident slug, issue, or description) 
 **Blameless:** describe what systems, tests and processes allowed it; never who "should have" done something.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 The incident timeline draft, the investigation report, the PRs and releases involved (`gh pr view`, `git log`), signals and links from `observe`, user reports (no personal data), and the project's postmortem location and template if it has one.
 

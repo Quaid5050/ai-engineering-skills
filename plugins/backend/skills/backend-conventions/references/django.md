@@ -36,7 +36,7 @@ How the generic rows map onto Django. Django's "fat models" habit conflicts with
 - **Exactly one beat (scheduler) process** in every environment, including during deploys (a rolling deploy can briefly run two: use a lock such as `django-celery-beat` + a single replica, or a scheduler lock). Duplicate sends usually start here.
 - `acks_late=True` + the broker's visibility timeout means a task can run **twice** (worker killed, timeout shorter than the task): every task is idempotent.
 - Claim due rows in the task: `Chore.objects.select_for_update(skip_locked=True).filter(due_at__lte=now, reminded_at__isnull=True)[:100]` inside `transaction.atomic()`.
-- A **sent-ledger** row with a unique constraint (`UniqueConstraint(fields=["chore", "due_at"], name="uq_reminder_sent")`) is the dedupe: insert it before sending; `IntegrityError` → already sent, skip.
+- Persist pending outbox intent in the business transaction; an operation-key conflict requires reading its state, not skipping as sent. Use recoverable claims and provider idempotency/reconciliation; see `add-scheduled-job`. An `on_commit` callback alone is not crash-durable publication.
 - Re-check membership in the task at run time, not only when the job was scheduled.
 - Details and tests: `add-scheduled-job`.
 

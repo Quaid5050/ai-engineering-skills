@@ -1,10 +1,10 @@
 ---
 name: bugfix
-description: "Fix a bug end to end — reuse or run the investigation (no issue, no fix; unverified cause, no guessed fix), design review for a non-trivial fix, a permanent regression test that fails before for the reported reason and passes after, fix the root cause not the symptom plus the 'why was it breakable' guard, blast radius (same pattern, other platform, stored data repair, installed old versions), verify, then PR with the failure mode explained. Trigger on /bugfix, 'fix this bug', 'fix issue', 'make this test pass', 'implement the fix', 'hotfix'."
+description: "Fix a bug end to end — reuse or run the investigation (reuse existing task context; preserve uncertainty when the cause is unverified), risk-appropriate design review, a permanent regression test that fails before for the reported reason and passes after, fix the root cause not the symptom plus the 'why was it breakable' guard, blast radius (same pattern, other platform, stored data repair, installed old versions), verify, then PR with the failure mode explained. Trigger on /bugfix, 'fix this bug', 'fix issue', 'make this test pass', 'implement the fix', 'hotfix'."
 argument-hint: "[bug issue, investigation report path, or description]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Bugfix
@@ -12,6 +12,8 @@ metadata:
 Fix `$ARGUMENTS` (a bug issue, an investigation report, or a description). If empty, ask for the bug.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 `AGENTS.md`: commands, release paths, which paths are safety-critical, the merge gates.
 
@@ -21,19 +23,19 @@ Fix `$ARGUMENTS` (a bug issue, an investigation report, or a description). If em
 |---|---|
 | An investigation report / root cause in this conversation | Use it; do not re-investigate |
 | A bug issue with no root cause | `investigate-bug` first |
-| Only a description | `file-bug` **first** (cause "unknown"), then `investigate-bug`, then update the issue. No issue, no fix |
-| An investigation that says "not reproduced" or "unverified" | Stop. Report the missing evidence; never guess a fix |
+| Only a description | Reproduce with `investigate-bug`; use the current task as scope. File an issue only when policy or coordination requires it |
+| An investigation that says not reproduced or unverified | Preserve uncertainty. Add discriminating instrumentation or characterization; an authorized reversible mitigation may proceed with monitoring and rollback. Do not claim a root-cause fix without evidence. |
 | It is really a missing feature | `file-feature` instead |
 
 **Safety-critical bug** (on the project's safety-critical list in `AGENTS.md`, or by default a critical action missed or duplicated, data exposed, lost or corrupted, a background worker dead): say so at the top of every reply; priority P0/P1; the PR needs `device-test` when platform code is involved.
 
 ## 2. Design review (non-trivial fixes)
 
-A fix that adds a type, a file, a dependency or a rule, or touches more than one file of production code, is non-trivial: run `design-review` — where the fix lands, what it reuses, and whether the **same class of bug needs a shared fix** rather than a local patch. Posted on the bug issue before the first commit with production code (the reproduction test from `investigate-bug` may already be on the branch); never skipped for speed. A trivial one-line fix says why it is trivial in the PR.
+Classify by impact and uncertainty using `work-context`, not file count. High-risk fixes need the required pre-change design review; standard fixes include design in the focused review. A one-line access-control change can be high-risk, while a mechanical multi-file rename may be low-risk.
 
 ## 3. Branch
 
-`start-issue` → `fix/<n>-<slug>` from the issue. If `investigate-bug` already created the linked branch with the reproduction test, keep using it.
+`start-issue` → a descriptive fix branch (include the issue number when one exists). If `investigate-bug` already created the linked branch with the reproduction test, keep using it.
 
 ## 4. Regression test (RED)
 
@@ -41,7 +43,7 @@ Make the reproduction a permanent test next to the related tests. It must fail o
 
 ## 5. Fix the root cause
 
-Change the deepest cause in our control (from the five whys), not the symptom. Then the "why was this breakable" part, when small: a type, a guard at the boundary, a lint rule, an architecture test, an alert. Larger prevention work → its own issue.
+Change the deepest cause in our control (from supported causal evidence), not the symptom. Then the "why was this breakable" part, when small: a type, a guard at the boundary, a lint rule, an architecture test, an alert. Larger prevention work → its own issue.
 
 Run the test → **GREEN**; then the whole area suite.
 

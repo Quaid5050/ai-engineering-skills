@@ -4,7 +4,7 @@ description: "Look at a database safely — read-only sessions with a statement 
 argument-hint: "[data question, migration to verify, or suspected data bug]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Data check
@@ -12,6 +12,8 @@ metadata:
 Answer `$ARGUMENTS` by reading the database. Default environment: **local**.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / the conventions: how the local database runs, its connection settings, the schema's real table and column names, and the rules for shared environments (who may connect, through which path).
 2. Read the schema (`\d`, the information schema, or the migrations) before writing a query; names in this skill are examples.
@@ -34,7 +36,7 @@ Answer `$ARGUMENTS` by reading the database. Default environment: **local**.
 ## 3. Personal data
 
 - Never print personal data into the conversation, an issue, a PR or a file: names, emails, phone numbers, addresses, coordinates, tokens, free-text notes, payment details. Aggregate (`count`, `min/max(time)`), bucket or round (coordinates to ~10 km, timestamps to the hour), or compare inside the database.
-- Identify rows by id, not by name or contact detail.
+- IDs and rounded buckets may still identify people. Prefer suppressed/aggregated results with an explicit disclosure policy; do not assume pseudonymization is anonymization.
 - Results that are personal data stay out of git and out of the issue tracker.
 
 ## 4. Useful checks (adapt names)
@@ -47,10 +49,11 @@ SELECT relname, n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC LIM
 SELECT * FROM <migration_history_table> ORDER BY 1 DESC LIMIT 5;
 
 -- Freshness: owners whose latest event is older than the expected interval (count only)
-SELECT count(*) FROM (
-  SELECT owner_id, max(created_at) AS last_at FROM events
-  WHERE created_at > now() - interval '1 day' GROUP BY owner_id
-) t WHERE last_at < now() - interval '15 minutes';
+SELECT count(*) FROM owners o
+LEFT JOIN (
+  SELECT owner_id, max(created_at) AS last_at FROM events GROUP BY owner_id
+) t ON t.owner_id = o.id
+WHERE o.active = true AND (t.last_at IS NULL OR t.last_at < now() - interval '15 minutes');
 
 -- Gaps per hour for one synthetic test owner
 SELECT date_trunc('hour', created_at) AS hour, count(*) FROM events
@@ -63,7 +66,7 @@ SELECT count(*) FROM order_lines WHERE quantity <= 0;
 -- Isolation: rows whose tenant differs from their parent's tenant
 SELECT count(*) FROM order_lines l JOIN orders o ON o.id = l.order_id WHERE l.workspace_id <> o.workspace_id;
 
--- Query plan (local data, realistic volume)
+-- Query plan: ANALYZE executes the statement; use local synthetic data and no side-effecting functions
 EXPLAIN (ANALYZE, BUFFERS) <query>;
 ```
 
@@ -73,7 +76,7 @@ For plans, seed realistic synthetic volume (10× today's) before judging; a plan
 
 1. **Before:** count the rows that should change (the expected cohort) and name control rows that must **not** change.
 2. Apply the migration or run the backfill locally.
-3. **After:** the affected count matches the cohort; controls are unchanged; no `NULL` where the code now requires a value; constraints and indexes exist; `EXPLAIN` uses the new indexes.
+3. **After:** the affected count matches the cohort; controls are unchanged; no `NULL` where the code now requires a value; constraints and indexes exist; representative plans and measured cost meet the query budget.
 
 **Gate:** cohort and controls are both checked; a matching count alone is not enough.
 

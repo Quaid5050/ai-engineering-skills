@@ -1,22 +1,11 @@
-# agents 1.0.0
+# agents 2.0.0
 
-Independent subagents: architect (design review of a plan before any code), reviewer (cold code review with a design pass), tester (fills test gaps, failure paths first).
+Independent roles with host-enforced scope. Install the declared foundation dependency and the relevant skills for the task.
 
-## Install
-
-```text
-/plugin marketplace add Quaid5050/ai-engineering-skills
-/plugin install agents@ai-engineering-skills
-```
-
-Installs with: `quality`.
-
-## Agents
-
-| Agent | Role |
+| Role | Purpose |
 |---|---|
-| [`architect`](agents/architect.md) | Independent design review of a plan before code, posted on the issue |
-| [`reviewer`](agents/reviewer.md) | Independent code review with the design pass, posted on the PR |
-| [`tester`](agents/tester.md) | Fill test gaps in existing code, failure paths first |
+| [Architect](agents/architect.md) | Independent, static design review when risk warrants it |
+| [Reviewer](agents/reviewer.md) | Independent static review of the exact candidate and its design |
+| [Tester](agents/tester.md) | Scoped test authoring; execution through a separately constrained runner |
 
-See the [catalogue](../../README.md#catalogue) and the [workflow map](../../docs/engineering-workflow.md). License: MIT.
+Review roles have no general shell. Role text is not an execution sandbox; the host must enforce tools, paths, credentials and network limits. Return the report to the caller; posting it externally requires task authorization. See [host adapters](../../docs/other-agents.md).

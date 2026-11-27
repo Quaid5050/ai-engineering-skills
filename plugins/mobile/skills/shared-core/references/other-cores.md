@@ -11,3 +11,5 @@ The rules of the skill (core decides, shells only wire; no exceptions across the
 | **Duplicate in each platform language** | Tiny, stable rules only | Then keep a shared set of test vectors (JSON input → expected decision) run by both platforms' tests so they cannot drift |
 
 Whatever is chosen is recorded as a decision (why, what it locks in, when to revisit).
+
+Rust `catch_unwind` catches only unwinding panics, not `panic=abort`; define ABI, allocator ownership and panic strategy. See [official documentation](https://doc.rust-lang.org/std/panic/fn.catch_unwind.html). Error values must preserve actionable distinctions; do not convert every failure to a generic null/false.

@@ -1,10 +1,10 @@
 ---
 name: investigate-bug
-description: "Find the root cause of a bug — reproduce it first with a failing test or on a device (on a fix branch linked to the bug issue), pin the symptom, keep at least five competing hypotheses with facts and theories apart, narrow with code history, logs, error tracker and read-only data, drive to the deepest cause in our control with five whys, measure the blast radius, and write the report including how to prevent the whole class. Trigger on /investigate-bug, 'why is this happening', 'root cause this', 'dig into this bug', 'figure out what is wrong', 'this stopped working', 'debug this'."
+description: "Find the root cause of a bug — reproduce it first with a failing test or on a device (on a fix branch linked to the bug issue), pin the symptom, keep evidence-backed competing hypotheses with facts and theories apart, narrow with code history, logs, error tracker and read-only data, drive to the deepest cause in our control with causal analysis, measure the blast radius, and write the report including how to prevent the whole class. Trigger on /investigate-bug, 'why is this happening', 'root cause this', 'dig into this bug', 'figure out what is wrong', 'this stopped working', 'debug this'."
 argument-hint: "[symptom, issue number, error link, or user report]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Investigate bug
@@ -13,13 +13,15 @@ Find the root cause of `$ARGUMENTS` (a symptom, an issue, an error-tracker link,
 
 ## 0. Read the project
 
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
+
 `AGENTS.md`: how to run tests and the app locally, where logs and errors go, which paths are safety-critical, read-only access to data (`data-check`, backend plugin). An issue number → read it first (`gh issue view <n>`).
 
 **Safety-critical symptom** — on the project's safety-critical list in `AGENTS.md` (that list wins over the examples here), or by default a critical action missed or duplicated, data exposed to the wrong person, data lost or corrupted → tell the owner **immediately**, before the full investigation. A live production problem → `incident` first.
 
 ## 1. Reproduce first
 
-The order is always **file-bug → investigate-bug → bugfix**. The reproduction test is code, so it needs an issue and a linked branch: no bug issue yet → `file-bug` first with what is known; then a `fix/<n>-<slug>` branch from the issue (`start-issue`). Never on `main`; `bugfix` continues on the same branch. The reproduction test may be committed **before** the fix's design review — it is a test, not production code (`merge` gate 5).
+Use the existing task or issue as context. Create an issue only when project policy or coordination needs it; direct authorized fixes may use a descriptive branch without an issue number. Reuse a reproduction already supplied. A reproduction test may precede implementation review. Keep production/shared data read-only.
 
 | Kind of bug | How to reproduce |
 |---|---|
@@ -37,7 +39,7 @@ What exactly is observed; when (always, after an action, only in the background,
 
 ## 3. Hypotheses
 
-Write **at least five** competing explanations before chasing any. Typical: a permission downgraded by the OS, background work killed, a stale cache, a timezone or UTC conversion, duplicate or out-of-order events, a wrong tenancy/membership filter, an expired token, an offline queue not flushed, a race between two channels (push vs pull), a retry layer doubling a send.
+Write plausible competing explanations; do not invent a minimum number. Start with the smallest experiment that distinguishes them. Typical: a permission downgraded by the OS, background work killed, a stale cache, a timezone or UTC conversion, duplicate or out-of-order events, a wrong tenancy/membership filter, an expired token, an offline queue not flushed, a race between two channels (push vs pull), a retry layer doubling a send.
 
 ```
 FACTS (with source)                 THEORIES (unconfirmed)
@@ -53,9 +55,9 @@ Record why each is rejected — it stops the next person repeating it. After thr
 - **Data:** read-only queries (`data-check`) comparing what the code produced with what it should have; aggregate or redact, never paste personal data.
 - **Device:** device logs, battery and permission state.
 
-## 5. Root cause (five whys)
+## 5. Causal explanation
 
-Ask why until the answer is not explained by something deeper. Fix target = the deepest cause in our control, **plus** "why was this breakable?" (a missing test, type, lint rule, alert or placement row) — name the rung on the ladder in `testing-doctrine` (quality plugin) where it should have been caught.
+Trace causal contributors only as far as evidence supports; use a graph when failures interact, and label unresolved causes. Fix target = the deepest cause in our control, **plus** "why was this breakable?" (a missing test, type, lint rule, alert or placement row) — name the rung on the ladder in `testing-doctrine` (quality plugin) where it should have been caught.
 
 ## 6. Blast radius
 
@@ -65,14 +67,14 @@ Who else is affected: other platforms, vendors, versions, tenants; other code wi
 
 ## 7. Report
 
-Save `docs/investigations/<YYYY-MM-DD>-<slug>.md` and summarise in the reply:
+For substantial investigations save `docs/investigations/<YYYY-MM-DD>-<slug>.md`; for a scoped fix keep the evidence in the task or PR:
 
 ```markdown
 # <symptom>
 Issue: <link> · Status: root cause found | not reproduced | unverified
 
 ## Reproduction        (test name or exact steps; RED output)
-## Root cause          (chain of whys, file:line)
+## Root cause          (supported causes, uncertainty, file:line)
 ## Evidence            (facts with sources)
 ## Ruled out           (hypothesis → why rejected)
 ## Blast radius
@@ -82,7 +84,7 @@ Issue: <link> · Status: root cause found | not reproduced | unverified
 
 ## 8. Next step
 
-No issue yet → `file-bug` with this report. Fix wanted → `bugfix` (it reuses the report and the failing test).
+If tracking is needed, use `file-bug` with this report. Fix wanted → `bugfix` (it reuses the report and the failing test).
 
 ## Rules
 

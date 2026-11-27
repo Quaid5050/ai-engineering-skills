@@ -18,7 +18,10 @@ Not wanted: rules nobody needed yet, framework names in core skill text, product
 4. Version and log it (below).
 5. Run the checks:
    ```bash
+   python3 -m pip install -r requirements-dev.txt
+   python3 scripts/update_catalog.py
    python3 scripts/check.py
+   python3 -m unittest discover -s tests -v
    claude plugin validate . --strict
    claude plugin validate plugins/<plugin> --strict
    ```
@@ -46,3 +49,7 @@ This repository is public. Never commit names, emails, phone numbers, customer o
 ## Code of conduct
 
 Be kind, assume good intent, critique the text not the person.
+
+## Evidence and support
+
+Use the [evaluation rubric](docs/evaluation.md). Preserve historical audits. Fresh-agent dry runs on two stacks distinguish actual execution from simulated reasoning. Device/provider support requires appropriate execution evidence; host security boundaries require negative tests. Record owner, version, source and limits before promoting a support tier.

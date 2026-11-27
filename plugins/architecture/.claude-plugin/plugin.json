@@ -1,0 +1,19 @@
+{
+  "name": "architecture",
+  "version": "1.0.0",
+  "description": "Workload-driven system design and safe modernization without imposing a single application architecture.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "architecture",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

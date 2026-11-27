@@ -1,4 +1,6 @@
-# Architecture tests: allowlists with empty baselines
+# Architecture tests: intentional boundaries and owned baselines
+
+These examples target layered business applications. Parsers, cryptographic libraries, active-record applications and systems projects need different allowed dependencies. Import checks do not prove runtime isolation. Line counts are optional review signals, not semantic checks.
 
 ## Why allowlists
 
@@ -38,6 +40,6 @@ The fix is an **allowlist**: "the domain may use only the standard library's cor
 | Dart / Flutter | a plain test that reads `lib/` and checks `import` lines against an allowlist |
 | Swift | a script over `import` lines per target; SwiftLint custom rules |
 | Go | `go list -deps` checks, depguard in golangci-lint |
-| Any | a small script over import statements — simple and good enough |
+| Any | language-aware dependency analysis where available; text import checks miss dynamic and qualified access |
 
 The test lives in the normal test suite and runs in CI on every change. Lint and formatting run in CI too, so review time goes to what a machine cannot see.

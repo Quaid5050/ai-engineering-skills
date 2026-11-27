@@ -1,7 +1,7 @@
 {
   "name": "lifecycle",
-  "version": "1.0.0",
-  "description": "The whole delivery lifecycle as gated skills: idea, MVP scope, project bootstrap, feature investigation, spec, issues, design review before code, test-first implementation, pre-commit, PR, CI, deploy check, merge gates, release, observe, incident, postmortem, cleanup. Framework-agnostic.",
+  "version": "2.0.0",
+  "description": "Quick, Standard and High-risk delivery workflows with scoped planning, exact-candidate verification and authorized release actions.",
   "author": {
     "name": "Quaid5050",
     "url": "https://github.com/Quaid5050"
@@ -21,7 +21,7 @@
     "incident"
   ],
   "dependencies": [
-    "quality",
-    "agents"
+    "foundation",
+    "quality"
   ]
 }

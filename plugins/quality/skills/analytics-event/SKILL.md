@@ -4,7 +4,7 @@ description: "Add or change a product analytics event, or answer a product quest
 argument-hint: "[add <what to measure> | a product question]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Analytics event
@@ -12,6 +12,8 @@ metadata:
 `$ARGUMENTS` is either `add <what to measure>` or a **question** ("how many new shops added a product in week 1?"). If empty, ask which. Product analytics answer "do people use it?"; system health is `observe` (lifecycle plugin).
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md` / `CLAUDE.md` and any analytics decision record: is the pipeline first-party or a vendor? Where is the **event catalogue** (for example `docs/analytics/events.md`)?
 2. Find the client analytics API, the transport, the storage table and the consent setting.
@@ -34,7 +36,7 @@ metadata:
 3. **Properties — allow-list only:**
    - Allowed: enums (`category: books|games|other`, `platform`, `trigger: button|shortcut|widget`), counts, durations in seconds, booleans, app version, step names.
    - **Never:** location or distances, addresses or place names, contact details, names, message or note text, search text, photos, device or network identifiers, raw user or tenant ids (hash them in the transport), tokens, health or payment data.
-4. **Consent:** honour the in-app analytics setting. Off → nothing is queued. Every feature works identically either way.
+4. **Consent:** honour the in-app analytics setting. Off → nothing is queued or sent; consent withdrawal purges or blocks pending analytics and is checked again at dispatch. Every feature works identically either way.
 5. **Catalogue:** add the row in the same change.
 6. **Test:** a test with a fake analytics sink asserting the exact event name and properties after the user action, and that **nothing is recorded when analytics is off**. A catalogue test keeps the typed events and the catalogue in sync.
 7. **Review:** `security-privacy-review` §5 for any new property.
@@ -50,7 +52,6 @@ metadata:
    WITH cohort AS (
      SELECT shop_hash, min(time) AS created_at
      FROM analytics_events WHERE name = 'shop_created'
-       AND time >= now() - interval '8 weeks' AND time < now() - interval '7 days'
      GROUP BY shop_hash
    )
    SELECT date_trunc('week', c.created_at) AS cohort_week,
@@ -58,11 +59,16 @@ metadata:
           count(*) FILTER (WHERE EXISTS (
             SELECT 1 FROM analytics_events e
             WHERE e.shop_hash = c.shop_hash AND e.name = 'product_added'
-              AND e.time < c.created_at + interval '7 days')) AS added_in_week_1
-   FROM cohort c GROUP BY 1 ORDER BY 1;
+              AND e.time >= c.created_at AND e.time < c.created_at + interval '7 days')) AS added_in_week_1
+   FROM cohort c
+   WHERE c.created_at >= now() - interval '8 weeks'
+     AND c.created_at < now() - interval '7 days'
+   GROUP BY 1 ORDER BY 1;
    ```
 4. Report numbers with the definition, the window and caveats (opt-outs, versions without the event). Do not over-read small samples.
 5. If the question will be asked again, save the query as a chart and link it from the catalogue row.
+
+Stable hashes remain linkable pseudonyms; minimize them, restrict joining/access and define key/retention/deletion policy. Historical first-event queries require retained history; otherwise label the cohort as first observed, not first ever.
 
 ## Rules
 

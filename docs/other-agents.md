@@ -1,58 +1,34 @@
-# Using these skills with other agents
+# Installation and agent-host adapters
 
-Every skill is a standard [Agent Skills](https://agentskills.io/specification) folder (`<name>/SKILL.md` plus optional `references/`), so any agent that reads Agent Skills can load them. Only the Claude Code plugin wrapper (`plugin.json`, the marketplace file, hooks and namespaced agents) is Claude Code-specific.
-
-## 1. Install the skills
+Skill text/resources are portable. Plugin loading, hooks, roles and permissions are host-specific; verify the client's current discovery path and enforcement capabilities.
 
 ```bash
-git clone https://github.com/Quaid5050/ai-engineering-skills
-cd ai-engineering-skills
-scripts/install-skills.sh <skills-folder> [--link] [--plugins lifecycle,quality,backend]
+python3 scripts/install_skills.py /path/to/skills --plugins lifecycle,backend --dry-run
+python3 scripts/install_skills.py /path/to/skills --plugins lifecycle,backend
+python3 scripts/install_skills.py /path/to/skills --rollback
+python3 scripts/install_skills.py /path/to/skills --recover
+python3 scripts/install_skills.py /path/to/skills --uninstall
 ```
 
-The script flattens `plugins/*/skills/*` into one folder. Typical folders (they change between versions — check your tool's docs):
+The shell wrapper calls the same implementation; Windows can call Python directly. Copy mode needs no symlink privilege. Filtered installation includes required dependencies; filtered uninstall removes only requested plugin skills and rejects removal still needed by retained skills.
 
-| Agent | Project folder | Personal folder |
-|---|---|---|
-| Shared location read by many agents | `.agents/skills/` | `~/.agents/skills/` |
-| Codex | `.agents/skills/` or `.codex/skills/` | `~/.codex/skills/` |
-| Cursor | `.cursor/skills/` | `~/.cursor/skills/` |
-| Gemini CLI | `.gemini/skills/` | `~/.gemini/skills/` |
-| GitHub Copilot | `.github/skills/` | `~/.copilot/skills/` |
+Ownership/content digests live in `.ai-engineering-skills.json`. Foreign destinations and changed owned copies are preserved by refusing the operation. Keep consumer customizations separately. Link mode owns the link's target identity, not source contents: source updates are immediately visible, so only use trusted clones. Retargeting an owned link is detected.
 
-`--link` makes symlinks, so `git pull` in the clone updates every project. Copy instead when the project must not depend on your clone.
+Updates stage on the target filesystem and retain one rollback transaction. Flat skill directories may be partly updated during a crash: this is **recoverable, not a whole-directory atomic switch**. Stop readers and use `--recover`; it validates destinations, backup digests and metadata before restoring. OS advisory locking serializes installers, including recovery, and releases on process exit. Do not delete the persistent lock file while another installer can run. Process interruption is tested; power-loss durability and network-filesystem lock semantics are not guaranteed. An attacker able to rewrite all installation metadata is outside the ownership model.
 
-Skill references in the text name plugins ("`code-review` (quality plugin)"). After a flat install the plugin name does not matter: the skill is found by its name.
+## Roles and scope
 
-## 2. Point the agent at the workflow
+Load context once and only relevant references. Required dependencies mean availability, not recursive loading of every workflow companion. Architect/reviewer are static read-only profiles; their tools must be mapped and enforced by the host. Tests/builds run separately in a disposable restricted environment without secrets. Without an independent agent/session, label review non-independent.
 
-Add to the project's `AGENTS.md` (most agents read it):
+## Hooks
 
-```markdown
-## Workflow
-This project uses the AI Engineering Skills workflow: docs/engineering-workflow.md in
-https://github.com/Quaid5050/ai-engineering-skills. Before any step that has a skill
-(new-feature, start-issue, design-review, implement, code-review, merge, …), load and follow it.
+Command preflights recognize limited shell forms and are advisory. Aliases, direct APIs, disabled hooks and other tools can bypass them. Protected server checks and host permissions enforce real boundaries.
+
+Standalone Git hooks scan the actual index:
+
+```sh
+python3 /path/to/ai-engineering-skills/plugins/guardrails/scripts/guard.py secrets --git-hook
+python3 /path/to/ai-engineering-skills/plugins/guardrails/scripts/guard.py branch --git-hook
 ```
 
-`bootstrap-project` writes a full `AGENTS.md` for a new repository.
-
-## 3. The review agents without subagents
-
-`architect`, `reviewer` and `tester` (`plugins/agents/agents/*.md`) are role descriptions. Their value is **independence**: they review work they did not write, with no access to the conversation that wrote it.
-
-- **Agent supports subagents / custom agents:** copy the files into its agents folder (the frontmatter `name`, `description` and `tools` map to most tools' formats).
-- **No subagents:** open a **new session** (fresh context), paste the agent file's body as the first instruction, and give it only the issue or PR link. Never run the review in the same session that wrote the code — and if you must, the posted review says it was not independent.
-
-## 4. Lessons from your project
-
-Installed or copied skills are a cache of this repository. When `capture-lesson` or `postmortem` finds a lesson, encode it in your project (`AGENTS.md`, conventions, tests, your own skills) and, if it is general, open an issue on this repository — do not edit the copied skill files, a later update overwrites them.
-
-## 5. The hooks
-
-The `guardrails` hooks are plain shell scripts (`plugins/guardrails/scripts/`). Outside Claude Code, use them as git hooks:
-
-```bash
-# .git/hooks/pre-commit — runs the secret scan on what is about to be committed
-echo '{"tool_input":{"command":"git commit"}}' | bash /path/to/ai-engineering-skills/plugins/guardrails/scripts/check-staged-secrets.sh
-```
+Git hooks are also bypassable. Known credential patterns, including staged binary blobs, are checked with redacted values and sensitive paths. This is not a complete secret detector; unstaged/untracked content is not the commit index.

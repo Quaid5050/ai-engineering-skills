@@ -1,10 +1,10 @@
 ---
 name: code-review
-description: "Review a diff or PR on any stack — shape first, then every applicable dimension (safety-critical paths, privacy and tenant isolation, tests you can trust, correctness, contract, data, platform and battery, design and UX, performance, observability, simplicity, layer placement, conventions, repo hygiene), then a separate mandatory design pass (placement, duplication across features, reuse, technical code out of business layers, validation/secret/storage homes, design review posted before code). Each finding has severity, file:line, failure scenario, fix and the rung where it should have been caught; plus a merge risk tier. Use before every merge. Trigger on /code-review, 'review this', 'review the PR', 'review my changes', 'check the diff', 'is this ready to merge'."
+description: "Review a diff or PR on any stack — shape first, then every applicable dimension (safety-critical paths, privacy and tenant isolation, tests you can trust, correctness, contract, data, platform and battery, design and UX, performance, observability, simplicity, layer placement, conventions, repo hygiene), then a risk-appropriate design assessment (placement, duplication across features, reuse, technical code out of business layers, validation/secret/storage homes, design review posted before code). Each finding has severity, file:line, failure scenario, fix and the rung where it should have been caught; plus a merge risk tier. Use before every merge. Trigger on /code-review, 'review this', 'review the PR', 'review my changes', 'check the diff', 'is this ready to merge'."
 argument-hint: "[PR number, branch, path, or empty for the current branch]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Code review
@@ -18,6 +18,8 @@ gh pr view <number> --json title,body,files,labels
 ```
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`: merge gates, review format, what counts as safety-critical, commit and attribution rules.
 2. Read the linked issue or spec and its posted design review (`design-review`, lifecycle plugin), so you review against intent, not only the code.
@@ -37,32 +39,32 @@ Go through every dimension the diff can touch. The first three outrank the rest.
 |---|---|---|
 | 1 | **Safety-critical paths** | Anything where a silent failure harms a person or loses money or data: can the effect be lost, delayed, duplicated or reach the wrong person? Every catch logs and surfaces; retries bounded with a fallback; timers on the injected clock; idempotency keys; failure-path tests exist, including the paired "dedupe does not swallow real events" tests (`testing-doctrine`). |
 | 2 | **Privacy & isolation** | Every resource endpoint checks ownership/membership with the project's status codes; queries filter by tenant; the logging rule in `security-privacy-review` §5; sharing is opt-in and visible. Any hit → run `security-privacy-review`. |
-| 3 | **Tests you can trust** | Tests follow `testing-doctrine`: exact, hard-coded, no mocks of own code, behaviour not implementation, can fail. New behaviour without a red-first test is a finding. |
+| 3 | **Tests you can trust** | Tests follow `testing-doctrine`: independent oracles, behavior not implementation, and relevant failure sensitivity. Examples, properties and sequence tests are valid; evaluate risk-based evidence, not a ritual red output. |
 | 4 | Correctness | UTC and time zones, null/empty, first item missing, out-of-order events, offline and resume after hours, races between push and pull, pagination edges. |
 | 5 | Contract | Contract file changed with the API; generated clients regenerated, never hand-edited; breaking changes versioned; stable error codes. |
-| 6 | Data | Migrations safe on large tables (no rewrite, nullable/defaults, online indexes), expand → migrate → contract, constraints match domain limits (`add-migration`, backend plugin). |
-| 7 | Platform & battery | Background work justified and measured; OS killers handled; permission asked after explanation; both platforms behave the same (`background-work`, mobile plugin). |
+| 6 | Data | Engine/version-specific migration locks and rewrites assessed on representative data, expand → migrate → contract, constraints match domain limits (`add-migration`, backend plugin). |
+| 7 | Platform & battery | Background work justified and measured; OS killers handled; permission asked after explanation; supported targets meet platform-specific contracts (`background-work`, mobile plugin). |
 | 8 | Design & UX | Design tokens, no hard-coded colours or strings, localisation, every designed state built, accessibility labels, reduced motion (`accessibility-audit` for UI-heavy changes). |
 | 9 | Performance | N+1 (any DB, cache or HTTP call in a loop), unbounded or in-memory-filtered queries, missing indexes, I/O while holding a lock, rebuild storms, work on the UI thread, payload size. A hot-path change without a measurement is `major` (`perf-check`). |
 | 10 | Observability | New failure modes produce an error event or metric someone will see; logs have context but no personal data; analytics events from the catalogue (`analytics-event`). |
 | 11 | Simplicity & changeability | Less code wins; one owner per rule; no second place to update; no dead code; names say what things are. Run the review checklist of `engineering-principles` §4. |
-| 12 | Layer placement | Every new domain type passes the concept test (a file format, encoding, parser or crypto helper in the domain is `major`); shape validation built inline in a handler instead of its validation unit is `minor`. |
-| 13 | Conventions | The checklist of each stack conventions skill the diff touches. Business logic, queries or transactions in an edge is `major`; otherwise `minor`. An existing violation the diff touches is a finding too, with an issue to fix it — architecture baselines are empty, no exception by precedent. |
+| 12 | Layer placement | Every new domain type passes the concept test (placement is judged against the product and chosen architecture, not a universal ban on parsing/encoding/crypto); shape validation built inline in a handler instead of its validation unit is `minor`. |
+| 13 | Conventions | The checklist of each stack conventions skill the diff touches. Rate convention mismatches by demonstrated correctness, security and maintenance impact; house style alone is not major. An existing violation the diff touches is a finding too, with an issue to fix it — architecture legacy baselines are owned, explained and shrink rather than grow, no exception by precedent. |
 | 14 | Repo hygiene | Conventional commits by the project's author rules, no attribution the project forbids, no secrets, generated files in sync, docs updated with the behaviour. |
-| 15 | Required verdicts | `merge` gate 8 (lifecycle plugin): when the diff changes the API, data, platform code, configuration or scheduling, a `deploy-check` verdict is posted; when it touches personal data, auth, sharing or uploads, a `security-privacy-review` is posted. Missing → `major`; an unsafe row or critical finding open without the owner's quoted acceptance → `critical`. |
+| 15 | Required evidence | Applicable security and deploy-readiness evidence must exist before merge eligibility. During an earlier review, list it as pending; absence of a later-phase report is not automatically a code defect. Identify actual unsafe behavior separately and bind final evidence to the candidate. |
 
-## 2a. Design pass (separate, mandatory, never skipped for speed)
+## 2a. Design assessment (depth matched to risk)
 
 After the dimensions, review the diff **once more for design only** — not bugs, not safety, but whether the code is in the right place and will not be copied wrongly. Agents copy the code next to them: a wrong placement nobody stops becomes the next feature's template.
 
 1. **Placement:** every new or moved file is in its placement row (`engineering-principles` §3 and the project's table) for its kind: business rule, port, adapter, secret, storage, file format, upload body, rate limit, loop, shared code, platform decision.
 2. **Duplication across features:** does the diff add something another feature already has or will need — a per-feature storage class, a second upload reader, a second copy of a rule, a feature-specific variant of a generic port? **Search for it** (`grep`), don't guess.
 3. **Reuse:** does it use the existing generic pieces (storage port, upload reader, wire-enum mapping, access-check unit, shared module, shared core rules) instead of rewriting them?
-4. **Technical code out of business layers:** no file format, encoding, parsing, crypto, vendor type or protocol detail in the domain, use-case rules or the shared core.
+4. **Responsibility boundaries:** isolate accidental infrastructure coupling. Parsing, encoding and cryptography can be core responsibilities; judge against the selected project architecture.
 5. **Validation, secrets and storage homes:** shape checks in the validation unit; each secret its own validated configuration; files only behind the storage port.
-6. **The design review:** a feature or non-trivial fix has a design review posted on its issue **before** the first code commit, and the diff follows its decisions (or says why not). Missing → `major`.
+6. **Design evidence:** verify the risk-appropriate design assessment and that implementation follows it. High-risk work needs required pre-change review; quick work does not inherit that gate. Review provenance and revision, not author-controlled timestamps alone.
 
-**Severity:** a design finding is `major` when the next feature would copy it (a pattern, a per-feature duplicate of a generic piece, technical code in a business layer, a missing design review); otherwise `minor`. A design-pass `major` blocks the merge like any other.
+**Severity:** explain concrete impact and likely propagation. Cosmetic placement or speculative reuse is not automatically major. Missing review blocks only when the risk tier requires it; substantive major findings block merge.
 
 **Gate:** all six checks are reported, each with what was searched.
 
@@ -72,7 +74,7 @@ After the dimensions, review the diff **once more for design only** — not bugs
 - **Where:** `file:line`.
 - **Failure scenario:** concrete inputs → wrong outcome.
 - **Fix:** concrete change.
-- **Rung:** where it is caught today and the earliest rung where it should be, on the one ladder in `testing-doctrine` §8 (type → lint → architecture test → unit/integration test → CI → design review → code review → device test → alert → user report). Moving a class of bug earlier beats fixing one instance.
+- **Rung:** where it is caught today and the earliest rung where it should be, on the one ladder in `testing-doctrine` (type → lint → architecture test → unit/integration test → CI → design review → code review → device test → alert → user report). Moving a class of bug earlier beats fixing one instance.
 
 Structural worries you cannot prove go in a separate **Suspicions** list — named, non-blocking.
 
@@ -107,7 +109,7 @@ Post the review as **one** PR comment, written to a file first. Check the file a
 gh pr comment <number> --body-file <review-file>
 ```
 
-Posting on the project's own PRs is part of the required review; on someone else's PR it needs the user's OK. After fixes: review **only the new commits** against the open findings and post `## Code review — <new SHA> (re-review)` saying which findings are fixed, which remain and why. A PR is ready only when the latest review covers the head commit (or everything after it is a reviewed fix), no `critical` or `major` is open, and the design pass has no open `major`.
+Posting on the project's own PRs is part of the required review; on someone else's PR it needs the user's OK. After fixes: review new commits and their interactions with the complete candidate against open findings and post `## Code review — <new SHA> (re-review)` saying which findings are fixed, which remain and why. A PR is ready only when the latest review covers the head commit (or everything after it is a reviewed fix), no `critical` or `major` is open, and the design pass has no open `major`.
 
 ## Dependency-update PRs
 
@@ -119,7 +121,7 @@ Same gate, lighter dimensions: read the release notes between the old and new ve
 - Never approve a safety-critical change without failure-path tests.
 - "No issues" only after every applicable dimension was checked — list them.
 - The author never reviews their own work as the independent review; use the `reviewer` agent.
-- The design pass (§2a) is never dropped or shortened, even when a brief asks for a quick review: trim test reruns and review rounds, not the design pass.
+- Apply the requested review scope and risk tier; preserve required controls without adding an independent design ceremony to every small change.
 
 ## Composition
 

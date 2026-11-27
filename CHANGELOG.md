@@ -1,5 +1,59 @@
 # Changelog
 
+## Marketplace 2.0.0 — 2026-11-27
+Risk-based workflow, audit remediation and scoped capability expansion. Breaking workflow/gate changes use major versions; skill names and existing paths remain stable. See docs/remediation.md for implementation and evidence limits.
+
+## agents 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## ai 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## architecture 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## backend 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## data 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## desktop 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## foundation 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## guardrails 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## lifecycle 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## meta 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## mobile 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## operations 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## quality 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## security 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## specialist 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## systems 1.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
+## web 2.0.0 — 2026-11-27
+- Add or revise scoped procedures, dependencies and validation. Historical audit evidence remains pinned to its original commit.
+
 Every plugin is versioned on its own ([semantic versioning](https://semver.org/), rules in [CONTRIBUTING.md](CONTRIBUTING.md)). Newest first.
 
 ## lifecycle 1.0.0 — 2026-11-15

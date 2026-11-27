@@ -1,0 +1,19 @@
+{
+  "name": "operations",
+  "version": "1.0.0",
+  "description": "Infrastructure, service reliability and recovery workflows with measurable budgets and authorized deployment.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "operations",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

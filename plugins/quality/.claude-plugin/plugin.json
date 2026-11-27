@@ -1,6 +1,6 @@
 {
   "name": "quality",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Testing doctrine, TDD, writing tests, code review with a separate design pass, security and privacy review, accessibility audit, performance checks and privacy-safe product analytics. Framework-agnostic, with stack references.",
   "author": {
     "name": "Quaid5050",
@@ -17,5 +17,8 @@
     "privacy",
     "accessibility",
     "performance"
+  ],
+  "dependencies": [
+    "foundation"
   ]
 }

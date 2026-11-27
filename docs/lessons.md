@@ -32,7 +32,7 @@ something went wrong (bug, review miss, audit, incident, an agent copied a bad p
 
 The `capture-lesson` skill (meta plugin) runs this process. "Be more careful" is never a change.
 
-**The rungs**, earliest first: type/compile → lint → architecture test → unit/integration test → CI → design review → code review → device test → alert → a user tells us. Moving a class of problem one rung earlier beats fixing one more instance.
+**Prevention/detection layers** are selected by effectiveness and cost, not a universal sequence; see `testing-doctrine`. Design/threat review can precede code. Historical entries below describe earlier policy; the amendment supersedes overgeneralized rules.
 
 ## Entry format
 
@@ -97,3 +97,10 @@ No personal data, product names, customer names or links to private projects.
 - **Generalised rule:** Public repositories use hosted runners only; a repository with a self-hosted runner stays private while it is attached.
 - **Change:** `ci`, `bootstrap-project`; this repository's CI uses hosted runners only.
 - **Status:** applied in lifecycle 1.0.0
+
+### L7 · 2026-11-27 — Correctness and proportionate verification supersede ceremony
+- **What happened:** The audit found unsafe delivery/recovery rules, inconsistent review prerequisites and architecture/testing preferences expressed as universal requirements.
+- **Why it was not caught:** Syntax checks did not exercise persistence failures, workflows or adversarial inputs.
+- **Generalised rule:** Match process depth to impact while preserving authorization, integrity and meaningful verification. Persistent intent is not completion; a prompt/hook is not a security boundary; support claims need evidence.
+- **Change:** Foundation, corrected procedures, redacted tooling, durable fixtures, dependency/installation checks and scoped capabilities. L1–L3/L5 architecture/review absolutes are superseded by the risk-based workflow; their original incidents remain recorded.
+- **Status:** proposed in the remediation branch; release evidence is recorded separately.

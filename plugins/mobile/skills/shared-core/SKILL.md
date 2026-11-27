@@ -4,7 +4,7 @@ description: "Structure native mobile code as one functional core shared by Andr
 argument-hint: "[a native change, a file to place, or a diff]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Shared core, thin shells
@@ -14,6 +14,8 @@ Apply this to `$ARGUMENTS` (a native change, a file to place, or a diff). If emp
 When both platforms must behave the same — and safety-critical background code must — **a rule lives once**. Duplicated rules in two languages drift: one platform retries, the other gives up; one clears a queue on sign-out, the other keeps it.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. Read `AGENTS.md`, `CLAUDE.md`, decision records, and the native folders' READMEs.
 2. Find out whether the project already has a shared core and in which technology; open the reference: [references/kmp.md](references/kmp.md), or [references/other-cores.md](references/other-cores.md) for a shared native library or a core in the cross-platform framework's own language.

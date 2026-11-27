@@ -4,7 +4,7 @@ description: "Add or change file uploads and attachments on the server end to en
 argument-hint: "[what is uploaded, by whom, and what it is attached to]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Add a file upload
@@ -14,6 +14,8 @@ Add or change the upload for `$ARGUMENTS` (what is uploaded, by whom, what it is
 Uploads are where storage code multiplies (each feature writes its own), where privacy leaks hide (photo metadata carries location and device), and where data is lost quietly (a record saved without its files). This skill keeps one home for each part.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 1. `AGENTS.md`, the placement table (`engineering-principles` §3, lifecycle plugin): is there already **one upload reader** and **one storage port** with adapters? Reuse them; if a feature has its own storage class, that is a design finding to fix, not a pattern to copy.
 2. The storage providers per environment (local disk or a container for development, an object store in production) and the configuration for each.
@@ -38,7 +40,7 @@ Record the choice (and the limits) in the spec; a change of transfer method is a
 | Reader | **One** upload reader at the edge: media type sniffed **from the bytes** (not the name or the declared type), size cap enforced with or without a declared length, an allowlist of types; handlers never read the raw body themselves |
 | Storage | **One** storage port (`put`, `get`, `delete`, `presign`) with one adapter per provider, chosen by configuration and passing the same contract tests; the feature decides the object key layout in its use case, never its own storage class |
 | Names | Random object keys (no user-supplied names in paths), outside the web root; the original filename, if needed, is metadata |
-| Processing | Images re-encoded server-side (this also drops embedded scripts and malformed data); **metadata stripped** (EXIF location, device ids). Fields the product needs (capture time, a location as evidence) are kept only as **explicit, consented structured data** on the record — never left inside the file. Mobile clients strip on the device too, before upload |
+| Processing | Accepted raster formats re-encoded server-side in an isolated, resource-bounded processor; re-encoding is not a guarantee against malicious content or parser flaws; **metadata stripped** (EXIF location, device ids). Fields the product needs (capture time, a location as evidence) are kept only as **explicit, consented structured data** on the record — never left inside the file. Mobile clients strip on the device too, before upload |
 | Reads | Through a member-checked endpoint or a short-lived signed URL issued after the access check; never a public bucket for personal files |
 | Parent records | A record with attachments (a submission with photos) is **complete only when every attachment is confirmed**: a draft/pending state until then; the client-generated id of each attachment is its permanent idempotency key (`add-endpoint`, this plugin) |
 | Failures | Oversize, wrong type or a failed scan is a **visible problem with a stable error code** — never a silent drop. A client queue never "drops the poison file" without telling the user |
@@ -53,7 +55,7 @@ Record the choice (and the limits) in the spec; a change of transfer method is a
 Through the real entry point and a real or containerised storage engine (an S3-compatible container counts as real; `testing-doctrine`, quality plugin):
 
 - happy path: upload → confirm → the record is complete and the file is readable by an allowed caller;
-- **forbidden callers**: a non-member gets not found on upload, confirm and read; a removed member loses read access immediately, including through previously issued signed URLs once they expire (keep them short);
+- **forbidden callers**: a non-member gets not found on upload, confirm and read; a removed member cannot obtain new reads; existing bearer URLs may remain valid until expiry or provider-specific revocation. If immediate per-user revocation is required, use an authorization-enforcing serving path and test it;
 - a file whose bytes do not match an allowed type → rejected with the code, even with a correct extension;
 - oversize → a visible problem with the code, nothing stored;
 - metadata: a test image with location metadata comes out without it;
@@ -64,6 +66,10 @@ Through the real entry point and a real or containerised storage engine (an S3-c
 ## 4. Build and verify
 
 Build per `backend-conventions` (this plugin): the reader and the storage adapters in their placement rows, the use case owning the object keys and the completion rule. Run the contract tests for every storage adapter. In the PR: the limits, the metadata rule, the access rule and the cleanup delay.
+
+## Immutable confirmation and safe serving
+
+Quarantine uploads until validation completes. Bind confirmation and scan results to an immutable object version, size and checksum; a reusable upload URL must not replace the object after validation. Apply decompression/pixel/time/memory limits, reject unsupported formats and use malware scanning where the threat model requires it. Serve active content from an isolated origin with safe content type, disposition and nosniff policy. Test replacement-after-scan, parser exhaustion, tenant isolation and revoked reads.
 
 ## Rules
 

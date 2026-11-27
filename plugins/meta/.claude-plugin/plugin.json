@@ -1,6 +1,6 @@
 {
   "name": "meta",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Keep the workflow improving: create or update skills with a fresh-agent dry run, record architecture decisions, and turn a lesson from a real project into a skill change.",
   "author": {
     "name": "Quaid5050",
@@ -15,5 +15,9 @@
     "decisions",
     "lessons",
     "meta"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
   ]
 }

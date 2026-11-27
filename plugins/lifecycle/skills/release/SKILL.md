@@ -4,7 +4,7 @@ description: "Ship merged work to users safely — decide the release path per c
 argument-hint: "[what to ship: PRs, a version, or hotfix <PR>]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Release
@@ -12,6 +12,8 @@ metadata:
 Release `$ARGUMENTS` (merged PRs, a version, or `hotfix <PR>`). Every step that reaches users needs the user's explicit go-ahead: this skill prepares and verifies; the user approves each irreversible step.
 
 ## 0. Read the project
+
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
 
 From `AGENTS.md` and the repo: the release tooling (deploy pipeline, store build commands, over-the-air patch tool if any), where the version lives, the tag format, the environments, the health signals and their targets (`observe`). **No release tooling yet?** Say so; set it up as its own `chore(release)` issue the first time and record the real commands in `AGENTS.md`.
 
@@ -58,10 +60,10 @@ A single-component repository may use plain `vX.Y.Z`. A monorepo tags **per comp
 
 Each step with the user's OK and a watch window (`observe`) before the next:
 
-- **Store release:** build the store artifacts **with the over-the-air tool's release command** when one is used, so later patches can target them; upload to internal testing / beta; install on real devices and run the `device-test` smoke rows; then staged rollout, e.g. 10% → watch 24 h → 50% → watch 24 h → 100%.
+- **Store release:** build the store artifacts **with the over-the-air tool's release command** when one is used, so later patches can target them; upload to internal testing / beta; install on real devices and run the `device-test` smoke rows; then use the store's supported phased-rollout schedule and measured stop conditions; stores differ in permitted percentages and timing.
 - **Over-the-air patch:** confirm no native change since the release being patched; patch to a staging channel first, verify on a device, then promote.
 - **Web deploy:** to a preview/staging URL first, smoke the main flows, then production; keep the previous build available for an instant rollback.
-- **Backend deploy:** through the pipeline; exactly one scheduler instance during and after the deploy, workers drained gracefully (`references/backend-deploy.md`); migrations run before the new code only when they are additive (expand/contract); smoke the health endpoint and one authenticated call; canary or blue/green where available.
+- **Backend deploy:** through the pipeline; scheduler coordination and recoverable dispatch during and after the deploy, workers drained gracefully (`references/backend-deploy.md`); migrations run before the new code only when they are additive (expand/contract); smoke the health endpoint and one authenticated call; canary or blue/green where available.
 
 Store specifics are in [references/mobile-stores.md](references/mobile-stores.md); server strategies in [references/backend-deploy.md](references/backend-deploy.md).
 
@@ -73,6 +75,10 @@ Store specifics are in [references/mobile-stores.md](references/mobile-stores.md
 - **Over-the-air patch:** roll back the patch or publish the previous good code.
 - **Web:** point production back to the previous build (or redeploy it); purge the entry-HTML cache.
 - **Backend:** redeploy the previous image; roll migrations forward rather than down unless the down path was tested.
+
+## Additional release targets
+
+Desktop packages require signed artifacts, platform trust/notarization where applicable, updater signature verification, downgrade policy and interrupted-update recovery (`desktop-application`, desktop plugin). Model/data changes require evaluation gates, schema/index compatibility, artifact provenance and rollback of code plus model/data versions (`ml-lifecycle`, data plugin). A mobile store workflow does not substitute for these checks.
 
 ## Rules
 

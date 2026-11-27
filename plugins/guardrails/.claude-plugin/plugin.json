@@ -1,7 +1,7 @@
 {
   "name": "guardrails",
-  "version": "1.0.0",
-  "description": "Opt-in hooks: block a commit that adds something that looks like a secret, and block commits made directly on the main branch.",
+  "version": "2.0.0",
+  "description": "Advisory command preflight and actual-index Git hooks with redacted results; host permissions and protected checks remain the enforcement boundary.",
   "author": {
     "name": "Quaid5050",
     "url": "https://github.com/Quaid5050"
@@ -14,5 +14,8 @@
     "secrets",
     "git",
     "safety"
+  ],
+  "dependencies": [
+    "foundation"
   ]
 }

@@ -4,7 +4,7 @@ description: "Measure a screen, page, endpoint, query, background task or PR aga
 argument-hint: "[screen, page, endpoint, query, task or PR]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Perf check
@@ -15,6 +15,8 @@ Writing-time rules (no call in a loop, bounded lists, rebuild scope, work off th
 
 ## 0. Read the project
 
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
+
 1. Find the budgets file (for example `docs/performance-budgets.md`) and the reference devices/environments it names.
 2. Find existing guards: query-count assertions, load-test scripts, bundle-size checks, benchmark projects.
 3. Open the reference for the area: [references/backend.md](references/backend.md) · [references/web.md](references/web.md) · [references/mobile.md](references/mobile.md).
@@ -24,7 +26,7 @@ No budgets file → propose one (startup, frame time, memory, size, battery, API
 ## 1. The loop (always)
 
 1. **Pick the budget** the question is about. No budget fits → write a proposed one into the budgets file first.
-2. **Measure the baseline** on the reference device or environment, in **release/profile mode**, 3+ runs, take the median. Debug builds, simulators and a laptop's localhost do not count for app or web performance.
+2. **Measure the baseline** on the reference device or environment, in **release/profile mode**, enough repeated runs to assess variability; report percentiles for latency and the sample/workload definition. Use controlled local lab measurements for relative comparisons and production-equivalent/real-device measurements for claims that require them; label the environment.
 3. **Find the cause** with a profiler, a query plan or a trace — not a guess.
 4. **Change one thing.** Measure again exactly the same way.
 5. **Guard it** where possible: a query-count test, a plan test, a load-test threshold, a bundle-size limit, a benchmark in CI.
@@ -57,6 +59,8 @@ Battery is a budget. For background changes: count work per hour (wake-ups, netw
 | Slow or frequent queries | The database's statement statistics; a slow-query log threshold in the app (no parameter values logged). |
 | Query count of a request | An API test that resets a command counter, calls the endpoint, and asserts the exact count — once with one item and once with several, so an N+1 fails. |
 | Fan-out / realtime | Trace from event to delivery; group sizes, backplane load. |
+
+See `service-reliability` (operations plugin), when installed, for arrival models, capacity, overload and SLOs. Otherwise define these explicitly for the task; a few medians do not establish tail latency.
 
 ## Rules
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repository checks for the skills marketplace. Standard library only.
+"""Repository checks for the skills marketplace. Requires PyYAML from requirements-dev.txt.
 
 Checks:
   manifests   marketplace.json and every plugin.json parse, point at real folders, and agree on name and version
@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import yaml
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +26,8 @@ errors: list[str] = []
 
 
 def fail(msg: str) -> None:
+    for pattern, category in globals().get("PRIVACY", []):
+        msg = pattern.sub("<redacted " + category + ">", msg)
     errors.append(msg)
 
 
@@ -34,44 +37,49 @@ def rel(p: Path) -> str:
 
 # ---------------------------------------------------------------- frontmatter
 
+class UniqueSafeLoader(yaml.SafeLoader):
+    """Reject duplicates instead of silently replacing a policy value."""
+
+
+def unique_mapping(loader, node, deep=False):
+    result = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if not isinstance(key, str) or key in result:
+            raise ValueError("duplicate or non-string mapping key")
+        result[key] = loader.construct_object(value_node, deep=deep)
+    return result
+
+
+UniqueSafeLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
+
+
 def parse_frontmatter(text: str, where: str) -> tuple[dict, str] | None:
-    """Parse the small YAML subset our frontmatter uses: `key: value`, quoted values, one nested map level."""
     if not text.startswith("---\n"):
-        fail(f"{where}: frontmatter must start on the first line with ---")
+        fail(f"{where}: frontmatter must start on the first line")
         return None
     end = text.find("\n---\n", 4)
-    if end == -1:
-        fail(f"{where}: frontmatter is not closed with ---")
+    if end < 0 or end > 65536:
+        fail(f"{where}: missing or oversized frontmatter")
         return None
-    block, body = text[4:end], text[end + 5:]
-    data: dict = {}
-    parent: str | None = None
-    for n, line in enumerate(block.splitlines(), start=2):
-        if not line.strip() or line.lstrip().startswith("#"):
-            continue
-        m = re.match(r"^( *)([A-Za-z][\w-]*):(?: (.*))?$", line)
-        if not m:
-            fail(f"{where}:{n}: cannot parse frontmatter line: {line!r}")
-            continue
-        indent, key, value = len(m.group(1)), m.group(2), (m.group(3) or "").strip()
-        value = re.sub(r"\s+#.*$", "", value) if not value.startswith(("'", '"')) else value
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
-            value = value[1:-1]
-            if m.group(3).strip()[0] == '"':
-                value = value.replace('\\"', '"')
-        if indent == 0:
-            if value == "":
-                data[key] = {}
-                parent = key
-            else:
-                data[key] = value
-                parent = None
-        else:
-            if parent is None:
-                fail(f"{where}:{n}: indented key without a parent map")
-                continue
-            data[parent][key] = value
-    return data, body
+    block = text[4:end]
+    try:
+        if any(isinstance(t, (yaml.tokens.AliasToken, yaml.tokens.AnchorToken)) for t in yaml.scan(block)):
+            raise ValueError("aliases and anchors are not supported")
+        data = yaml.load(block, Loader=UniqueSafeLoader)
+        if not isinstance(data, dict):
+            raise ValueError("frontmatter must be a mapping")
+        for key in ("name", "description", "license", "argument-hint", "compatibility"):
+            if key in data and not isinstance(data[key], str):
+                raise ValueError("metadata field must be a string")
+        if "metadata" in data and (not isinstance(data["metadata"], dict) or
+                any(not isinstance(k, str) or not isinstance(v, str) for k, v in data["metadata"].items())):
+            raise ValueError("metadata must map strings to strings")
+    except (yaml.YAMLError, ValueError, TypeError, RecursionError):
+        # Parser exceptions can contain source text, including secrets. Do not echo them.
+        fail(f"{where}: invalid frontmatter syntax, duplicate key, type or unsupported alias")
+        return None
+    return data, text[end + 5:]
 
 
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -96,10 +104,13 @@ def plugins() -> dict[str, dict]:
         return out
     for entry in market.get("plugins", []):
         src = entry.get("source", "")
-        if not isinstance(src, str) or not src.startswith("./"):
+        if not isinstance(src, str) or not src.startswith("./") or ".." in Path(src).parts:
             fail(f"marketplace.json: plugin {entry.get('name')!r} source must be a ./relative path")
             continue
         d = (ROOT / src).resolve()
+        if not d.is_relative_to(ROOT.resolve()):
+            fail("marketplace.json: plugin source escapes repository")
+            continue
         mf = load_json(d / ".claude-plugin" / "plugin.json") if d.is_dir() else None
         if mf is None:
             fail(f"marketplace.json: plugin {entry.get('name')!r} has no readable {src}/.claude-plugin/plugin.json")
@@ -171,8 +182,8 @@ def check_skills() -> None:
                 fail(f"{where}: description is empty")
             elif len(desc) > 1024:
                 fail(f"{where}: description is {len(desc)} characters (max 1024)")
-            elif "Trigger on" not in desc and "Use when" not in desc:
-                fail(f"{where}: description has no trigger phrases ('Use when' / 'Trigger on')")
+            elif not any(phrase in desc for phrase in ("Trigger on", "Use when", "Use for")):
+                fail(f"{where}: description has no applicability phrase")
             meta = fm.get("metadata", {})
             if not isinstance(meta, dict) or meta.get("version") != version:
                 fail(f"{where}: metadata.version must be the plugin version {version}")
@@ -279,11 +290,91 @@ def check_privacy() -> None:
             for pat, what in PRIVACY:
                 m = pat.search(line)
                 if m:
-                    fail(f"{rel(p)}:{n}: possible {what}: {m.group(0)!r}")
+                    fail(f"{rel(p)}:{n}: possible {what} (value redacted)")
+
+
+def check_catalog() -> None:
+    path = ROOT / "catalog" / "skills.json"
+    data = load_json(path)
+    if not isinstance(data, dict) or set(data) != {"schema_version", "skills"} or type(data.get("schema_version")) is not int or data.get("schema_version") != 1 or not isinstance(data.get("skills"), list):
+        fail("catalog: invalid schema version or skills array")
+        return
+    entries = data["skills"]
+    required = {"name", "plugin", "path", "version", "description", "requires", "optional_companions", "support", "owner", "resources"}
+    for entry in entries:
+        if not isinstance(entry, dict) or set(entry) != required:
+            fail("catalog: unexpected or missing entry fields"); return
+        for key in required - {"requires", "optional_companions", "resources"}:
+            if not isinstance(entry[key], str) or not entry[key]:
+                fail("catalog: non-string or empty metadata"); return
+        for key in ("requires", "optional_companions", "resources"):
+            values = entry[key]
+            if not isinstance(values, list) or any(not isinstance(v, str) or not v for v in values) or len(set(values)) != len(values):
+                fail("catalog: malformed or duplicate list values"); return
+    names = [e.get("name") for e in entries if isinstance(e, dict)]
+    if len(names) != len(entries) or len(set(names)) != len(names):
+        fail("catalog: invalid or duplicate skill entries")
+        return
+    lookup = {e["name"]: e for e in entries}
+    for entry in entries:
+        if any(n not in lookup for n in entry["optional_companions"]):
+            fail("catalog: unknown optional companion")
+    disk = {p.parent.name for p in ROOT.glob("plugins/*/skills/*/SKILL.md")}
+    if set(names) != disk:
+        fail("catalog: registered skills differ from filesystem")
+    visiting, done = set(), set()
+    def visit(name):
+        if name in visiting:
+            fail("catalog: required dependency cycle")
+            return
+        if name not in lookup:
+            fail("catalog: missing required dependency")
+            return
+        if name in done: return
+        visiting.add(name)
+        for dependency in lookup[name].get("requires", []): visit(dependency)
+        visiting.remove(name); done.add(name)
+    for entry in entries:
+        name = entry["name"]
+        if not isinstance(name, str) or not NAME_RE.fullmatch(name):
+            fail("catalog: invalid skill identifier"); continue
+        if entry.get("path") != f"plugins/{entry.get('plugin')}/skills/{name}":
+            fail("catalog: skill path does not match its owner/name"); continue
+        directory = ROOT / entry["path"]
+        if directory.is_symlink() or not directory.resolve().is_relative_to(ROOT.resolve()):
+            fail("catalog: skill path escapes repository"); continue
+        for key in ("requires", "optional_companions", "resources"):
+            if not isinstance(entry.get(key), list) or any(not isinstance(x,str) for x in entry.get(key, [])):
+                fail("catalog: invalid list metadata"); return
+        if entry.get("support") not in ("documented", "fixture-tested", "agent-evaluated"):
+            fail("catalog: unknown support tier")
+        resources = {str(p.relative_to(directory)) for p in directory.rglob("*") if p.is_file()}
+        if set(entry["resources"]) != resources:
+            fail(f"catalog: resource inventory stale for {name}")
+        for resource in entry["resources"]:
+            target = directory / resource
+            if Path(resource).is_absolute() or ".." in Path(resource).parts or target.is_symlink() or not target.resolve().is_relative_to(directory.resolve()):
+                fail(f"catalog: unsafe resource for {name}")
+        parsed = parse_frontmatter((directory / "SKILL.md").read_text(), entry["path"])
+        if parsed and entry.get("version") != parsed[0].get("metadata", {}).get("version"):
+            fail(f"catalog: version differs for {name}")
+        visit(name)
+    manifests = plugins()
+    active, visited = set(), set()
+    def visit_plugin(name):
+        if name in active:
+            fail("manifests: plugin dependency cycle"); return
+        if name in visited or name not in manifests: return
+        active.add(name)
+        for dep in manifests[name]["manifest"].get("dependencies", []):
+            visit_plugin(dep if isinstance(dep,str) else dep.get("name"))
+        active.remove(name); visited.add(name)
+    for name in manifests: visit_plugin(name)
 
 
 CHECKS = {
     "manifests": check_manifests,
+    "catalog": check_catalog,
     "skills": check_skills,
     "agents": check_agents,
     "links": check_links,

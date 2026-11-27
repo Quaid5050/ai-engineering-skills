@@ -9,6 +9,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  merge_group:
 
 permissions:
   contents: read
@@ -20,6 +21,9 @@ concurrency:
 
 jobs:
   changes:
+    permissions:
+      contents: read
+      pull-requests: read
     name: Changed areas
     runs-on: ubuntu-latest
     outputs:
@@ -34,13 +38,21 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
+              - 'shared/**'
+              - '*lock*'
               - 'contracts/**'
               - '.github/workflows/**'
             web:
               - 'web/**'
+              - 'contracts/**'
+              - 'shared/**'
+              - '*lock*'
+              - 'package.json'
               - '.github/workflows/**'
             mobile:
               - 'mobile/**'
+              - 'shared/**'
+              - '*lock*'
               - 'contracts/**'
               - '.github/workflows/**'
 
@@ -116,11 +128,15 @@ jobs:
 
 Use the action's current major version (check its README); let Dependabot or Renovate keep the pins current.
 
+## Aggregate gate
+
+Add one stable required job with `if: always()` that depends on change detection and all required area jobs. It fails for failed/cancelled dependencies; skipped area jobs count only when verified unaffected. Include shared configuration, contracts and lockfiles in dependent areas. Merge queues need merge-group candidate checks; do not infer eligibility from a stale PR-head run. Test filter behavior with representative changed-path fixtures.
+
 ## Notes
 
 - **Same command locally and in CI.** Put the steps in a `Makefile`/script and call it from both, so `debug` can reproduce a failure exactly.
 - **Skipped means passed** only for a job whose area did not change; a workflow change runs every job.
-- **Pin actions.** Major tags are the minimum; pin to a commit SHA for actions that receive secrets or write permissions. Let Dependabot or Renovate keep them current.
+- **Pin actions.** Pin actions to reviewed commit SHAs, including read-only jobs; use an update tool with review. Let Dependabot or Renovate keep them current.
 - **Forks:** `pull_request` from a fork has no secrets and a read-only token — good. Never combine `pull_request_target` with checking out the PR head.
 - **Self-hosted runners** are for private repositories only. A public repository with a self-hosted runner lets any fork PR run code on that machine.
 - **Required checks:** set them in branch protection / rulesets by job name; when PR CI is temporarily off, the merge gate is the same commands run locally on the head commit with their summary pasted in the PR.

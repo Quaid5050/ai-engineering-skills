@@ -1,0 +1,19 @@
+{
+  "name": "security",
+  "version": "1.0.0",
+  "description": "Threat modeling, identity and supply-chain verification with explicit assets, trust boundaries and testable controls.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "engineering"
+  ],
+  "dependencies": [
+    "foundation",
+    "quality"
+  ]
+}

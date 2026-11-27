@@ -25,7 +25,7 @@
 - `FlatList`/`FlashList` with `keyExtractor`; `React.memo` and narrow selectors (`useStore(s => s.field)`); `useMemo` for derived lists computed in the view model, not in render.
 - Animations with Reanimated on the UI thread; respect `AccessibilityInfo.isReduceMotionEnabled()`.
 - Images sized (`expo-image`/`FastImage` with explicit dimensions).
-- Measure in a release build: Flipper/React DevTools profiler, `react-native-performance`, Hermes sampling profiler.
+- Measure in a release build: the diagnostics supported by the installed React Native version (verify React Native DevTools/React profiling and any separately supported Flipper integration), `react-native-performance`, Hermes sampling profiler.
 
 ## RTL
 

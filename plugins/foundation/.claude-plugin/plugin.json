@@ -1,0 +1,15 @@
+{
+  "name": "foundation",
+  "version": "1.0.0",
+  "description": "Shared task context, risk-based workflow and safe execution boundaries, without mandatory orchestration.",
+  "author": {
+    "name": "Quaid5050",
+    "url": "https://github.com/Quaid5050"
+  },
+  "repository": "https://github.com/Quaid5050/ai-engineering-skills",
+  "license": "MIT",
+  "keywords": [
+    "foundation",
+    "engineering"
+  ]
+}

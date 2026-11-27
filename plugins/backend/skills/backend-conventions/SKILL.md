@@ -4,7 +4,7 @@ description: "How a backend service is structured and written on any stack — l
 argument-hint: "[backend change, file to place, or diff]"
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Backend conventions
@@ -13,6 +13,8 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 
 ## 0. Read the project
 
+Reuse the current task context and risk tier from `work-context` (foundation plugin); refresh only changed or missing facts. Load only relevant references. Task authorization and `safe-agent-execution` apply before tool actions.
+
 1. Read `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, the project's conventions doc and its placement table, and `docs/decisions/` (or `docs/adr/`).
 2. Identify the stack from the manifest (build file, package manifest, lock file) and open the matching reference above; if none matches, map the generic rules below onto the stack's own community conventions and say so.
 3. Find the existing modules, the architecture tests, the test host and the commands (build, test, lint, migrations). Use the project's names; this skill's names are placeholders.
@@ -20,6 +22,8 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 **Gate:** you know which module and folder each part of the change lands in, by the project's own table or by §1–§2 below.
 
 ## 1. Modules and layers
+
+This is an optional layered business-application profile. Preserve a suitable existing architecture, including active-record applications, libraries and systems code. Choose dependency constraints by responsibility; do not force every project into these folders.
 
 ```
   Edge (HTTP handlers, consumers, job entry points, realtime socket methods or channels)
@@ -35,7 +39,7 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 
 | Module | Job | May use | Must not |
 |---|---|---|---|
-| **Domain** | Business concepts only: entities, value objects, enums, invariants, limits as constants, pure rules | an **allowlist**: core language, collections, text, date/time types, domain itself | ORM annotations, the database, HTTP, logging, clock reads, randomness, crypto, raw bytes, file formats, encodings, wire spellings |
+| **Domain** | Business concepts only: entities, value objects, enums, invariants, limits as constants, pure rules | an **allowlist**: core language, collections, text, date/time types, domain itself | hidden I/O and accidental coupling outside the selected project profile; language-native model annotations may be appropriate |
 | **Persistence** | The ORM context (unit of work), mappings, reusable query extensions, explicit locks, migrations | Domain | business decisions, HTTP |
 | **Application** | One service per feature area; each public method is one use case: authorise the caller, load, call the domain, save in one transaction, notify after commit; returns a result | Domain, Persistence, ports | request/response objects of the web framework, status codes, JSON, user principals as framework types |
 | **Edge / API** | Bind input, validate shape, call **one** use-case method, map the result to the protocol; request/response records and mappers; adapters for outside systems; the composition root | everything (it wires the app) | queries, transactions, locks, business rules — anywhere in the module |
@@ -43,21 +47,21 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 | **Workers** | Scheduled and queued jobs: thin, idempotent, call application services | Application | rules inside the job |
 | **Hot-path module** (optional) | A high-volume path with its own module and published types (e.g. bulk event ingest) | Domain, Persistence | being reached by Application beyond its published types |
 
-**The concept test.** Before a type goes into Domain, ask: would a product person recognise it? An order, a booking, "at most 50 lines per order" — yes. A JPEG header reader, base64 helpers, an HMAC — no, even when pure: put them behind a port with an adapter in the module that owns the technology. Domain may *state* a rule (a constant); the adapter *implements* the technical part.
+**The concept test.** Name the responsibility and owner. Business applications often separate business policy from protocol and persistence. A compiler, codec or cryptographic library legitimately has parsing, bytes or cryptography in its core. Use the project profile; pure technical code does not automatically need an adapter.
 
-**Ports** for things outside the process go in the application module (`application/ports/` or the project's name); their adapters go where the technology lives. An interface for in-process code you own is noise.
+**Ports** isolate variable dependencies or meaningful test boundaries. In-process interfaces are justified by substitution, plugin contracts or ownership; avoid interfaces that merely mirror one implementation.
 
 **Gate:** each new file sits in one row above (or the project's row) and its imports are inside that row's allowlist.
 
 ## 2. Rules by topic
 
-**Edges are thin (~15 lines).** Take inputs, validate shape, pass the caller's identity (a plain value, not a framework principal) to one service method, map the result. The edge authenticates; **the use case authorises** (§2, authorisation). A handler that needs more than ~5 parameters is doing the service's job: move the work, don't bundle the parameters.
+**Edges separate protocol concerns from use-case policy.** Take inputs, validate shape, pass the caller's identity (a plain value, not a framework principal) to one service method, map the result. The edge authenticates; **the use case authorises** (§2, authorisation). Length and parameter counts are investigation signals, not correctness limits.
 
-**Two kinds of validation.** *Shape* (required, length, format, enum spelling) at the edge in one validation unit per area — the only place a field-error map is built, even for one field — using the **domain's constants**, never its own numbers. *Invariants* belong to the domain (factory methods guard them; reaching that guard is a bug because the edge checked first); stateful checks (counts, uniqueness, membership) are the service's and return an error value.
+**Two kinds of validation.** *Shape* (required, length, format, enum spelling) at the edge in one validation unit per area — the only place a field-error map is built, even for one field — using the **domain's constants**, never its own numbers. *Invariants* belong to the domain (factory methods guard them; this guard is also needed for non-web callers and state changes between checks); stateful checks (counts, uniqueness, membership) are the service's and return an error value.
 
-**Errors.** Expected outcomes are a result value with an error `kind` + stable `code` + title. The edge maps kind → status (validation 400, unauthenticated 401, forbidden 403, not found 404, conflict 409, gone 410, too many requests 429, unavailable 503) and code → an RFC 9457 problem `type`. Clients key on the code, never the title. Exceptions are for bugs and broken infrastructure; one global handler turns them into a 500 problem. `catch` only a specific type and recover visibly (log + metric + documented fallback) or rethrow. Best-effort side effects after commit may log a warning and continue; **safety-critical paths never** do.
+**Errors.** Use the stack's typed errors, exceptions or result values consistently; expose stable external error codes. The edge maps kind → status (validation 400, unauthenticated 401, forbidden 403, not found 404, conflict 409, gone 410, too many requests 429, unavailable 503) and code → an RFC 9457 problem `type`. Clients key on the code, never the title. Exceptions are for bugs and broken infrastructure; one global handler turns them into a 500 problem. `catch` only a specific type and recover visibly (log + metric + documented fallback) or rethrow. Best-effort side effects after commit may log a warning and continue; **safety-critical paths never** do.
 
-**Authorisation and isolation.** The edge only authenticates and passes the caller's identity; the **use case authorises**, through one access unit per resource kind, for every resource reachable through a tenant/workspace/team id: a caller who is not a member gets **not found** (existence is not leaked), a member without the role gets **forbidden** — or the project's stated rule. Queries filter by the tenant id; never trust an id from the URL alone. **Never cache a permission decision**: a removed member loses access on the next request, and jobs re-check access when they run (`add-scheduled-job`).
+**Authorisation and isolation.** The edge only authenticates and passes the caller's identity; the **use case authorises**, through one access unit per resource kind, for every resource reachable through a tenant/workspace/team id: a caller who is not a member gets **not found** (existence is not leaked), a member without the role gets **forbidden** — or the project's stated rule. Queries filter by the tenant id; never trust an id from the URL alone. Define the revocation latency budget. Revalidate sensitive actions; any cache needs tenant/principal/version scoping, invalidation and a bounded lifetime. Jobs re-check access when they run (`add-scheduled-job`).
 
 **Data access.** One unit of work per request or job (whatever the stack calls it: a session, a context, a transaction-bound connection); never shared across threads or concurrent tasks. Reads: project into the read model with only the needed columns (no change tracking where the ORM has it). Writes: load the entities, call domain methods, save. Bulk changes: the ORM's bulk update/delete (check the row count) or one set-based statement. A query used by two services moves to the persistence query extensions. No lazy loading, no N+1. **No generic repository** over an ORM that already is one.
 
@@ -65,7 +69,7 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 
 **Time, timeouts, concurrency.** Time only from an injected clock, passed into domain methods as `now`; UTC everywhere. Every I/O call has a timeout; where the stack is asynchronous, stay asynchronous end to end and pass cancellation through, never block on an async result; where it is synchronous, keep request work short and push long work to a job.
 
-**Logging.** Structured templates with named placeholders, never string interpolation. Never log coordinates or objects carrying them, addresses, phone numbers, emails, tokens, codes or people's names; ids are fine in logs, never as metric tags (`security-privacy-review`, quality plugin, owns the rule).
+**Logging.** Structured templates with named placeholders, never string interpolation. Never log coordinates or objects carrying them, addresses, phone numbers, emails, tokens, codes or people's names; opaque ids can still identify people: minimize, restrict access and retention, and avoid unbounded metric tags (`security-privacy-review`, quality plugin, owns the rule).
 
 **Configuration and secrets.** Typed options per feature, bound from configuration, **validated at start** so a bad deploy fails at once. No class reads raw configuration keys outside the composition root. **One secret per purpose**, each with its own options and validation — never a fallback to another purpose's key. Every new setting gets a line in the example env file. Development-only behaviour is gated on the environment and unreachable elsewhere.
 
@@ -75,7 +79,7 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 
 **Wiring and lifetimes.** Dependencies are wired in one composition root (a DI container, or explicit construction where the stack has none). Anything holding a unit of work lives per request/job; stateless adapters, clients and the clock are shared and thread-safe and never hold per-request state. Each module wires its own types; the composition root only calls those.
 
-**Scheduled and background work.** First ask whether a stored time is enough ("suspended until 17:30" is a column that reads as resumed once it passes — no job). Use a job only when something must *happen* at a time. Jobs are idempotent (they may run twice), record what they sent, never swallow failures. A continuous loop is a background worker: a timer on the injected clock, a fresh unit of work per pass, **one application call per pass** (never data access directly), a catch that logs and keeps the loop alive. Side effects that must not be lost go through a transactional outbox (`engineering-principles` references). Schedulers, claiming rows, sent-ledgers and notifications: `add-scheduled-job`. Uploads: `add-file-upload`.
+**Scheduled and background work.** First ask whether a stored time is enough ("suspended until 17:30" is a column that reads as resumed once it passes — no job). Use a job only when something must *happen* at a time. Jobs are idempotent (they may run twice), record what they sent, never swallow failures. A continuous loop is a background worker: a timer on the injected clock, a fresh unit of work per pass, **one application call per pass** (never data access directly), a catch that logs and keeps the loop alive. Side effects that must not be lost go through a transactional outbox (`engineering-principles` references). Schedulers, durable intent, leases and delivery reconciliation: `add-scheduled-job`. Uploads: `add-file-upload`.
 
 ## 3. Performance (write it fast, prove it with numbers)
 
@@ -84,7 +88,7 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 - Every growing list is bounded: limit + keyset (cursor) pagination, not offset.
 - Several collection includes → split queries or projections (no cartesian explosion).
 - Bulk inserts as one statement, not one save per row.
-- **Every `WHERE`, `JOIN` and `ORDER BY` on a large table has an index** the migration adds; read the plan (`EXPLAIN ANALYZE` or equivalent) for any new query on a large table.
+- **Choose indexes from representative query plans and workload costs.** A scan may be optimal; account for selectivity, composite ordering, write amplification and storage. Explain first; executing an analyze plan can run the query, so use safe representative data and bounded timeouts.
 - Keep transactions and locks short; responses small; cache only with a measured need and a named owner of invalidation; never cache permission decisions.
 - **Proof in the PR** for a change to a query, hot path or list endpoint: the plan or a query count (assert the exact count in a test, once with one item and once with several, so an N+1 fails), and a load or benchmark number against the budget for hot paths (`perf-check`, quality plugin).
 
@@ -98,7 +102,7 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 
 ## 5. Enforcement
 
-- Architecture tests over the built code, **allowlists with empty baselines** (`engineering-principles` references): domain allowlist, no raw bytes in domain, edges never touch persistence (health checks allowlisted), field-error maps only in validation units, crypto only in the listed secret owners, storage SDKs only in the storage adapter, limiters only in their folder, no raw config reads, no direct clock reads, hot-path module reached only through its published types, every allowlist entry names a real type.
+- Architecture tests over the built code, dependency rules matched to the selected architecture, with reviewed, owned legacy exceptions that expire (`engineering-principles` references): domain dependencies appropriate to the application profile, edges never touch persistence (health checks allowlisted), field-error maps only in validation units, crypto only in the listed secret owners, storage SDKs only in the storage adapter, limiters only in their folder, no raw config reads, no direct clock reads, hot-path module reached only through its published types, every allowlist entry names a real type.
 - Analyzers at the recommended level, warnings as errors. A suppression sits **at its location with a justification**, never a blanket switch-off that also silences new code.
 - A new structural rule lands with its test in the same change.
 
@@ -109,16 +113,18 @@ How server code is laid out and written. Apply it to `$ARGUMENTS` (a change, a f
 - [ ] Edges thin: no data access, transaction, lock or rule; one use-case call.
 - [ ] Services take plain ids/values, return results/read models, own the transaction, notify after commit, re-read rights under the lock.
 - [ ] Non-member → not found, missing role → forbidden (or the project's rule), through the access unit.
-- [ ] Domain: no I/O, ORM annotations, logging, clock reads; new types pass the concept test.
+- [ ] Domain: intentional dependencies and explicit effects, consistent with the selected project profile.
 - [ ] Shape validation in the validation unit using domain constants.
-- [ ] No call in a loop; projections for reads; paging in SQL; indexes for new filters; plan or query count in the PR.
+- [ ] Bounded I/O and batching where useful; projections and paging near the data; workload evidence for index changes.
 - [ ] Expected errors are values with stable codes; catches typed and visible; safety paths never swallow.
 - [ ] Injected clock; timeouts on I/O; no blocking on async results where the stack is async.
 - [ ] Logs pass the personal-data rule; no ids as metric tags.
 - [ ] New tables: constraints, FKs with explicit delete, enums as text, UTC, a concurrency strategy per invariant, retention/deletion.
 - [ ] Options validated at start; one secret per purpose; lifetimes right (nothing per-request held by a shared object); one retry owner per send.
 - [ ] The use case authorises; no cached permission decisions; jobs re-check access at run time.
-- [ ] Architecture tests and analyzers green with empty baselines.
+- [ ] Architecture checks prevent new violations; existing exceptions have owners and removal criteria.
+
+For other supported ecosystems, load [references/ecosystems.md](references/ecosystems.md) only when relevant.
 
 ## Rules
 
