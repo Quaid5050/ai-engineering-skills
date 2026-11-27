@@ -1100,6 +1100,26 @@
       ]
     },
     {
+      "name": "static-catalogs",
+      "plugin": "quality",
+      "path": "plugins/quality/skills/static-catalogs",
+      "version": "2.0.0",
+      "description": "Turn a closed set the app defines itself (languages, plans, providers, modes, built-in commands) into one table, one row per case holding every attribute, instead of the same switch repeated per attribute. Decide whether a data file plus code generation is justified (only when the source of truth lives outside the code or is shared across apps), pin today's values with characterisation tests, migrate without changing behaviour, and guard it. Use when adding one case means editing several places, or when someone proposes moving enums to a config file or codegen. Trigger on /static-catalogs, 'same switch everywhere', 'move this to YAML', 'should we codegen this', 'config file for enums', 'single source of truth', 'add a language', 'add a provider'.",
+      "requires": [
+        "work-context",
+        "safe-agent-execution",
+        "testing-doctrine"
+      ],
+      "optional_companions": [],
+      "support": "documented",
+      "owner": "maintainers",
+      "resources": [
+        "SKILL.md",
+        "references/swift.md",
+        "references/typescript.md"
+      ]
+    },
+    {
       "name": "tdd",
       "plugin": "quality",
       "path": "plugins/quality/skills/tdd",

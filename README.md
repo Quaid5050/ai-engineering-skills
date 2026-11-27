@@ -56,7 +56,7 @@ Required skills are included automatically. Copy mode is the default; `--link` i
 | [meta](plugins/meta/README.md) | `capture-lesson`, `create-skill`, `decision` |
 | [mobile](plugins/mobile/README.md) | `background-work`, `design-to-screen`, `device-test`, `home-widget`, `mobile-conventions`, `offline-queue`, `shared-core` |
 | [operations](plugins/operations/README.md) | `infrastructure-change`, `recovery-drill`, `service-reliability` |
-| [quality](plugins/quality/README.md) | `accessibility-audit`, `analytics-event`, `code-review`, `perf-check`, `security-privacy-review`, `tdd`, `testing-doctrine`, `write-tests` |
+| [quality](plugins/quality/README.md) | `accessibility-audit`, `analytics-event`, `code-review`, `perf-check`, `security-privacy-review`, `static-catalogs`, `tdd`, `testing-doctrine`, `write-tests` |
 | [security](plugins/security/README.md) | `identity-access`, `supply-chain`, `threat-model` |
 | [specialist](plugins/specialist/README.md) | `specialized-engineering` |
 | [systems](plugins/systems/README.md) | `concurrency-networking`, `memory-and-ffi` |
