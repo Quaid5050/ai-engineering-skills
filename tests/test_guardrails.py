@@ -311,5 +311,43 @@ class GuardTests(unittest.TestCase):
             self.assertEqual(h['command'],'bash');self.assertTrue((SCRIPTS/Path(h['args'][-1]).name).exists())
 
 
+    # round 2 re-review
+    def test_shells_and_interpreters_fed_on_stdin_are_blocked(self):
+        self.feature(self.clean)
+        for command in ('echo "git commit -m x" | bash',"printf 'git commit -m x' | sh",'bash <<<"git commit -m x"',
+                        'echo "import os; os.system(\'git commit\')" | python3','python3 <<<"git commit"'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        for command in ('git log --oneline | python3 -c "import sys; print(len(sys.stdin.read()))"',
+                        'git status | sh -c "cat"','git log | grep commit'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,0)
+
+    def test_alias_defined_in_the_same_command_is_blocked(self):
+        self.feature(self.clean)
+        for command in ('git config alias.ci commit && git ci -m x','git config --global alias.ci commit; git ci -m x',
+                        'git config --local alias.ci "commit -a" && git -C . ci -m x',
+                        'git config include.path ../x && git ci','echo "[alias] ci = commit" >> .git/config && git ci'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        self.assertEqual(self.run_guard('branch','git config user.name Dev && git status').returncode,0)
+
+    def test_shell_alias_to_git_commit_is_blocked(self):
+        self.feature(self.clean)
+        for command in ('shopt -s expand_aliases; alias gc="git commit"; gc -m x',"alias gm='git merge'"):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        self.assertEqual(self.run_guard('branch','alias ll="ls -l"; git status').returncode,0)
+
+    def test_pull_on_the_default_branch_is_blocked(self):
+        self.commit_base(self.clean)
+        for command in ('git pull','git pull --rebase origin main'):
+            with self.subTest(command=command):
+                self.assertEqual(self.run_guard('branch',command).returncode,2)
+        self.assertEqual(self.run_guard('branch','git pull --ff-only').returncode,0)
+        self.feature(self.clean)
+        self.assertEqual(self.run_guard('branch','git pull --rebase').returncode,0)
+
+
 if __name__=='__main__':
     unittest.main()

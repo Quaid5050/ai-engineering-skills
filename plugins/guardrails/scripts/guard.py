@@ -263,7 +263,7 @@ INTERPRETERS = {'python', 'python3', 'perl', 'ruby', 'node', 'awk', 'gawk', 'naw
 FILE_WRITERS = {'cp', 'mv', 'tee', 'install', 'ln', 'rsync', 'dd', 'tar', 'unzip', 'curl', 'wget', 'patch'}
 IN_PLACE_EDITORS = {'sed', 'gsed', 'perl'}
 GIT_FILE_WRITERS = {'apply', 'stash', 'restore', 'pull', 'merge', 'cherry-pick', 'revert', 'am', 'rebase'}
-BRANCH_OPS = {'merge', 'cherry-pick', 'am', 'rebase', 'revert'}
+BRANCH_OPS = {'merge', 'cherry-pick', 'am', 'rebase', 'revert', 'pull'}
 GIT_RISKY_TEXT = re.compile(r'\bgit\b[\s\S]*\b(?:commit|merge|rebase|cherry-pick|revert)\b')
 ASSIGNMENT = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*=')
 GIT_VALUE_GLOBALS = {'-C', '-c', '--git-dir', '--work-tree', '--namespace', '--exec-path', '--super-prefix',
@@ -321,6 +321,10 @@ def split_commands(toks):
         elif redirect is not None:
             if redirect in OUTPUT_REDIRECTS:
                 outs.append(t)
+            elif redirect == '<<<':
+                body = HereDoc()   # a here-string is stdin, like a heredoc body
+                body.lines.append(t.text)
+                docs.append(body)
             redirect = None
         else:
             words.append(t)
@@ -330,7 +334,7 @@ def split_commands(toks):
 
 def contains_commit(toks, cwd):
     try:
-        return bool(command_targets_from_tokens(toks, cwd, True))
+        return bool(command_targets_from_tokens(toks, cwd, True, True))
     except Unsafe:
         return True
 
@@ -344,7 +348,9 @@ def command_targets(command, cwd):
     if len(command) > MAX_COMMAND:
         raise Unsafe('command too large to analyse')
     toks, _ = lex(command)
-    return command_targets_from_tokens(toks, cwd, bool(re.search(r'commit|merge|rebase|cherry|revert', normalized(command))))
+    text = normalized(command)
+    return command_targets_from_tokens(toks, cwd, bool(re.search(r'commit|merge|rebase|cherry|revert', text)),
+                                       bool(GIT_RISKY_TEXT.search(text)))
 
 
 def writes_files(name, args, outs):
@@ -367,10 +373,12 @@ def git_checkout_writes(args):
     return len([t for t in texts if not t.startswith('-')]) >= 2
 
 
-def command_targets_from_tokens(toks, cwd, mentions_commit):
+def command_targets_from_tokens(toks, cwd, mentions_commit, risky=False):
+    """`risky`: the whole command mentions git with commit, merge, rebase, cherry-pick or revert."""
     commits, adds, stack = [], [], []
     current = Path(cwd)
     env_tainted = False
+    aliases_changed = False   # an earlier command in this one changed git aliases or config files
     wrote = False   # an earlier command in this one wrote files
     for sep, words, docs, outs in split_commands(toks):
         if sep == '(':
@@ -410,6 +418,12 @@ def command_targets_from_tokens(toks, cwd, mentions_commit):
                 raise Unsafe('a variable-expanded command that may commit cannot be checked; run git commit directly')
             wrote = True
             continue
+        if name == 'alias':
+            if GIT_RISKY_TEXT.search(' '.join(x.text for x in rest[1:])) or (risky and any(x.dynamic for x in rest[1:])):
+                raise Unsafe('a shell alias that runs git commit cannot be checked; run git commit directly')
+            continue
+        if any('gitconfig' in o.text or '.git/config' in o.text or o.dynamic for o in outs):
+            aliases_changed = True
         if name == 'export':
             env_tainted = env_tainted or any(x.text.startswith(('GIT_', 'PATH=')) for x in rest[1:])
             continue
@@ -424,25 +438,30 @@ def command_targets_from_tokens(toks, cwd, mentions_commit):
         if name in SHELLS or name in RUNNERS or name in INTERPRETERS:
             text = ' '.join([x.text for x in rest[1:]] + ['\n'.join(d.lines) for d in docs])
             dynamic = name not in INTERPRETERS and mentions_commit and any(x.dynamic for x in rest[1:])
-            if GIT_RISKY_TEXT.search(text) or dynamic:
+            fed = sep in ('|', '|&') and name not in RUNNERS
+            if GIT_RISKY_TEXT.search(text) or dynamic or (fed and risky):
                 raise Unsafe('git commit run through %s cannot be checked; run git commit directly' % name)
             wrote = wrote or seg_writes or name in INTERPRETERS or name in SHELLS
             continue
         if name != 'git':
             wrote = wrote or seg_writes
             continue
-        parsed = parse_git(rest[1:], current)
+        parsed = parse_git(rest[1:], current, aliases_changed=aliases_changed)
         wrote = wrote or seg_writes
         if parsed is None:
             continue
         sub, target, args, redirected = parsed
+        if sub == 'config' and any(a.dynamic or re.match(r'(?i)(alias|include|includeif)\.', a.text) for a in args):
+            aliases_changed = True
+            continue
         if sub == 'add':
             adds.append(parse_add(args, target))
             continue
         if sub in ('checkout', 'switch'):
             wrote = wrote or git_checkout_writes(args)
             continue
-        is_branch_op = sub in BRANCH_OPS and not any(a.text in ('--abort', '--quit') for a in args)
+        # --ff-only cannot create a commit; --abort and --quit stop one.
+        is_branch_op = sub in BRANCH_OPS and not any(a.text in ('--abort', '--quit', '--ff-only') for a in args)
         if sub in GIT_FILE_WRITERS and not is_branch_op:
             wrote = True
         if sub != 'commit' and not is_branch_op:
@@ -487,7 +506,7 @@ def load_aliases(cwd, inline):
     return aliases
 
 
-def parse_git(args, cwd, depth=0):
+def parse_git(args, cwd, depth=0, aliases_changed=False):
     """Return (subcommand, cwd, rest, redirected) with aliases expanded; None when there is no subcommand."""
     i, target, redirected, inline = 0, cwd, False, {}
     while i < len(args) and args[i].text.startswith('-'):
@@ -529,6 +548,8 @@ def parse_git(args, cwd, depth=0):
     rest = args[i + 1:]
     if sub.text in GIT_BUILTINS:
         return sub.text, target, rest, redirected
+    if aliases_changed:
+        raise Unsafe('git %s may be an alias changed earlier in this command; set aliases in a separate command' % sub.text)
     if target is None or redirected:
         raise Unsafe('git %s may be an alias in a repository that cannot be resolved; use a literal path' % sub.text)
     value = load_aliases(target, inline).get(sub.text.lower())
@@ -539,7 +560,7 @@ def parse_git(args, cwd, depth=0):
     if depth >= 10:
         raise Unsafe('git alias "%s" expands too deeply to check' % sub.text)
     expansion = [t for t in lex(value)[0] if isinstance(t, Word)]
-    return parse_git(expansion + rest, target, depth + 1)
+    return parse_git(expansion + rest, target, depth + 1, aliases_changed)
 
 
 def parse_add(args, cwd):
